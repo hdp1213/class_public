@@ -2351,16 +2351,18 @@ int thermodynamics_reionization_sample(
                  pth->error_message);
 
       // old approximation from Chen and Kamionkowski:
-      // chi_heat = (1.+2.*preio->reionization_table[i*preio->re_size+preio->index_re_xe])/3.;
+      chi_heat = (1.+2.*preio->reionization_table[i*preio->re_size+preio->index_re_xe])/3.;
 
       // coefficient as revised by Slatyer et al. 2013
       // (in fact it is a fit by Vivian Poulin of columns 1 and 2 in Table V
       // of Slatyer et al. 2013):
+      /*
       xe = preio->reionization_table[i*preio->re_size+preio->index_re_xe];
       if (xe < 1.)
         chi_heat = MIN(0.996857*(1.-pow(1.-pow(xe,0.300134),1.51035)),1);
       else
         chi_heat = 1.;
+      /**/
 
       dTdz+= -2./(3.*_k_B_)*energy_rate*chi_heat
         /(preco->Nnow*pow(1.+z,3))/(1.+preco->fHe+preio->reionization_table[i*preio->re_size+preio->index_re_xe])
@@ -3338,19 +3340,21 @@ int thermodynamics_derivs_with_recfast(
 
     /* - old approximation from Chen and Kamionkowski: */
 
-    //chi_ion_H = (1.-x)/3.;
+    chi_ion_H = (1.-x)/3.;
 
     /* coefficient as revised by Slatyer et al. 2013 (in fact it is a fit by Vivian Poulin of columns 1 and 2 in Table V of Slatyer et al. 2013): */
 
+    /*
     if (x < 1.)
       chi_ion_H = 0.369202*pow(1.-pow(x,0.463929),1.70237);
     else
       chi_ion_H = 0.;
+    /**/
 
     /* evolution of hydrogen ionisation fraction: */
 
     dy[0] = (x*x_H*n*Rdown - Rup*(1.-x_H)*exp(-preco->CL/Tmat)) * C / (Hz*(1.+z))       /* Peeble's equation with fudged factors */
-      -energy_rate*chi_ion_H/n*(1./_L_H_ion_+(1.-C)/_L_H_alpha_)/(_h_P_*_c_*Hz*(1.+z)); /* energy injection (neglect fraction going to helium) */
+      -energy_rate*chi_ion_H/n*(C./_L_H_ion_+(1.-C)/_L_H_alpha_)/(_h_P_*_c_*Hz*(1.+z)); /* energy injection (neglect fraction going to helium) */
 
   }
 
@@ -3398,13 +3402,15 @@ int thermodynamics_derivs_with_recfast(
   else {
     /* equations modified to take into account energy injection from dark matter */
 
-    //chi_heat = (1.+2.*preio->reionization_table[i*preio->re_size+preio->index_re_xe])/3.; // old approximation from Chen and Kamionkowski
+    chi_heat = (1.+2.*x)/3.; // old approximation from Chen and Kamionkowski
 
     // coefficient as revised by Slatyer et al. 2013 (in fact it is a fit by Vivian Poulin of columns 1 and 2 in Table V of Slatyer et al. 2013)
+    /*
     if (x < 1.)
       chi_heat = MIN(0.996857*(1.-pow(1.-pow(x,0.300134),1.51035)),1);
     else
       chi_heat = 1.;
+    /**/
 
     dy[2]= preco->CT * pow(Trad,4) * x / (1.+x+preco->fHe) * (Tmat-Trad) / (Hz*(1.+z)) + 2.*Tmat/(1.+z)
       -2./(3.*_k_B_)*energy_rate*chi_heat/n/(1.+preco->fHe+x)/(Hz*(1.+z)); /* energy injection */
