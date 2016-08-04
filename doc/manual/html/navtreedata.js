@@ -33,7 +33,7 @@ var NAVTREEINDEX =
 "output_8h_source.html",
 "perturbations_8h.html#adda35d646eba2eabc09a21861effb845",
 "spectra_8h.html#a82a56f7919678728f1a9b695deabc104",
-"transfer_8c.html"
+"thermodynamics_8h_source.html"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

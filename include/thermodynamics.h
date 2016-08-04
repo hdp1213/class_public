@@ -26,7 +26,8 @@ enum reionization_parametrization {
   reio_camb,  /**< reionization parameterized like in CAMB */
   reio_bins_tanh,  /**< binned reionization history with tanh inteprolation between bins */
   reio_half_tanh,  /**< half a tanh, instead of the full tanh */
-  reio_many_tanh   /**< similar to reio_camb but with more than one tanh */
+  reio_many_tanh,  /**< similar to reio_camb but with more than one tanh */
+  reio_step        /**< immediate step function at reionization redshift */
 };
 
 /**
@@ -107,6 +108,10 @@ struct thermo
   double * many_tanh_xe; /**< imposed \f$ X_e(z)\f$ value at the end of each jump (ie at later times)*/
 
   double many_tanh_width; /**< sharpness of tanh() steps */
+
+  /** parameters for reio_step */
+
+  double step_width; /**< width of reionization (added 2016-08-03) */
 
   /** parameters for energy injection */
 
@@ -412,6 +417,10 @@ struct reionization {
   int index_reio_first_z; /**< redshift at which we start to impose reionization function */
   int index_reio_first_xe; /**< ionization fraction at redshift first_z (inferred from recombination code) */
   int index_reio_step_sharpness; /**< sharpness of tanh jump */
+
+  /* parameters used by reio_step */
+
+  int index_step_width; /**< width defining duration of tanh step */
 
   /* parameters used by all schemes */
 

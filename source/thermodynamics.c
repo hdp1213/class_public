@@ -809,6 +809,14 @@ int thermodynamics_init(
     if (pth->reio_parametrization == reio_many_tanh) {
       printf(" -> many-step reionization gives optical depth = %f\n",pth->tau_reio);
     }
+    if (pth->reio_parametrization == reio_step) {
+      if (pth->reio_z_or_tau==reio_z)
+        printf(" -> reionization with optical depth = %f\n",pth->tau_reio);
+      class_call(background_tau_of_z(pba,pth->z_reio,&tau_reio),
+                 pba->error_message,
+                 pth->error_message);
+      printf("    corresponding to conformal time = %f Mpc\n",tau_reio);
+    }
     if (pth->thermodynamics_verbose > 1) {
       printf(" -> free-streaming approximation can be turned on as soon as tau=%g Mpc\n",
              pth->tau_free_streaming);
@@ -1008,6 +1016,19 @@ int thermodynamics_indices(
     preio->index_reio_first_xe = index;
     index+= preio->reio_num_z;
     preio->index_reio_step_sharpness = index;
+    index++;
+
+    preio->reio_num_params = index;
+  }
+
+  /* case where x_e(z) taken to be step like in 0905.0003 */
+  if (pth->reio_parametrization == reio_step) {
+
+    preio->index_reio_redshift = index;
+    index++;
+    preio->index_reio_xe_before = index;
+    index++;
+    preio->index_reio_xe_after = index;
     index++;
 
     preio->reio_num_params = index;
@@ -1591,6 +1612,30 @@ int thermodynamics_reionization_function(
 
   }
 
+  /** - implementation of ionization function used in 0905.0003 */
+
+  if (pth->reio_parametrization == reio_step) {
+
+    /** - --> case z > z_reio_start: keep same xe as before */
+
+    if (z > preio->reionization_parameters[preio->index_reio_start]) {
+
+      *xe = preio->reionization_parameters[preio->index_reio_xe_before];
+
+    }
+
+    /** - --> case z < z_reio_start: set to one (or fully ionized) */
+
+    else {
+
+      *xe = preio->reionization_parameters[preio->index_reio_xe_after];
+      
+    }
+    
+    return _SUCCESS_;
+    
+  }
+  
   class_test(0 == 0,
              pth->error_message,
              "value of reio_parametrization=%d unclear",pth->reio_parametrization);
@@ -1754,7 +1799,7 @@ int thermodynamics_reionization(
 
     }
 
-    /** - --> if reionization optical depth given as an input, find reionization redshift by dichotomy and initialize the remaining values */
+    /** - --> if reionization optical depth given as an input, find reionization redshift by dichotomy and: initialize the remaining values/do the same thing as when redshift was given as input */
 
     if (pth->reio_z_or_tau == reio_tau) {
 
@@ -1861,6 +1906,8 @@ int thermodynamics_reionization(
 
   }
 
+  /** - (b) if reionization uses tanh bins */
+
   if (pth->reio_parametrization == reio_bins_tanh) {
 
     /* this algorithm requires at least two bin centers (i.e. at least
@@ -1950,6 +1997,8 @@ int thermodynamics_reionization(
     return _SUCCESS_;
 
   }
+
+  /** - (c) if reionization uses many tanh steps */
 
   if (pth->reio_parametrization == reio_many_tanh) {
 
@@ -2064,6 +2113,54 @@ int thermodynamics_reionization(
 
     return _SUCCESS_;
 
+  }
+
+  /** - (d) if reionization uses discontinuous step (added 2016-08-02) */
+
+  if (pth->reio_parametrization == reio_step) {
+
+    /** - --> set value of xe after reionisation */
+
+    //preio->reionization_parameters[preio->index_reio_xe_after] = 1. + pth->YHe/(_not4_*(1.-pth->YHe));    /* xe_after_reio: H + singly ionized He (note: segmentation fault impossible, checked before that denominator is non-zero) */
+    preio->reionization_parameters[preio->index_reio_xe_after] = 1.; /* xe_after_reio: neglect He ionization */
+    //+ 2.*pth->YHe/(_not4_*(1.-pth->YHe));    /* xe_after_reio: H + fully ionized He */
+    
+    /** - --> initialize the remaining values and fill reionization table. Note this parametrisation assumes reionization redshift is given as input!*/
+
+    if (pth->reio_z_or_tau == reio_z) {
+
+      /* reionization redshift */
+      preio->reionization_parameters[preio->index_reio_redshift] = pth->z_reio;
+
+      /* infer starting redshift */
+      preio->reionization_parameters[preio->index_reio_start] = pth->z_reio;
+      
+      class_test(preio->reionization_parameters[preio->index_reio_start] > ppr->reionization_z_start_max,
+                 pth->error_message,
+                 "starting redshift for reionization > reionization_z_start_max = %e\n",ppr->reionization_z_start_max);
+
+      /* infer xe_before_reio */
+      class_call(thermodynamics_get_xe_before_reionization(ppr,
+                                                           pth,
+                                                           preco,
+                                                           preio->reionization_parameters[preio->index_reio_start],
+                                                           &(preio->reionization_parameters[preio->index_reio_xe_before])),
+                 pth->error_message,
+                 pth->error_message);
+
+      /* fill reionization table */
+      class_call(thermodynamics_reionization_sample(ppr,pba,pth,preco,preio,pvecback),
+                 pth->error_message,
+                 pth->error_message);
+
+      pth->tau_reio=preio->reionization_optical_depth;
+
+    }
+
+    free(preio->reionization_parameters);
+
+    return _SUCCESS_;
+    
   }
 
   class_test(0 == 0,
@@ -3354,7 +3451,7 @@ int thermodynamics_derivs_with_recfast(
     /* evolution of hydrogen ionisation fraction: */
 
     dy[0] = (x*x_H*n*Rdown - Rup*(1.-x_H)*exp(-preco->CL/Tmat)) * C / (Hz*(1.+z))       /* Peeble's equation with fudged factors */
-      -energy_rate*chi_ion_H/n*(C./_L_H_ion_+(1.-C)/_L_H_alpha_)/(_h_P_*_c_*Hz*(1.+z)); /* energy injection (neglect fraction going to helium) */
+      -energy_rate*chi_ion_H/n*(C/_L_H_ion_+(1.-C)/_L_H_alpha_)/(_h_P_*_c_*Hz*(1.+z)); /* energy injection (neglect fraction going to helium) */
 
   }
 

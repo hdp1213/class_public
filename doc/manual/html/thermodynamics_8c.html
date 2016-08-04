@@ -829,7 +829,10 @@ Functions</h2></td></tr>
 <li>implementation of binned ionization function similar to astro-ph/0606552</li>
 <li>&ndash;&gt; case z &gt; z_reio_start</li>
 <li>implementation of many tanh jumps</li>
-<li>&ndash;&gt; case z &gt; z_reio_start </li>
+<li>&ndash;&gt; case z &gt; z_reio_start</li>
+<li>implementation of ionization function used in 0905.0003</li>
+<li>&ndash;&gt; case z &gt; z_reio_start: keep same xe as before</li>
+<li>&ndash;&gt; case z &lt; z_reio_start: set to one (or fully ionized) </li>
 </ul>
 
 <p><div id="dynsection-11" onclick="return toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;">
@@ -989,7 +992,12 @@ Functions</h2></td></tr>
 <li>(a) if reionization implemented like in CAMB</li>
 <li>&ndash;&gt; set values of these parameters, excepted those depending on the reionization redshift</li>
 <li>&ndash;&gt; if reionization redshift given as an input, initialize the remaining values and fill reionization table</li>
-<li>&ndash;&gt; if reionization optical depth given as an input, find reionization redshift by dichotomy and initialize the remaining values </li>
+<li>&ndash;&gt; if reionization optical depth given as an input, find reionization redshift by dichotomy and: initialize the remaining values/do the same thing as when redshift was given as input</li>
+<li>(b) if reionization uses tanh bins</li>
+<li>(c) if reionization uses many tanh steps</li>
+<li>(d) if reionization uses discontinuous step (added 2016-08-02)</li>
+<li>&ndash;&gt; set value of xe after reionisation</li>
+<li>&ndash;&gt; initialize the remaining values and fill reionization table. Note this parametrisation assumes reionization redshift is given as input! </li>
 </ul>
 
 <p><div id="dynsection-13" onclick="return toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;">
@@ -1668,7 +1676,7 @@ Functions</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="dir_b2f33c71d4aa5e7af42a1ca61ff5af1b.html">source</a></li><li class="navelem"><a class="el" href="thermodynamics_8c.html">thermodynamics.c</a></li>
-    <li class="footer">Generated on Sat Jul 16 2016 01:40:34 for CLASS MANUAL by
+    <li class="footer">Generated on Tue Aug 2 2016 15:32:13 for CLASS MANUAL by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.11 </li>
   </ul>

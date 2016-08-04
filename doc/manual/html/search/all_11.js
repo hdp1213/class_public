@@ -45,6 +45,7 @@ var searchData=
   ['reio_5fnum_5fparams',['reio_num_params',['../thermodynamics_8h.html#a257eb4f1d42be0cc0f3f3a95104b41be',1,'reionization']]],
   ['reio_5fnum_5fz',['reio_num_z',['../thermodynamics_8h.html#ad19f164a09a190e6d34f46331750e61c',1,'reionization']]],
   ['reio_5fparametrization',['reio_parametrization',['../thermodynamics_8h.html#a933d64335c2f8d29ac8966d311e76902',1,'thermo']]],
+  ['reio_5fstep',['reio_step',['../thermodynamics_8h.html#a355aa0469515c247f71668a5be5f4cc0a7266303e50a5af912df2dd2e58b1dc51',1,'thermodynamics.h']]],
   ['reio_5ftau',['reio_tau',['../thermodynamics_8h.html#abfa56c8448beea105d10a6e89742e3a0a9f890480f05a227d5dd8377011c44a10',1,'thermodynamics.h']]],
   ['reio_5fz',['reio_z',['../thermodynamics_8h.html#abfa56c8448beea105d10a6e89742e3a0a1612a14c9af1b5a5e092580c8cdb1c7a',1,'thermodynamics.h']]],
   ['reio_5fz_5for_5ftau',['reio_z_or_tau',['../thermodynamics_8h.html#aa911a8bfc092639aef86ba60351a3b0c',1,'thermo']]],

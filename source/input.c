@@ -1094,13 +1094,17 @@ int input_read_parameters(
       pth->reio_parametrization=reio_many_tanh;
       flag2=_TRUE_;
     }
+    if (strcmp(string1,"reio_step") == 0) {
+      pth->reio_parametrization=reio_step;
+      flag2=_TRUE_;
+    }
 
     class_test(flag2==_FALSE_,
                errmsg,
-               "could not identify reionization_parametrization value, check that it is one of 'reio_none', 'reio_camb', 'reio_bins_tanh', 'reio_half_tanh', 'reio_many_tanh'...");
+               "could not identify reionization_parametrization value, check that it is one of 'reio_none', 'reio_camb', 'reio_bins_tanh', 'reio_half_tanh', 'reio_many_tanh', 'reio_step'...");
   }
 
-  /** - reionization parameters if reio_parametrization=reio_camb */
+  /** - reionization parameters if reio_parametrization=reio_camb or reio_half_tanh */
   if ((pth->reio_parametrization == reio_camb) || (pth->reio_parametrization == reio_half_tanh)){
     class_call(parser_read_double(pfc,"z_reio",&param1,&flag1,errmsg),
                errmsg,
@@ -1141,6 +1145,27 @@ int input_read_parameters(
     class_read_list_of_doubles("many_tanh_z",pth->many_tanh_z,pth->many_tanh_num);
     class_read_list_of_doubles("many_tanh_xe",pth->many_tanh_xe,pth->many_tanh_num);
     class_read_double("many_tanh_width",pth->many_tanh_width);
+  }
+
+  /** - reionization parameters if reio_parametrization=reio_step */
+  if (pth->reio_parametrization == reio_step) {
+    class_call(parser_read_double(pfc,"z_reio",&param1,&flag1,errmsg),
+               errmsg,
+               errmsg);
+    class_call(parser_read_double(pfc,"tau_reio",&param2,&flag2,errmsg),
+               errmsg,
+               errmsg);
+    class_test(((flag1 == _TRUE_) && (flag2 == _TRUE_)),
+               errmsg,
+               "In input file, you can only enter one of z_reio or tau_reio, choose one");
+    if (flag1 == _TRUE_) {
+      pth->z_reio=param1;
+      pth->reio_z_or_tau=reio_z;
+    }
+    if (flag2 == _TRUE_) {
+      pth->tau_reio=param2;
+      pth->reio_z_or_tau=reio_tau;
+    }
   }
 
   /** - energy injection parameters from CDM annihilation/decay */
