@@ -13,14 +13,14 @@
 //-------------------------
 // C++
 //--------------------
-#include<iostream>
+#include <iostream>
 #include <iomanip>
-#include<string>
-#include<cmath>
+#include <string>
+#include <cmath>
 #include <stdexcept>
-#include<sstream>
-#include<numeric>
-#include<cassert>
+#include <sstream>
+#include <numeric>
+#include <cassert>
 
 //#define DBUG
 
@@ -521,7 +521,7 @@ double ClassEngine::get_Az(double z)
   double Dv = get_Dv(z);
   // A(z)=100DV(z)sqrt(~mh2)/cz
   double omega_bidon = 0.12 ;
-  double Az = 100.*Dv*sqrt(omega_bidon)/(3.e8*z); // is there speed of light somewhere ? 
+  double Az = 100.*Dv*sqrt(omega_bidon)/(_c_ * z);
 }
 //      --------------------------
 
@@ -548,7 +548,7 @@ double ClassEngine::get_Dv(double z)
 #endif
   double D_v;
 
-  D_v=pow(D_ang*(1+z),2)*z/H_z;
+  D_v=pow(D_ang*(1+z),2)*z/H_z; // H_z is given in Mpc^-1 (i.e. H_z * c)
   D_v=pow(D_v,1./3.);
 #ifdef DBUG
   cout << D_v << endl;

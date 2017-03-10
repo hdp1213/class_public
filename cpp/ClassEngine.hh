@@ -17,14 +17,14 @@
 #define ClassEngine_hh
 
 //CLASS
-#include"class.h"
+#include "class.h"
 
-#include"Engine.hh"
+#include "Engine.hh"
 //STD
-#include<string>
-#include<vector>
-#include<utility>
-#include<ostream>
+#include <string>
+#include <vector>
+#include <utility>
+#include <ostream>
 
 using std::string;
 

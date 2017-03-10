@@ -16,8 +16,8 @@
 #ifndef Engine_hh
 #define Engine_hh
 
-#include<vector>
-#include<ostream>
+#include <vector>
+#include <ostream>
 
 class Engine
 {
