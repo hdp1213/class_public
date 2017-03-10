@@ -3175,7 +3175,7 @@ int thermodynamics_derivs_with_recfast(
 
   /* define local variables */
 
-  double x,n,n_He,Trad,Tmat,x_H,x_He,Hz,dHdz,epsilon;
+  double x_e,n_H,n_He,Trad,Tmat,x_H,x_He,Hz,dHdz,epsilon;
   double Rup,Rdown,K,K_He,Rup_He,Rdown_He,He_Boltz;
   double timeTh,timeH;
   double sq_0,sq_1;
@@ -3210,11 +3210,11 @@ int thermodynamics_derivs_with_recfast(
 
   x_H = y[0];
   x_He = y[1];
-  x = x_H + preco->fHe * x_He;
+  x_e = x_H + preco->fHe * x_He;
   Tmat = y[2];
 
-  n = preco->Nnow * (1.+z) * (1.+z) * (1.+z);
-  n_He = preco->fHe * n;
+  n_H = preco->Nnow * (1.+z) * (1.+z) * (1.+z);
+  n_He = preco->fHe * n_H;
   Trad = preco->Tnow * (1.+z);
 
   class_call(background_tau_of_z(pba,
@@ -3313,7 +3313,7 @@ int thermodynamics_derivs_with_recfast(
 
   /* end of new recfast 1.4 piece */
 
-  timeTh=(1./(preco->CT*pow(Trad,4)))*(1.+x+preco->fHe)/x;
+  timeTh=(1./(preco->CT*pow(Trad,4)))*(1.+x_e+preco->fHe)/x_e;
   timeH=2./(3.*preco->H0*pow(1.+z,1.5));
 
   /************/
@@ -3327,7 +3327,7 @@ int thermodynamics_derivs_with_recfast(
     /* Peebles' coefficient (approximated as one when the Hydrogen
        ionization fraction is very close to one) */
     if (x_H < ppr->recfast_x_H0_trigger2) {
-      C = (1. + K*_Lambda_*n*(1.-x_H))/(1./preco->fu+K*_Lambda_*n*(1.-x_H)/preco->fu +K*Rup*n*(1.-x_H));
+      C = (1. + K*_Lambda_*n_H*(1.-x_H))/(1./preco->fu+K*_Lambda_*n_H*(1.-x_H)/preco->fu +K*Rup*n_H*(1.-x_H));
     }
     else {
       C = 1.;
@@ -3338,19 +3338,19 @@ int thermodynamics_derivs_with_recfast(
 
     /* - old approximation from Chen and Kamionkowski: */
 
-    //chi_ion_H = (1.-x)/3.;
+    //chi_ion_H = (1.-x_e)/3.;
 
     /* coefficient as revised by Slatyer et al. 2013 (in fact it is a fit by Vivian Poulin of columns 1 and 2 in Table V of Slatyer et al. 2013): */
 
-    if (x < 1.)
-      chi_ion_H = 0.369202*pow(1.-pow(x,0.463929),1.70237);
+    if (x_e < 1.)
+      chi_ion_H = 0.369202*pow(1.-pow(x_e,0.463929),1.70237);
     else
       chi_ion_H = 0.;
 
     /* evolution of hydrogen ionisation fraction: */
 
-    dy[0] = (x*x_H*n*Rdown - Rup*(1.-x_H)*exp(-preco->CL/Tmat)) * C / (Hz*(1.+z))       /* Peeble's equation with fudged factors */
-      -energy_rate*chi_ion_H/n*(1./_L_H_ion_+(1.-C)/_L_H_alpha_)/(_h_P_*_c_*Hz*(1.+z)); /* energy injection (neglect fraction going to helium) */
+    dy[0] = (x_e*x_H*n_H*Rdown - Rup*(1.-x_H)*exp(-preco->CL/Tmat)) * C / (Hz*(1.+z))       /* Peeble's equation with fudged factors */
+      -energy_rate*chi_ion_H/n_H*(1./_L_H_ion_+(1.-C)/_L_H_alpha_)/(_h_P_*_c_*Hz*(1.+z)); /* energy injection (neglect fraction going to helium) */
 
   }
 
@@ -3370,7 +3370,7 @@ int thermodynamics_derivs_with_recfast(
     /* equations modified to take into account energy injection from dark matter */
     //C_He=(1. + K_He*_Lambda_He_*n_He*(1.-x_He)*He_Boltz)/(1. + K_He*(_Lambda_He_+Rup_He)*n_He*(1.-x_He)*He_Boltz);
 
-    dy[1] = ((x*x_He*n*Rdown_He - Rup_He*(1.-x_He)*exp(-preco->CL_He/Tmat))
+    dy[1] = ((x_e*x_He*n_H*Rdown_He - Rup_He*(1.-x_He)*exp(-preco->CL_He/Tmat))
              *(1. + K_He*_Lambda_He_*n_He*(1.-x_He)*He_Boltz))
       /(Hz*(1+z)* (1. + K_He*(_Lambda_He_+Rup_He)*n_He*(1.-x_He)*He_Boltz)); /* in case of energy injection due to DM, we neglect the contribution to helium ionization */
 
@@ -3379,7 +3379,7 @@ int thermodynamics_derivs_with_recfast(
 
     if (Heflag >= 3)
       dy[1] = dy[1] +
-        (x*x_He*n*Rdown_trip
+        (x_e*x_He*n_H*Rdown_trip
          - (1.-x_He)*3.*Rup_trip*exp(-_h_P_*_c_*_L_He_2St_/(_k_B_*Tmat)))
         *CfHe_t/(Hz*(1.+z));
 
@@ -3391,8 +3391,8 @@ int thermodynamics_derivs_with_recfast(
     /*   dy[2]=Tmat/(1.+z); */
     /* v 1.5: like in camb, add here a smoothing term as suggested by Adam Moss */
     dHdz=-pvecback[pba->index_bg_H_prime]/pvecback[pba->index_bg_H]/pba->a_today* _c_ / _Mpc_over_m_;
-    epsilon = Hz * (1.+x+preco->fHe) / (preco->CT*pow(Trad,3)*x);
-    dy[2] = preco->Tnow + epsilon*((1.+preco->fHe)/(1.+preco->fHe+x))*((dy[0]+preco->fHe*dy[1])/x)
+    epsilon = Hz * (1.+x_e+preco->fHe) / (preco->CT*pow(Trad,3)*x_e);
+    dy[2] = preco->Tnow + epsilon*((1.+preco->fHe)/(1.+preco->fHe+x_e))*((dy[0]+preco->fHe*dy[1])/x_e)
       - epsilon* dHdz/Hz + 3.*epsilon/(1.+z);
   }
   else {
@@ -3401,13 +3401,13 @@ int thermodynamics_derivs_with_recfast(
     //chi_heat = (1.+2.*preio->reionization_table[i*preio->re_size+preio->index_re_xe])/3.; // old approximation from Chen and Kamionkowski
 
     // coefficient as revised by Slatyer et al. 2013 (in fact it is a fit by Vivian Poulin of columns 1 and 2 in Table V of Slatyer et al. 2013)
-    if (x < 1.)
-      chi_heat = MIN(0.996857*(1.-pow(1.-pow(x,0.300134),1.51035)),1);
+    if (x_e < 1.)
+      chi_heat = MIN(0.996857*(1.-pow(1.-pow(x_e,0.300134),1.51035)),1);
     else
       chi_heat = 1.;
 
-    dy[2]= preco->CT * pow(Trad,4) * x / (1.+x+preco->fHe) * (Tmat-Trad) / (Hz*(1.+z)) + 2.*Tmat/(1.+z)
-      -2./(3.*_k_B_)*energy_rate*chi_heat/n/(1.+preco->fHe+x)/(Hz*(1.+z)); /* energy injection */
+    dy[2]= preco->CT * pow(Trad,4) * x_e / (1.+x_e+preco->fHe) * (Tmat-Trad) / (Hz*(1.+z)) + 2.*Tmat/(1.+z)
+      -2./(3.*_k_B_)*energy_rate*chi_heat/n_H/(1.+preco->fHe+x_e)/(Hz*(1.+z)); /* energy injection */
   }
 
   return _SUCCESS_;
