@@ -1,6 +1,7 @@
 <map id="primordial_free" name="primordial_free">
-<area shape="rect" id="node2" href="$input_8c.html#a8902799b68422227ff6a3293ebd6bd94" title="input_try_unknown_parameters" alt="" coords="312,5,515,32"/>
-<area shape="rect" id="node5" href="$primordial_8c.html#aa8514e84606dae204881c26add8347fd" title="primordial_init" alt="" coords="161,31,263,57"/>
-<area shape="rect" id="node3" href="$input_8c.html#a31052a91cf14f73d6f2bb0e7874429fb" title="input_init" alt="" coords="563,5,637,32"/>
-<area shape="rect" id="node4" href="$input_8c.html#a40aecd22732b07db752cb4bc34e55ad4" title="input_init_from_arguments" alt="" coords="686,5,861,32"/>
+<area shape="rect" id="node2" href="$input_8c.html#a8902799b68422227ff6a3293ebd6bd94" title="input_try_unknown_parameters" alt="" coords="311,31,513,57"/>
+<area shape="rect" id="node6" href="$primordial_8c.html#aa8514e84606dae204881c26add8347fd" title="primordial_init" alt="" coords="160,56,263,83"/>
+<area shape="rect" id="node3" href="$input_8c.html#a31052a91cf14f73d6f2bb0e7874429fb" title="input_init" alt="" coords="601,5,676,32"/>
+<area shape="rect" id="node5" href="$input_8c.html#a0b2960329fe47db0b2793700ddd4a604" title="get_machine_precision" alt="" coords="561,56,716,83"/>
+<area shape="rect" id="node4" href="$input_8c.html#a40aecd22732b07db752cb4bc34e55ad4" title="input_init_from_arguments" alt="" coords="764,5,939,32"/>
 </map>
