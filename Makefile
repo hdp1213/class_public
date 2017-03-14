@@ -17,8 +17,8 @@ vpath .base build
 ########################################################
 
 # your C compiler:
-CC       = gcc
-#CC       = icc
+# CC       = gcc
+CC       = icc
 #CC       = pgcc
 
 # your tool for creating static libraries:
@@ -28,12 +28,12 @@ AR        = ar rv
 PYTHON = python
 
 # your optimization flag
-OPTFLAG = -O4 -ffast-math #-march=native
-#OPTFLAG = -Ofast -ffast-math #-march=native
+# OPTFLAG = -O4 -ffast-math #-march=native
+OPTFLAG = -Ofast #-march=native
 #OPTFLAG = -fast
 
 # your openmp flag (comment for compiling without openmp)
-OMPFLAG   = -fopenmp
+OMPFLAG   = -qopenmp
 #OMPFLAG   = -mp -mp=nonuma -mp=allcores -g
 #OMPFLAG   = -openmp
 
