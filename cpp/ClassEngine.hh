@@ -111,13 +111,35 @@ public:
   double get_Hz(double z);
   double get_Az(double z);
 
-  double getTauReio() const {return th.tau_reio;}
+  inline double getTauReio() const {return th.tau_reio;}
 
   //may need that
-  inline int numCls() const {return sp.ct_size;};
+  inline int numCls() const {return sp.ct_size;}
   inline double Tcmb() const {return ba.T_cmb;}
 
   inline int l_max_scalars() const {return _lmax;}
+
+  // Derived parameters
+  // Get H0 in km s^-1 Mpc^-1
+  inline double get_H0() const {return ba.H0 * _c_ / 1000.0;}
+  // Get Omega_b
+  inline double get_Omega_b() const {return ba.Omega0_b;}
+  // Get Omega_cdm
+  inline double get_Omega_cdm() const {return ba.Omega0_cdm;}
+  // Get Omega_Lambda
+  inline double get_Omega_L() const {return ba.Omega0_lambda;}
+  // Get Omega_g
+  inline double get_Omega_g() const {return ba.Omega0_g;}
+  // Get Omega_k
+  inline double get_Omega_k() const {return ba.Omega0_k;}
+  // Get sigma8 perturbation parameter
+  inline double get_sigma8() const {return sp.sigma8;}
+  // Get age in giga years
+  inline double get_age() const {return ba.age;}
+  // Get conformal age in Mpc
+  inline double get_conf_age() const {return ba.conformal_age;}
+  // Get curvature parameter K
+  inline double get_K() const {return ba.K;}
 
   //print content of file_content
   void printFC();

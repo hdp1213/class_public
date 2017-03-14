@@ -1,7 +1,7 @@
 //--------------------------------------------------------------------------
 //
 // Description:
-// 	class ClassEngine : see header file (ClassEngine.hh) for description.
+//  class ClassEngine : see header file (ClassEngine.hh) for description.
 //
 //------------------------------------------------------------------------
 //-----------------------
@@ -189,7 +189,7 @@ bool ClassEngine::updateParValues(const std::vector<double>& par){
     strcpy(fc.value[i],str(val).c_str());
     strcpy(fc.name[i],parNames[i].c_str());
 #ifdef DBUG
-    cout << "update par values #" << i << "\t" <<  val << "\t" << str(val).c_str() << endl;
+    cout << "update par values " << parNames[i] << "\t" <<  val << "\t" << str(val).c_str() << endl;
 #endif
   }
   int status=computeCls();
@@ -208,18 +208,18 @@ void ClassEngine::printFC() {
 
 }
 int ClassEngine::class_main(
-			    struct file_content *pfc,
-			    struct precision * ppr,
-			    struct background * pba,
-			    struct thermo * pth,
-			    struct perturbs * ppt,
-			    struct transfers * ptr,
-			    struct primordial * ppm,
-			    struct spectra * psp,
-			    struct nonlinear * pnl,
-			    struct lensing * ple,
-			    struct output * pop,
-			    ErrorMsg errmsg) {
+                            struct file_content *pfc,
+                            struct precision * ppr,
+                            struct background * pba,
+                            struct thermo * pth,
+                            struct perturbs * ppt,
+                            struct transfers * ptr,
+                            struct primordial * ppm,
+                            struct spectra * psp,
+                            struct nonlinear * pnl,
+                            struct lensing * ple,
+                            struct output * pop,
+                            ErrorMsg errmsg) {
   
 
   if (input_init(pfc,ppr,pba,pth,ppt,ptr,ppm,psp,pnl,ple,pop,errmsg) == _FAILURE_) {
@@ -417,10 +417,10 @@ ClassEngine::getCl(Engine::cltype t,const long &l){
 }
 void 
 ClassEngine::getCls(const std::vector<unsigned>& lvec, //input 
-		      std::vector<double>& cltt, 
-		      std::vector<double>& clte, 
-		      std::vector<double>& clee, 
-		      std::vector<double>& clbb)
+                    std::vector<double>& cltt,
+                    std::vector<double>& clte,
+                    std::vector<double>& clee,
+                    std::vector<double>& clbb)
 {
   cltt.resize(lvec.size());
   clte.resize(lvec.size());
@@ -443,9 +443,9 @@ ClassEngine::getCls(const std::vector<unsigned>& lvec, //input
  
 bool 
 ClassEngine::getLensing(const std::vector<unsigned>& lvec, //input 
-		std::vector<double>& clpp    , 
-		std::vector<double>& cltp  , 
-		std::vector<double>& clep  ){
+                        std::vector<double>& clpp,
+                        std::vector<double>& cltp,
+                        std::vector<double>& clep){
  
 
   clpp.resize(lvec.size());
