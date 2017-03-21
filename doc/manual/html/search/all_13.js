@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['the_20_60external_5fpk_60_20mode',['The `external_Pk` mode',['../md__home_harry_Documents_git-repos_class_harry_external_Pk_README.html',1,'']]],
+  ['the_20_60external_5fpk_60_20mode',['The `external_Pk` mode',['../md__home_harry_Documents_git-repos_class_external_Pk_README.html',1,'']]],
   ['t_5fcmb',['T_cmb',['../background_8h.html#aacce0972bf2d6ba25b4fa6ebb0cbf42a',1,'background']]],
   ['t_5fncdm_5fdefault',['T_ncdm_default',['../background_8h.html#a10ccd157c2ca672eec8a402cdb330054',1,'background']]],
   ['target_5fnames',['target_names',['../input_8h.html#a2ab2421221f92f632c015f3d088f047c',1,'input.h']]],

@@ -1,5 +1,6 @@
 var searchData=
 [
+  ['pbh_5fmass_5fdistributions',['pbh_mass_distributions',['../thermodynamics_8h.html#a7685805608e0418b30718ae8b1c77fd4',1,'thermodynamics.h']]],
   ['phi_5fpivot_5fmethods',['phi_pivot_methods',['../primordial_8h.html#ad4961aeb87c56f59f886b346f898793a',1,'primordial.h']]],
   ['pk_5fdef',['pk_def',['../common_8h.html#aab161982846c9e414cccea37822f4b0c',1,'common.h']]],
   ['possible_5fgauges',['possible_gauges',['../perturbations_8h.html#a393651984401ac059c225aed80e4862c',1,'perturbations.h']]],

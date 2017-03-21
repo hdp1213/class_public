@@ -39,6 +39,16 @@ enum reionization_z_or_tau {
 };
 
 /**
+ * List of possible primordial black hole mass distributions
+ */
+
+enum pbh_mass_distributions {
+  pbh_none, /**< default no mass distribution */
+  pbh_delta, /**< delta distribution localized at given mean mass */
+  pbh_log_norm  /**< log normal distribution */
+};
+
+/**
  * Two useful smooth step functions, for smoothing transitions in recfast.
  */
 
@@ -70,6 +80,8 @@ struct thermo
 
   enum reionization_z_or_tau reio_z_or_tau; /**< is the input parameter the reionization redshift or optical depth? */
 
+  enum pbh_mass_distributions pbh_mass_dist; /**< PBH mass distribution, defaults to no distribution (no evaporating PBHs) */
+
   double tau_reio; /**< if above set to tau, input value of reionization optical depth */
 
   double z_reio;   /**< if above set to z,   input value of reionization redshift */
@@ -78,7 +90,7 @@ struct thermo
 
   short compute_damping_scale; /**< do we want to compute the simplest analytic approximation to the photon damping (or diffusion) scale? */
 
-  /** parameters for reio_camb */
+  /* parameters for reio_camb */
 
   double reionization_width; /**< width of H reionization */
 
@@ -88,7 +100,7 @@ struct thermo
 
   double helium_fullreio_width; /**< width of helium reionization */
 
-  /** parameters for reio_bins_tanh */
+  /* parameters for reio_bins_tanh */
 
   int binned_reio_num; /**< with how many bins do we want to describe reionization? */
 
@@ -98,7 +110,7 @@ struct thermo
 
   double binned_reio_step_sharpness; /**< sharpness of tanh() step interpolating between binned values */
 
-    /** parameters for reio_many_tanh */
+  /* parameters for reio_many_tanh */
 
   int many_tanh_num; /**< with how many jumps do we want to describe reionization? */
 
@@ -108,15 +120,15 @@ struct thermo
 
   double many_tanh_width; /**< sharpness of tanh() steps */
 
-  /** parameters for energy injection */
+  /* parameters for DM energy injection */
 
-  double annihilation; /** parameter describing CDM annihilation (f <sigma*v> / m_cdm, see e.g. 0905.0003) */
+  double annihilation; /**< parameter describing CDM annihilation (f <sigma*v> / m_cdm, see e.g. 0905.0003) */
 
-  short has_on_the_spot; /** flag to specify if we want to use the on-the-spot approximation **/
+  short has_on_the_spot; /**< flag to specify if we want to use the on-the-spot approximation */
 
-  double decay; /** parameter describing CDM decay (f/tau, see e.g. 1109.6322)*/
+  double decay; /**< parameter describing CDM decay (f/tau, see e.g. 1109.6322)*/
 
-  double annihilation_variation; /** if this parameter is non-zero,
+  double annihilation_variation; /**< if this parameter is non-zero,
                                     the function F(z)=(f <sigma*v> /
                                     m_cdm)(z) will be a parabola in
                                     log-log scale between zmin and
@@ -126,21 +138,27 @@ struct thermo
                                     zmax; it will be constant outside
                                     this range */
 
-  double annihilation_z; /** if annihilation_variation is non-zero,
+  double annihilation_z; /**< if annihilation_variation is non-zero,
                             this is the value of z at which the
                             parameter annihilation is defined, i.e.
                             F(annihilation_z)=annihilation */
 
-  double annihilation_zmax; /** if annihilation_variation is non-zero,
+  double annihilation_zmax; /**< if annihilation_variation is non-zero,
                                redshift above which annihilation rate
                                is maximal */
 
-  double annihilation_zmin; /** if annihilation_variation is non-zero,
+  double annihilation_zmin; /**< if annihilation_variation is non-zero,
                                redshift below which annihilation rate
                                is constant */
 
-  double annihilation_f_halo; /** takes the contribution of DM annihilation in halos into account*/
-  double annihilation_z_halo; /** characteristic redshift for DM annihilation in halos*/
+  double annihilation_f_halo; /**< takes the contribution of DM annihilation in halos into account*/
+  double annihilation_z_halo; /**< characteristic redshift for DM annihilation in halos*/
+
+  /* parameters for PBH energy injection */
+
+  double pbh_mass_mean; /**< mean PBH mass in \f$ 10^{10} \f$ g */
+
+  double pbh_mass_width; /**< PBH mass dispersion/width in \f$ 10^{10} \f$ g */
 
   //@}
 
@@ -222,7 +240,7 @@ struct thermo
 
   //@}
 
-/** @name - total number density of electrons today (free or not) */
+  /** @name - total number density of electrons today (free or not) */
 
   //@{
 
@@ -311,7 +329,7 @@ struct recombination {
   double H0;  /**< H_0 in inverse seconds, defined as in RECFAST */
   double YHe; /**< defined as in RECFAST */
 
-  /* parameters for energy injection */
+  /* parameters for DM energy injection */
 
   double annihilation; /**< parameter describing CDM annihilation (f <sigma*v> / m_cdm, see e.g. 0905.0003) */
 
@@ -344,6 +362,12 @@ struct recombination {
 
   double annihilation_f_halo; /**< takes the contribution of DM annihilation in halos into account*/
   double annihilation_z_halo; /**< characteristic redshift for DM annihilation in halos*/
+
+  /* parameters for PBH energy injection */
+
+  double pbh_mass_mean; /**< mean PBH mass in \f$ 10^{10} \f$ g */
+
+  double pbh_mass_width; /**< PBH mass dispersion/width in \f$ 10^{10} \f$ g */
 
   //@}
 

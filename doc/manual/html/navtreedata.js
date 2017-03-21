@@ -4,7 +4,7 @@ var NAVTREE =
     [ "CLASS: Cosmic Linear Anisotropy Solving System", "index.html", null ],
     [ "Where to find information and documentation on CLASS?", "md_chap2.html", null ],
     [ "CLASS: Cosmic Linear Anisotropy Solving System", "md_chap3.html", null ],
-    [ "The `external_Pk` mode", "md__home_harry_Documents_git-repos_class_harry_external_Pk_README.html", null ],
+    [ "The `external_Pk` mode", "md__home_harry_Documents_git-repos_class_external_Pk_README.html", null ],
     [ "Updating the manual", "md_mod.html", null ],
     [ "Data Structures", "annotated.html", [
       [ "Data Structures", "annotated.html", "annotated_dup" ],
@@ -33,7 +33,7 @@ var NAVTREEINDEX =
 "output_8h_source.html",
 "perturbations_8h.html#adda35d646eba2eabc09a21861effb845",
 "spectra_8h.html#a82a56f7919678728f1a9b695deabc104",
-"transfer_8c.html"
+"thermodynamics_8h.html#af6bce690db2626b95cc89bbff1e9041e"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

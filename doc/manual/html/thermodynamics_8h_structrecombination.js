@@ -35,5 +35,7 @@ var thermodynamics_8h_structrecombination =
     [ "annihilation_zmax", "thermodynamics_8h.html#aaf316776a09b6e67740eeb0c0fee7a9f", null ],
     [ "annihilation_zmin", "thermodynamics_8h.html#a5c7c0f6e0a8f2757134337dc90ba1569", null ],
     [ "annihilation_f_halo", "thermodynamics_8h.html#a1ffa8b3a0310bbc9a33d6a3e5ecff09a", null ],
-    [ "annihilation_z_halo", "thermodynamics_8h.html#a694755b3b5b6e2755ef70251335ba276", null ]
+    [ "annihilation_z_halo", "thermodynamics_8h.html#a694755b3b5b6e2755ef70251335ba276", null ],
+    [ "pbh_mass_mean", "thermodynamics_8h.html#a87bd9be54a99471780484b30dba0eb40", null ],
+    [ "pbh_mass_width", "thermodynamics_8h.html#a4d6604a5075f9302df4ec9b005729e51", null ]
 ];

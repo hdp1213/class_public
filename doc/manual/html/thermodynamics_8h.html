@@ -304,6 +304,13 @@ reio_z_or_tau</td>
 <p>is the input parameter the reionization redshift or optical depth? </p>
 </td></tr>
 <tr><td class="fieldtype">
+<a class="anchor" id="ac2b214871798700c0a56accfe8f66ddd"></a>enum <a class="el" href="thermodynamics_8h.html#a7685805608e0418b30718ae8b1c77fd4">pbh_mass_distributions</a></td>
+<td class="fieldname">
+pbh_mass_dist</td>
+<td class="fielddoc">
+<p>PBH mass distribution, defaults to no distribution (no evaporating PBHs) </p>
+</td></tr>
+<tr><td class="fieldtype">
 <a class="anchor" id="a3a2458620f9e70183e0df4900abe2764"></a>double</td>
 <td class="fieldname">
 tau_reio</td>
@@ -336,7 +343,7 @@ compute_damping_scale</td>
 <td class="fieldname">
 reionization_width</td>
 <td class="fielddoc">
-<p>parameters for reio_camb width of H reionization </p>
+<p>width of H reionization </p>
 </td></tr>
 <tr><td class="fieldtype">
 <a class="anchor" id="a6ff33c2e66391af885b6726784e5b92d"></a>double</td>
@@ -364,7 +371,7 @@ helium_fullreio_width</td>
 <td class="fieldname">
 binned_reio_num</td>
 <td class="fielddoc">
-<p>parameters for reio_bins_tanh with how many bins do we want to describe reionization? </p>
+<p>with how many bins do we want to describe reionization? </p>
 </td></tr>
 <tr><td class="fieldtype">
 <a class="anchor" id="a88cd6b43f9f3ec6251d087324ce99a0f"></a>double *</td>
@@ -392,7 +399,7 @@ binned_reio_step_sharpness</td>
 <td class="fieldname">
 many_tanh_num</td>
 <td class="fielddoc">
-<p>parameters for reio_many_tanh with how many jumps do we want to describe reionization? </p>
+<p>with how many jumps do we want to describe reionization? </p>
 </td></tr>
 <tr><td class="fieldtype">
 <a class="anchor" id="a4011a979ddfb33fde348fbb9e08f0458"></a>double *</td>
@@ -420,63 +427,77 @@ many_tanh_width</td>
 <td class="fieldname">
 annihilation</td>
 <td class="fielddoc">
-<p>parameters for energy injection </p>
+<p>parameter describing CDM annihilation (f &lt;sigma*v&gt; / m_cdm, see e.g. 0905.0003) </p>
 </td></tr>
 <tr><td class="fieldtype">
 <a class="anchor" id="ab832f907a088efc0d5961151a2fde139"></a>short</td>
 <td class="fieldname">
 has_on_the_spot</td>
 <td class="fielddoc">
-<p>parameter describing CDM annihilation (f &lt;sigma*v&gt; / m_cdm, see e.g. 0905.0003) </p>
+<p>flag to specify if we want to use the on-the-spot approximation </p>
 </td></tr>
 <tr><td class="fieldtype">
 <a class="anchor" id="a2200cfa2674a5489210d32c6d0fc48cb"></a>double</td>
 <td class="fieldname">
 decay</td>
 <td class="fielddoc">
-<p>flag to specify if we want to use the on-the-spot approximation </p>
+<p>parameter describing CDM decay (f/tau, see e.g. 1109.6322) </p>
 </td></tr>
 <tr><td class="fieldtype">
 <a class="anchor" id="ae8ad0e0cfdc0249cafd89c117cf17274"></a>double</td>
 <td class="fieldname">
 annihilation_variation</td>
 <td class="fielddoc">
-<p>parameter describing CDM decay (f/tau, see e.g. 1109.6322) </p>
+<p>if this parameter is non-zero, the function F(z)=(f &lt;sigma*v&gt; / m_cdm)(z) will be a parabola in log-log scale between zmin and zmax, with a curvature given by annihlation_variation (must be negative), and with a maximum in zmax; it will be constant outside this range </p>
 </td></tr>
 <tr><td class="fieldtype">
 <a class="anchor" id="ac28c28a96161d9cd5de79197c37453bc"></a>double</td>
 <td class="fieldname">
 annihilation_z</td>
 <td class="fielddoc">
-<p>if this parameter is non-zero, the function F(z)=(f &lt;sigma*v&gt; / m_cdm)(z) will be a parabola in log-log scale between zmin and zmax, with a curvature given by annihlation_variation (must be negative), and with a maximum in zmax; it will be constant outside this range </p>
+<p>if annihilation_variation is non-zero, this is the value of z at which the parameter annihilation is defined, i.e. F(annihilation_z)=annihilation </p>
 </td></tr>
 <tr><td class="fieldtype">
 <a class="anchor" id="a2f3af4a2725b9a48ea5978319e6ab05a"></a>double</td>
 <td class="fieldname">
 annihilation_zmax</td>
 <td class="fielddoc">
-<p>if annihilation_variation is non-zero, this is the value of z at which the parameter annihilation is defined, i.e. F(annihilation_z)=annihilation </p>
+<p>if annihilation_variation is non-zero, redshift above which annihilation rate is maximal </p>
 </td></tr>
 <tr><td class="fieldtype">
 <a class="anchor" id="ac05844feb6dd9b8f8b23913fe00e5f77"></a>double</td>
 <td class="fieldname">
 annihilation_zmin</td>
 <td class="fielddoc">
-<p>if annihilation_variation is non-zero, redshift above which annihilation rate is maximal </p>
+<p>if annihilation_variation is non-zero, redshift below which annihilation rate is constant </p>
 </td></tr>
 <tr><td class="fieldtype">
 <a class="anchor" id="acd516b6887613e52e9ebc3d2616e5b70"></a>double</td>
 <td class="fieldname">
 annihilation_f_halo</td>
 <td class="fielddoc">
-<p>if annihilation_variation is non-zero, redshift below which annihilation rate is constant </p>
+<p>takes the contribution of DM annihilation in halos into account </p>
 </td></tr>
 <tr><td class="fieldtype">
 <a class="anchor" id="a64f8f97a949b86579bdc382a3ab5ae6c"></a>double</td>
 <td class="fieldname">
 annihilation_z_halo</td>
 <td class="fielddoc">
-<p>takes the contribution of DM annihilation in halos into account </p>
+<p>characteristic redshift for DM annihilation in halos </p>
+</td></tr>
+<tr><td class="fieldtype">
+<a class="anchor" id="aead163559b58749db343e3d6a50c80ad"></a>double</td>
+<td class="fieldname">
+pbh_mass_mean</td>
+<td class="fielddoc">
+<p>mean PBH mass in <img class="formulaInl" alt="$ 10^{10} $" src="form_299.png"/> g </p>
+</td></tr>
+<tr><td class="fieldtype">
+<a class="anchor" id="a032efab1c512474421da2169bc772a27"></a>double</td>
+<td class="fieldname">
+pbh_mass_width</td>
+<td class="fielddoc">
+<p>PBH mass dispersion/width in <img class="formulaInl" alt="$ 10^{10} $" src="form_299.png"/> g </p>
 </td></tr>
 <tr><td class="fieldtype">
 <a class="anchor" id="aba1579aad519a4b990438d8a15670b40"></a>int</td>
@@ -1026,6 +1047,20 @@ annihilation_f_halo</td>
 annihilation_z_halo</td>
 <td class="fielddoc">
 <p>characteristic redshift for DM annihilation in halos </p>
+</td></tr>
+<tr><td class="fieldtype">
+<a class="anchor" id="a87bd9be54a99471780484b30dba0eb40"></a>double</td>
+<td class="fieldname">
+pbh_mass_mean</td>
+<td class="fielddoc">
+<p>mean PBH mass in <img class="formulaInl" alt="$ 10^{10} $" src="form_299.png"/> g </p>
+</td></tr>
+<tr><td class="fieldtype">
+<a class="anchor" id="a4d6604a5075f9302df4ec9b005729e51"></a>double</td>
+<td class="fieldname">
+pbh_mass_width</td>
+<td class="fielddoc">
+<p>PBH mass dispersion/width in <img class="formulaInl" alt="$ 10^{10} $" src="form_299.png"/> g </p>
 </td></tr>
 </table>
 
@@ -1792,13 +1827,37 @@ index_reco_when_reio_start</td>
 
 </div>
 </div>
+<a class="anchor" id="a7685805608e0418b30718ae8b1c77fd4"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="thermodynamics_8h.html#a7685805608e0418b30718ae8b1c77fd4">pbh_mass_distributions</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>List of possible primordial black hole mass distributions </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a class="anchor" id="a7685805608e0418b30718ae8b1c77fd4ad5c146fc084835eca08101041ff9fd08"></a>pbh_none&#160;</td><td class="fielddoc">
+<p>default no mass distribution </p>
+</td></tr>
+<tr><td class="fieldname"><a class="anchor" id="a7685805608e0418b30718ae8b1c77fd4aed026d9c250eeda3d12bc72c798ced09"></a>pbh_delta&#160;</td><td class="fielddoc">
+<p>delta distribution localized at given mean mass </p>
+</td></tr>
+<tr><td class="fieldname"><a class="anchor" id="a7685805608e0418b30718ae8b1c77fd4a621c0d3e580277db4bd01424d3389251"></a>pbh_log_norm&#160;</td><td class="fielddoc">
+<p>log normal distribution </p>
+</td></tr>
+</table>
+
+</div>
+</div>
 </div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="dir_d44c64559bbebec7f509842c48db8b23.html">include</a></li><li class="navelem"><a class="el" href="thermodynamics_8h.html">thermodynamics.h</a></li>
-    <li class="footer">Generated on Fri Mar 10 2017 13:58:48 for CLASS MANUAL by
+    <li class="footer">Generated on Tue Mar 21 2017 15:19:09 for CLASS MANUAL by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.11 </li>
   </ul>

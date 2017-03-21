@@ -1,6 +1,9 @@
 var searchData=
 [
   ['pba',['pba',['../perturbations_8h.html#a9068d5228c160afb65facc4e0ce1f5b2',1,'perturb_parameters_and_workspace']]],
+  ['pbh_5fmass_5fdist',['pbh_mass_dist',['../thermodynamics_8h.html#ac2b214871798700c0a56accfe8f66ddd',1,'thermo']]],
+  ['pbh_5fmass_5fmean',['pbh_mass_mean',['../thermodynamics_8h.html#aead163559b58749db343e3d6a50c80ad',1,'thermo::pbh_mass_mean()'],['../thermodynamics_8h.html#a87bd9be54a99471780484b30dba0eb40',1,'recombination::pbh_mass_mean()']]],
+  ['pbh_5fmass_5fwidth',['pbh_mass_width',['../thermodynamics_8h.html#a032efab1c512474421da2169bc772a27',1,'thermo::pbh_mass_width()'],['../thermodynamics_8h.html#a4d6604a5075f9302df4ec9b005729e51',1,'recombination::pbh_mass_width()']]],
   ['pbis',['pBIS',['../transfer_8h.html#ac0a4a7ac556b373d5afde27e75c1cba2',1,'transfer_workspace']]],
   ['perturb_5fintegration_5fstepsize',['perturb_integration_stepsize',['../common_8h.html#a5762210bd94b59011e8d3be114e83e4a',1,'precision']]],
   ['perturb_5foutput_5ffile',['perturb_output_file',['../perturbations_8h.html#af2087e01157ae877d2b6a0dac6bc1ff6',1,'perturb_workspace']]],

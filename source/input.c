@@ -1203,6 +1203,43 @@ int input_read_parameters(
     }
   }
 
+  /** - mass distribution parameters for PBH energy injection */
+
+  class_call(parser_read_string(pfc,"pbh_mass_dist",&string1,&flag1,errmsg),
+             errmsg,
+             errmsg);
+
+  if (flag1 == _TRUE_) {
+    flag2=_FALSE_;
+    if (strcmp(string1,"pbh_none") == 0) {
+      pth->pbh_mass_dist=pbh_none;
+      flag2=_TRUE_;
+    }
+    if (strcmp(string1,"pbh_delta") == 0) {
+      pth->pbh_mass_dist=pbh_delta;
+      flag2=_TRUE_;
+    }
+    if (strcmp(string1,"pbh_log_norm") == 0) {
+      pth->pbh_mass_dist=pbh_log_norm;
+      flag2=_TRUE_;
+    }
+
+    class_test(flag2==_FALSE_,
+               errmsg,
+               "could not identify pbh_mass_dist value, check that it is one of 'pbh_none', 'pbh_delta', 'pbh_log_norm'...");
+  }
+
+  /** - distribution parameters if pbh_mass_dist==pbh_delta */
+  if (pth->pbh_mass_dist == pbh_delta){
+    class_read_double("pbh_mass_mean",pth->pbh_mass_mean);
+  }
+
+  /** - distribution parameters if pbh_mass_dist==pbh_log_norm */
+  if ((pth->pbh_mass_dist == pbh_log_norm)){
+    class_read_double("pbh_mass_mean",pth->pbh_mass_mean);
+    class_read_double("pbh_mass_width",pth->pbh_mass_width);
+  }
+
   /** (c) define which perturbations and sources should be computed, and down to which scale */
 
   ppt->has_perturbations = _FALSE_;
@@ -2867,6 +2904,10 @@ int input_default_params(
   pth->annihilation_f_halo = 0.;
   pth->annihilation_z_halo = 30.;
   pth->has_on_the_spot = _TRUE_;
+
+  pth->pbh_mass_dist = pbh_none;
+  pth->pbh_mass_mean = 0.;
+  pth->pbh_mass_width = 0.;
 
   pth->compute_cb2_derivatives=_FALSE_;
 

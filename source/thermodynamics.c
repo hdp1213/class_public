@@ -366,6 +366,16 @@ int thermodynamics_init(
              pth->error_message,
              "CDM decay effects require the presence of CDM!");
 
+  /** - check PBH mass distribution parameters */
+
+  class_test((pth->pbh_mass_mean<0),
+             pth->error_message,
+             "PBH mean mass cannot be negative");
+
+  class_test((pth->pbh_mass_width<0),
+             pth->error_message,
+             "PBH mass distribution width cannot be negative");
+
   /* tests in order to prevent segmentation fault in the following */
   class_test(_not4_ == 0.,
              pth->error_message,
@@ -2629,6 +2639,8 @@ int thermodynamics_recombination_with_hyrec(
   preco->decay = pth->decay;
   preco->annihilation_f_halo = pth->annihilation_f_halo;
   preco->annihilation_z_halo = pth->annihilation_z_halo;
+  preco->pbh_mass_mean = pth->pbh_mass_mean;
+  preco->pbh_mass_width = pth->pbh_mass_width;
   pth->n_e=preco->Nnow;
 
   /** - allocate memory for thermodynamics interpolation tables (size known in advance) and fill it */
@@ -2863,6 +2875,8 @@ int thermodynamics_recombination_with_recfast(
   preco->decay = pth->decay;
   preco->annihilation_f_halo = pth->annihilation_f_halo;
   preco->annihilation_z_halo = pth->annihilation_z_halo;
+  preco->pbh_mass_mean = pth->pbh_mass_mean;
+  preco->pbh_mass_width = pth->pbh_mass_width;
 
   /* quantities related to constants defined in thermodynamics.h */
   //n = preco->Nnow * pow((1.+z),3);

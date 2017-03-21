@@ -1,6 +1,13 @@
 var searchData=
 [
   ['pba',['pba',['../perturbations_8h.html#a9068d5228c160afb65facc4e0ce1f5b2',1,'perturb_parameters_and_workspace']]],
+  ['pbh_5fdelta',['pbh_delta',['../thermodynamics_8h.html#a7685805608e0418b30718ae8b1c77fd4aed026d9c250eeda3d12bc72c798ced09',1,'thermodynamics.h']]],
+  ['pbh_5flog_5fnorm',['pbh_log_norm',['../thermodynamics_8h.html#a7685805608e0418b30718ae8b1c77fd4a621c0d3e580277db4bd01424d3389251',1,'thermodynamics.h']]],
+  ['pbh_5fmass_5fdist',['pbh_mass_dist',['../thermodynamics_8h.html#ac2b214871798700c0a56accfe8f66ddd',1,'thermo']]],
+  ['pbh_5fmass_5fdistributions',['pbh_mass_distributions',['../thermodynamics_8h.html#a7685805608e0418b30718ae8b1c77fd4',1,'thermodynamics.h']]],
+  ['pbh_5fmass_5fmean',['pbh_mass_mean',['../thermodynamics_8h.html#aead163559b58749db343e3d6a50c80ad',1,'thermo::pbh_mass_mean()'],['../thermodynamics_8h.html#a87bd9be54a99471780484b30dba0eb40',1,'recombination::pbh_mass_mean()']]],
+  ['pbh_5fmass_5fwidth',['pbh_mass_width',['../thermodynamics_8h.html#a032efab1c512474421da2169bc772a27',1,'thermo::pbh_mass_width()'],['../thermodynamics_8h.html#a4d6604a5075f9302df4ec9b005729e51',1,'recombination::pbh_mass_width()']]],
+  ['pbh_5fnone',['pbh_none',['../thermodynamics_8h.html#a7685805608e0418b30718ae8b1c77fd4ad5c146fc084835eca08101041ff9fd08',1,'thermodynamics.h']]],
   ['pbis',['pBIS',['../transfer_8h.html#ac0a4a7ac556b373d5afde27e75c1cba2',1,'transfer_workspace']]],
   ['perturb_5fapproximations',['perturb_approximations',['../perturbations_8c.html#adc944c8e172833c9c18557e1508b828a',1,'perturbations.c']]],
   ['perturb_5fderivs',['perturb_derivs',['../perturbations_8c.html#aa6f273487c3cc276a4db995051e850c1',1,'perturbations.c']]],
