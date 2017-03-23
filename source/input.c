@@ -2906,8 +2906,8 @@ int input_default_params(
   pth->has_on_the_spot = _TRUE_;
 
   pth->pbh_mass_dist = pbh_none;
-  pth->pbh_mass_mean = 0.;
-  pth->pbh_mass_width = 0.;
+  pth->pbh_mass_mean = 1.e6;
+  pth->pbh_mass_width = 1.e3;
 
   pth->compute_cb2_derivatives=_FALSE_;
 

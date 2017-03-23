@@ -376,6 +376,12 @@ int thermodynamics_init(
              pth->error_message,
              "PBH mass distribution width cannot be negative");
 
+  class_test((pth->pbh_mass_mean < _PBH_MASS_MIN_)||(pth->pbh_mass_mean > _PBH_MASS_MAX_),
+             pth->error_message,
+             "pbh_mass_mean=%e out of bounds (%e<pbh_mass_mean<%e)",pth->pbh_mass_mean,_PBH_MASS_MIN_,_PBH_MASS_MAX_);
+
+  // TODO(harry): testing/warning if any resultant distributions will be truncated substantially in the mass range of enquiry
+
   /* tests in order to prevent segmentation fault in the following */
   class_test(_not4_ == 0.,
              pth->error_message,

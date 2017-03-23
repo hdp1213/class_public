@@ -709,6 +709,9 @@ extern "C" {
 #define _Z_REC_MAX_ 2000.  /**< maximal \f$ z_{rec} \f$ */
 #define _Z_REC_MIN_ 500.   /**< minimal \f$ z_{rec} \f$ */
 
+#define _PBH_MASS_MIN_ 1.e5 /**< minimal PBH mass in \f$ 10^{10} \f$ g */
+#define _PBH_MASS_MAX_ 1.e7 /**< maximal PBH mass in \f$ 10^{10} \f$ g*/
+
 //@}
 
 #endif
