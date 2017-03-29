@@ -1,9 +1,19 @@
 var searchData=
 [
   ['pba',['pba',['../perturbations_8h.html#a9068d5228c160afb65facc4e0ce1f5b2',1,'perturb_parameters_and_workspace']]],
-  ['pbh_5fmass_5fdist',['pbh_mass_dist',['../thermodynamics_8h.html#ac2b214871798700c0a56accfe8f66ddd',1,'thermo']]],
+  ['pbh_5fenergy_5fdep_5ffiles_5froot',['pbh_energy_dep_files_root',['../thermodynamics_8h.html#a6a98bfe0fdac285baa28234420d37762',1,'thermo']]],
+  ['pbh_5fexcite',['pbh_excite',['../thermodynamics_8h.html#a3f120ba33a8a5fce5caea7c338f465ce',1,'recombination']]],
+  ['pbh_5fheat',['pbh_heat',['../thermodynamics_8h.html#a4268cb02763076fa3c9ecf92760aa96d',1,'recombination']]],
+  ['pbh_5fhion',['pbh_hion',['../thermodynamics_8h.html#a07e3b4a7a0942e0a5526e50eff954b04',1,'recombination']]],
+  ['pbh_5fmass_5fdist',['pbh_mass_dist',['../thermodynamics_8h.html#a592e347b1ba014d5b184005da0b6e70a',1,'thermo::pbh_mass_dist()'],['../thermodynamics_8h.html#a97348c301088ee21d47b31398c3f3f0d',1,'recombination::pbh_mass_dist()']]],
   ['pbh_5fmass_5fmean',['pbh_mass_mean',['../thermodynamics_8h.html#aead163559b58749db343e3d6a50c80ad',1,'thermo::pbh_mass_mean()'],['../thermodynamics_8h.html#a87bd9be54a99471780484b30dba0eb40',1,'recombination::pbh_mass_mean()']]],
+  ['pbh_5fmass_5fsteps',['pbh_mass_steps',['../common_8h.html#a17c52ad638b73929bcd06fbd6245e000',1,'precision']]],
   ['pbh_5fmass_5fwidth',['pbh_mass_width',['../thermodynamics_8h.html#a032efab1c512474421da2169bc772a27',1,'thermo::pbh_mass_width()'],['../thermodynamics_8h.html#a4d6604a5075f9302df4ec9b005729e51',1,'recombination::pbh_mass_width()']]],
+  ['pbh_5fmasses',['pbh_masses',['../thermodynamics_8h.html#a1901464f2b8318584d4686cc6748885a',1,'recombination']]],
+  ['pbh_5fz_5fdeps',['pbh_z_deps',['../thermodynamics_8h.html#a7724414964ced2eee107bc5616e5f4d0',1,'recombination']]],
+  ['pbh_5fz_5fmax',['pbh_z_max',['../common_8h.html#a6d3e9d9887f270ccc1f4873a8e722579',1,'precision']]],
+  ['pbh_5fz_5fmin',['pbh_z_min',['../common_8h.html#aa1e7991f47a38513302ed36ce47ff5e4',1,'precision']]],
+  ['pbh_5fz_5fsteps',['pbh_z_steps',['../common_8h.html#a3c525a0e2f0d821e1fe918a9bc892178',1,'precision']]],
   ['pbis',['pBIS',['../transfer_8h.html#ac0a4a7ac556b373d5afde27e75c1cba2',1,'transfer_workspace']]],
   ['perturb_5fintegration_5fstepsize',['perturb_integration_stepsize',['../common_8h.html#a5762210bd94b59011e8d3be114e83e4a',1,'precision']]],
   ['perturb_5foutput_5ffile',['perturb_output_file',['../perturbations_8h.html#af2087e01157ae877d2b6a0dac6bc1ff6',1,'perturb_workspace']]],
@@ -18,6 +28,7 @@ var searchData=
   ['phi_5fpivot_5ftarget',['phi_pivot_target',['../primordial_8h.html#adb92236c8b8be2aeb8735c11c1a53db7',1,'primordial']]],
   ['phi_5fprime_5fini_5fscf',['phi_prime_ini_scf',['../background_8h.html#ac261b364a383b80cdc222e8fd42be5de',1,'background']]],
   ['phi_5fstop',['phi_stop',['../primordial_8h.html#a7e1f0626b0ed574e46bdff7b20c2cffc',1,'primordial']]],
+  ['pm_5fsize',['pm_size',['../thermodynamics_8h.html#af9ceb58e04530cbf63bc94d680fbb07f',1,'recombination']]],
   ['potential',['potential',['../primordial_8h.html#a67c22e95069d6402b05dcdee8d742784',1,'primordial']]],
   ['ppr',['ppr',['../perturbations_8h.html#a17f71fba9b472adef213e8c6894ff540',1,'perturb_parameters_and_workspace']]],
   ['ppt',['ppt',['../perturbations_8h.html#a8301ae9bd8f2866ae57d990f1609ee73',1,'perturb_parameters_and_workspace']]],
@@ -45,5 +56,6 @@ var searchData=
   ['pv',['pv',['../perturbations_8h.html#a130122fc65ddb422b2c46dca09ddab85',1,'perturb_workspace']]],
   ['pvecback',['pvecback',['../perturbations_8h.html#a048ea8307d1fdd3c9ee023ca4c6945ff',1,'perturb_workspace']]],
   ['pvecmetric',['pvecmetric',['../perturbations_8h.html#aa7f41a5175674a0dc03fcd11bcc30ef5',1,'perturb_workspace']]],
-  ['pvecthermo',['pvecthermo',['../perturbations_8h.html#afb6929391bdf3aa1206062c8e925f3e9',1,'perturb_workspace']]]
+  ['pvecthermo',['pvecthermo',['../perturbations_8h.html#afb6929391bdf3aa1206062c8e925f3e9',1,'perturb_workspace']]],
+  ['pz_5fsize',['pz_size',['../thermodynamics_8h.html#a69e5710de54a66188352b8c3056c1129',1,'recombination']]]
 ];

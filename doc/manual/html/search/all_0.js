@@ -27,6 +27,8 @@ var searchData=
   ['_5fm_5fp_5f',['_m_p_',['../thermodynamics_8h.html#a9caac86860c1db528291587df3c7d77c',1,'thermodynamics.h']]],
   ['_5fmax_5fnumber_5fof_5fk_5ffiles_5f',['_MAX_NUMBER_OF_K_FILES_',['../perturbations_8h.html#a1baeb730684adab0a981f1e3528303c5',1,'perturbations.h']]],
   ['_5fnot4_5f',['_not4_',['../thermodynamics_8h.html#a2dc86a70d69cd6f68b89056c8c076cff',1,'thermodynamics.h']]],
+  ['_5fpbh_5fmass_5fmax_5f',['_PBH_MASS_MAX_',['../thermodynamics_8h.html#a7cfbdcf1abc6bb718c7f6f91abd1db0b',1,'thermodynamics.h']]],
+  ['_5fpbh_5fmass_5fmin_5f',['_PBH_MASS_MIN_',['../thermodynamics_8h.html#a145049d990877fe368caad454cc80f31',1,'thermodynamics.h']]],
   ['_5fselection_5fnum_5fmax_5f',['_SELECTION_NUM_MAX_',['../perturbations_8h.html#afb3227061c928d5a8882a7b8a933aba7',1,'perturbations.h']]],
   ['_5fsigma_5f',['_sigma_',['../thermodynamics_8h.html#a627f0a0f5961b5c76c4e33e38e48e140',1,'thermodynamics.h']]],
   ['_5fsigma_5fhe_5f2ps_5f',['_sigma_He_2Ps_',['../thermodynamics_8h.html#a2a0ac3db5e9b018601dd91302b5f6c93',1,'thermodynamics.h']]],

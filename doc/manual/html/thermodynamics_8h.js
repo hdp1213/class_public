@@ -5,7 +5,7 @@ var thermodynamics_8h =
       [ "recombination", "thermodynamics_8h.html#a5e6ec5533b6b93b80cfaa0d933117410", null ],
       [ "reio_parametrization", "thermodynamics_8h.html#a933d64335c2f8d29ac8966d311e76902", null ],
       [ "reio_z_or_tau", "thermodynamics_8h.html#aa911a8bfc092639aef86ba60351a3b0c", null ],
-      [ "pbh_mass_dist", "thermodynamics_8h.html#ac2b214871798700c0a56accfe8f66ddd", null ],
+      [ "pbh_mass_dist", "thermodynamics_8h.html#a592e347b1ba014d5b184005da0b6e70a", null ],
       [ "tau_reio", "thermodynamics_8h.html#a3a2458620f9e70183e0df4900abe2764", null ],
       [ "z_reio", "thermodynamics_8h.html#a09cdddaec3d9d3be0c790a119b1023f0", null ],
       [ "compute_cb2_derivatives", "thermodynamics_8h.html#a3d509e606f8d353fed5b353562fbec2a", null ],
@@ -33,6 +33,8 @@ var thermodynamics_8h =
       [ "annihilation_z_halo", "thermodynamics_8h.html#a64f8f97a949b86579bdc382a3ab5ae6c", null ],
       [ "pbh_mass_mean", "thermodynamics_8h.html#aead163559b58749db343e3d6a50c80ad", null ],
       [ "pbh_mass_width", "thermodynamics_8h.html#a032efab1c512474421da2169bc772a27", null ],
+      [ "read_pbh_tables", "thermodynamics_8h.html#ac83354222bbe5a04c51cf9aaff69a18c", null ],
+      [ "pbh_energy_dep_files_root", "thermodynamics_8h.html#a6a98bfe0fdac285baa28234420d37762", null ],
       [ "index_th_xe", "thermodynamics_8h.html#aba1579aad519a4b990438d8a15670b40", null ],
       [ "index_th_dkappa", "thermodynamics_8h.html#aea1ea1f3e5c0c64eee3d527b6663e9d5", null ],
       [ "index_th_tau_d", "thermodynamics_8h.html#a35e688c8d2c87b79aafbcdae01cef507", null ],
@@ -111,8 +113,16 @@ var thermodynamics_8h =
       [ "annihilation_zmin", "thermodynamics_8h.html#a5c7c0f6e0a8f2757134337dc90ba1569", null ],
       [ "annihilation_f_halo", "thermodynamics_8h.html#a1ffa8b3a0310bbc9a33d6a3e5ecff09a", null ],
       [ "annihilation_z_halo", "thermodynamics_8h.html#a694755b3b5b6e2755ef70251335ba276", null ],
+      [ "pbh_mass_dist", "thermodynamics_8h.html#a97348c301088ee21d47b31398c3f3f0d", null ],
       [ "pbh_mass_mean", "thermodynamics_8h.html#a87bd9be54a99471780484b30dba0eb40", null ],
-      [ "pbh_mass_width", "thermodynamics_8h.html#a4d6604a5075f9302df4ec9b005729e51", null ]
+      [ "pbh_mass_width", "thermodynamics_8h.html#a4d6604a5075f9302df4ec9b005729e51", null ],
+      [ "pz_size", "thermodynamics_8h.html#a69e5710de54a66188352b8c3056c1129", null ],
+      [ "pbh_z_deps", "thermodynamics_8h.html#a7724414964ced2eee107bc5616e5f4d0", null ],
+      [ "pm_size", "thermodynamics_8h.html#af9ceb58e04530cbf63bc94d680fbb07f", null ],
+      [ "pbh_masses", "thermodynamics_8h.html#a1901464f2b8318584d4686cc6748885a", null ],
+      [ "pbh_hion", "thermodynamics_8h.html#a07e3b4a7a0942e0a5526e50eff954b04", null ],
+      [ "pbh_excite", "thermodynamics_8h.html#a3f120ba33a8a5fce5caea7c338f465ce", null ],
+      [ "pbh_heat", "thermodynamics_8h.html#a4268cb02763076fa3c9ecf92760aa96d", null ]
     ] ],
     [ "reionization", "thermodynamics_8h.html#structreionization", [
       [ "index_re_z", "thermodynamics_8h.html#af9ee97caa4f45869edc2fbb37b678125", null ],
@@ -180,6 +190,8 @@ var thermodynamics_8h =
     [ "_YHE_SMALL_", "thermodynamics_8h.html#a8fbd5bfe2788808e5f3df7c24ce9173d", null ],
     [ "_Z_REC_MAX_", "thermodynamics_8h.html#aa3f32ccb9149276910335f33d0426cc7", null ],
     [ "_Z_REC_MIN_", "thermodynamics_8h.html#aa85aeae373845a1333ba8cae4fa3baba", null ],
+    [ "_PBH_MASS_MIN_", "thermodynamics_8h.html#a145049d990877fe368caad454cc80f31", null ],
+    [ "_PBH_MASS_MAX_", "thermodynamics_8h.html#a7cfbdcf1abc6bb718c7f6f91abd1db0b", null ],
     [ "recombination_algorithm", "thermodynamics_8h.html#a244f4d3fb288b63e3f02cc0a0c7961e3", null ],
     [ "reionization_parametrization", "thermodynamics_8h.html#a355aa0469515c247f71668a5be5f4cc0", [
       [ "reio_none", "thermodynamics_8h.html#a355aa0469515c247f71668a5be5f4cc0a224e2258e42ac1cc1eddb8add797438a", null ],
@@ -192,9 +204,16 @@ var thermodynamics_8h =
       [ "reio_z", "thermodynamics_8h.html#abfa56c8448beea105d10a6e89742e3a0a1612a14c9af1b5a5e092580c8cdb1c7a", null ],
       [ "reio_tau", "thermodynamics_8h.html#abfa56c8448beea105d10a6e89742e3a0a9f890480f05a227d5dd8377011c44a10", null ]
     ] ],
-    [ "pbh_mass_distributions", "thermodynamics_8h.html#a7685805608e0418b30718ae8b1c77fd4", [
-      [ "pbh_none", "thermodynamics_8h.html#a7685805608e0418b30718ae8b1c77fd4ad5c146fc084835eca08101041ff9fd08", null ],
-      [ "pbh_delta", "thermodynamics_8h.html#a7685805608e0418b30718ae8b1c77fd4aed026d9c250eeda3d12bc72c798ced09", null ],
-      [ "pbh_log_norm", "thermodynamics_8h.html#a7685805608e0418b30718ae8b1c77fd4a621c0d3e580277db4bd01424d3389251", null ]
+    [ "pbh_mass_distribution", "thermodynamics_8h.html#a744934861f59912d733cbbbca65f6cce", [
+      [ "pbh_none", "thermodynamics_8h.html#a744934861f59912d733cbbbca65f6ccead5c146fc084835eca08101041ff9fd08", null ],
+      [ "pbh_delta", "thermodynamics_8h.html#a744934861f59912d733cbbbca65f6cceaed026d9c250eeda3d12bc72c798ced09", null ],
+      [ "pbh_log_norm", "thermodynamics_8h.html#a744934861f59912d733cbbbca65f6ccea621c0d3e580277db4bd01424d3389251", null ]
+    ] ],
+    [ "deposition_channel_t", "thermodynamics_8h.html#aaf41c331031e64e4514c91d72a147e98", [
+      [ "hion_channel", "thermodynamics_8h.html#aaf41c331031e64e4514c91d72a147e98a4494f71ac9fa800c3185fac859a018b8", null ],
+      [ "heion_channel", "thermodynamics_8h.html#aaf41c331031e64e4514c91d72a147e98a7083d2d709cd626eca217bcf99859a28", null ],
+      [ "excite_channel", "thermodynamics_8h.html#aaf41c331031e64e4514c91d72a147e98a6eb66229d8681187d4e9e7b71e15d056", null ],
+      [ "heat_channel", "thermodynamics_8h.html#aaf41c331031e64e4514c91d72a147e98a8a552c66718a7d108dc5d5e7c1ba3a1d", null ],
+      [ "cont_channel", "thermodynamics_8h.html#aaf41c331031e64e4514c91d72a147e98a0bc3397f203410af8858bd98c98eb4ea", null ]
     ] ]
 ];

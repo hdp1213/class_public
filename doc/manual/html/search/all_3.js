@@ -28,6 +28,7 @@ var searchData=
   ['compute_5fcb2_5fderivatives',['compute_cb2_derivatives',['../thermodynamics_8h.html#a3d509e606f8d353fed5b353562fbec2a',1,'thermo']]],
   ['compute_5fdamping_5fscale',['compute_damping_scale',['../thermodynamics_8h.html#a0ad4a85264f773d11292fc66c5f9d598',1,'thermo']]],
   ['conformal_5fage',['conformal_age',['../background_8h.html#af5353323a6707b6284399d8b44dd2b3c',1,'background']]],
+  ['cont_5fchannel',['cont_channel',['../thermodynamics_8h.html#aaf41c331031e64e4514c91d72a147e98a0bc3397f203410af8858bd98c98eb4ea',1,'thermodynamics.h']]],
   ['cotkgen',['cotKgen',['../transfer_8h.html#acd80ed43dfaa2eadf1695c8fd4f5b076',1,'transfer_workspace']]],
   ['cr',['CR',['../thermodynamics_8h.html#a591a5427ffcfe8cf78ca4c5c3bf33090',1,'recombination']]],
   ['cs2_5ffld',['cs2_fld',['../background_8h.html#a911297f394082415f68263eab8f51127',1,'background']]],

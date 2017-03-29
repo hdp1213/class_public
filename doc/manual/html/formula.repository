@@ -298,3 +298,7 @@
 \form#297:$ \sqrt{\pi/(2l+1)}/(l+1/2)$
 \form#298:$ z_{rec} $
 \form#299:$ 10^{10} $
+\form#300:$ \Omega_{0 PBH}/\Omega_{0 cdm} $
+\form#301:$ M_\textrm{BH} $
+\form#302:$ c $
+\form#303:$ f_c(M_\textrm{BH},z)\,\frac{d E}{d V d t}(M_\textrm{BH},z) $
