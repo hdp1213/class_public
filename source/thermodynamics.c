@@ -382,6 +382,10 @@ int thermodynamics_init(
 
   // TODO(harry): testing/warning if any resultant distributions will be truncated substantially in the mass range of enquiry
 
+  class_test((pth->pbh_mass_dist != pbh_none)&&(pba->Omega0_pbh_ratio == 0.0),
+             pth->error_message,
+             "You have requested a non-zero PBH mass distrubution but have set Omega_pbh_ratio=0.0");
+
   /* tests in order to prevent segmentation fault in the following */
   class_test(_not4_ == 0.,
              pth->error_message,
@@ -396,9 +400,21 @@ int thermodynamics_init(
              pth->error_message,
              pth->error_message);
 
+  /** - initialise PBH quantities in recombination structure */
+
+  class_call(thermodynamics_pbh_init(ppr,pba,pth,preco),
+             pth->error_message,
+             pth->error_message);
+
   /** - solve recombination and store values of \f$ z, x_e, d \kappa / d \tau, T_b, c_b^2 \f$ with thermodynamics_recombination() */
 
   class_call(thermodynamics_recombination(ppr,pba,pth,preco,pvecback),
+             pth->error_message,
+             pth->error_message);
+
+  /** - free PBH quantities from recombination structure */
+
+  class_call(thermodynamics_pbh_free(preco),
              pth->error_message,
              pth->error_message);
 
@@ -1040,6 +1056,114 @@ int thermodynamics_indices(
 }
 
 /**
+ * Initialize PBH quantities in the recombination structure, and in
+ * particular the precomputed energy depositions.
+ *
+ * @param ppr   Input: pointer to precision structure
+ * @param pba   Input: pointer to background structure
+ * @param pth   Input: pointer to initialized thermo structure
+ * @param preco Input/Output: pointer to initialized recombination structure
+ * @return the error status
+ */
+
+int thermodynamics_pbh_init(
+                            struct precision * ppr,
+                            struct background * pba,
+                            struct thermo * pth,
+                            struct recombination * preco
+                            ) {
+  int i;
+  char pbh_table_file[_ARGUMENT_LENGTH_MAX_];
+
+  /** - read in precomputed PBH energy deposition efficiencies */
+
+  /* allocate PBH deposition sizes and `axes' */
+  preco->pz_size = ppr->pbh_z_steps;
+  preco->pm_size = ppr->pbh_mass_steps;
+
+  class_alloc(preco->pbh_z_deps,preco->pz_size*sizeof(double),pth->error_message);
+  class_alloc(preco->pbh_masses,preco->pm_size*sizeof(double),pth->error_message);
+
+  /* initialise axes */
+  /* TODO(harry): make initialising axes more efficient when run in batch as these are independent of cosmology */
+  for (i = 0; i < preco->pz_size; ++i) {
+    *(preco->pbh_z_deps+i) = ppr->pbh_z_max - (ppr->pbh_z_max - ppr->pbh_z_min) * (double)(i) / (double)(preco->pz_size-1);
+  }
+
+  for (i = 0; i < preco->pm_size; ++i) {
+    *(preco->pbh_masses+i) = log10(_PBH_MASS_MIN_) + (log10(_PBH_MASS_MAX_) - log10(_PBH_MASS_MIN_)) * (double)(i) / (double)(preco->pm_size-1);
+  }
+
+  /* allocate PBH tables */
+  class_alloc(preco->pbh_hion,preco->pz_size*preco->pm_size*sizeof(double),pth->error_message);
+  class_alloc(preco->pbh_excite,preco->pz_size*preco->pm_size*sizeof(double),pth->error_message);
+  class_alloc(preco->pbh_heat,preco->pz_size*preco->pm_size*sizeof(double),pth->error_message);
+
+  /* read in the precomputed files */
+  if (pth->read_pbh_tables == _TRUE_) {
+    /* read in hydrogen ionisation table */
+    strcpy(pbh_table_file, pth->pbh_energy_dep_files_root);
+    strcat(pbh_table_file, "hion.dat");
+
+    class_call(class_read_2d_array_from_file(pbh_table_file,
+                                             preco->pbh_hion,
+                                             preco->pm_size,
+                                             preco->pz_size,
+                                             pth->error_message),
+               pth->error_message,
+               pth->error_message);
+
+    /* read in excitation table */
+    strcpy(pbh_table_file, pth->pbh_energy_dep_files_root);
+    strcat(pbh_table_file, "excite.dat");
+
+    class_call(class_read_2d_array_from_file(pbh_table_file,
+                                             preco->pbh_excite,
+                                             preco->pm_size,
+                                             preco->pz_size,
+                                             pth->error_message),
+               pth->error_message,
+               pth->error_message);
+
+    /* read in heating table */
+    strcpy(pbh_table_file, pth->pbh_energy_dep_files_root);
+    strcat(pbh_table_file, "heat.dat");
+
+    class_call(class_read_2d_array_from_file(pbh_table_file,
+                                             preco->pbh_heat,
+                                             preco->pm_size,
+                                             preco->pz_size,
+                                             pth->error_message),
+               pth->error_message,
+               pth->error_message);
+
+  }
+
+  return _SUCCESS_;
+}
+
+/**
+ * Free all memory space allocated by thermodynamics_pbh_init().
+ *
+ *
+ * @param preco Input/Output: pointer to recombination structure (to be freed)
+ * @return the error status
+ */
+
+int thermodynamics_pbh_free(
+                            struct recombination * preco
+                            ) {
+
+  free(preco->pbh_z_deps);
+  free(preco->pbh_masses);
+  free(preco->pbh_hion);
+  free(preco->pbh_excite);
+  free(preco->pbh_heat);
+
+  return _SUCCESS_;
+}
+
+/**
  * Infer the primordial helium fraction from standard BBN, as a
  * function of the baryon density and expansion rate during BBN.
  *
@@ -1288,9 +1412,14 @@ int thermodynamics_onthespot_energy_injection(
                                               ) {
 
   double annihilation_at_z;
-  double rho_cdm_today;
+  double Omega0_wimp_dm;
+  double rho_wimp_dm_today;
   double u_min;
   double erfc;
+
+  /* Density parameter for WIMP dark matter */
+
+  Omega0_wimp_dm = (1. - pba->Omega0_pbh_ratio)*pba->Omega0_cdm;
 
   /*redshift-dependent annihilation parameter*/
 
@@ -1312,15 +1441,15 @@ int thermodynamics_onthespot_energy_injection(
                                          +pow(log((preco->annihilation_zmin+1.)/(preco->annihilation_zmax+1.)),2)));
   }
 
-  rho_cdm_today = pow(pba->H0*_c_/_Mpc_over_m_,2)*3/8./_PI_/_G_*pba->Omega0_cdm*_c_*_c_; /* energy density in J/m^3 */
+  rho_wimp_dm_today = pow(pba->H0*_c_/_Mpc_over_m_,2)*3/8./_PI_/_G_*Omega0_wimp_dm*_c_*_c_; /* energy density in J/m^3 */
 
   u_min = (1+z)/(1+preco->annihilation_z_halo);
 
   erfc = pow(1.+0.278393*u_min+0.230389*u_min*u_min+0.000972*u_min*u_min*u_min+0.078108*u_min*u_min*u_min*u_min,-4);
 
-  *energy_rate = pow(rho_cdm_today,2)/_c_/_c_*pow((1+z),3)*
+  *energy_rate = pow(rho_wimp_dm_today,2)/_c_/_c_*pow((1+z),3)*
     (pow((1.+z),3)*annihilation_at_z+preco->annihilation_f_halo*erfc)
-    +rho_cdm_today*pow((1+z),3)*preco->decay;
+    +rho_wimp_dm_today*pow((1+z),3)*preco->decay;
   /* energy density rate in J/m^3/s (remember that annihilation_at_z is in m^3/s/Kg and decay in s^-1) */
 
   return _SUCCESS_;
@@ -1420,6 +1549,200 @@ int thermodynamics_energy_injection(
 
   return _SUCCESS_;
 
+}
+
+/**
+ * In case of non-minimal cosmology, this function determines the
+ * effective energy rate injected in the IGM at a given redshift z from
+ * evaporating PBHs with mass \f$ M_\textrm{BH} \f$, across all
+ * considered deposition channels of hydrogen ionisation, Lyman alpha
+ * excitation and plasma heating.
+ *
+ * In symbols, it computes the following quantity:
+ * \f$ f_c(M_\textrm{BH},z)\,\frac{d E}{d V d t}(M_\textrm{BH},z) \f$
+ * for all \f$ c \f$.
+ *
+ * @param pba Input: pointer to background structure
+ * @param preco Input: pointer to recombination structure
+ * @param pbh_mass Input: PBH mass
+ * @param z Input: redshift
+ * @param energy_rate_hion Output: energy density injection rate for hydrogen ionisation
+ * @param energy_rate_excite Output: energy density injection rate for Lyman alpha excitation
+ * @param energy_rate_heat Output: energy density injection rate for plasma heating
+ * @param error_message Output: error message
+ * @return the error status
+ */
+
+int thermodynamics_pbh_effective_energy_injection(
+                                    struct background * pba,
+                                    struct recombination * preco,
+                                    double pbh_mass,
+                                    double z,
+                                    double * energy_rate_hion,
+                                    double * energy_rate_excite,
+                                    double * energy_rate_heat,
+                                    ErrorMsg error_message
+                                    ) {
+  double Omega0_pbh_dm;
+  double rho_pbh_dm_today;
+  double energy_rate;
+  double hion_eff, excite_eff, heat_eff;
+
+  Omega0_pbh_dm = pba->Omega0_pbh_ratio*pba->Omega0_cdm;
+
+  rho_pbh_dm_today = pow(pba->H0*_c_/_Mpc_over_m_,2)*3/8./_PI_/_G_*Omega0_pbh_dm*_c_*_c_; /* energy density in J/m^3 */
+
+  /* Approximate power radiated from PBH as in [arXiv:1612.07738], where pbh_mass is in units of 10^10 g */
+  energy_rate = +1.08e-5*rho_pbh_dm_today*pow((1+z)/pbh_mass,3);
+
+  /* Interpolate results to the specified mass and redshift. Note that both mass and redshifts can be out of bounds of the interpolation! */
+  class_call(array_interpolate_2d_array_bilinear_decy(
+                                             preco->pbh_hion,
+                                             preco->pbh_masses,
+                                             preco->pm_size,
+                                             preco->pbh_z_deps,
+                                             preco->pz_size,
+                                             log10(pbh_mass),
+                                             z,
+                                             &hion_eff,
+                                             error_message),
+             error_message,
+             error_message);
+
+  class_call(array_interpolate_2d_array_bilinear_decy(
+                                             preco->pbh_excite,
+                                             preco->pbh_masses,
+                                             preco->pm_size,
+                                             preco->pbh_z_deps,
+                                             preco->pz_size,
+                                             log10(pbh_mass),
+                                             z,
+                                             &excite_eff,
+                                             error_message),
+             error_message,
+             error_message);
+
+  class_call(array_interpolate_2d_array_bilinear_decy(
+                                             preco->pbh_heat,
+                                             preco->pbh_masses,
+                                             preco->pm_size,
+                                             preco->pbh_z_deps,
+                                             preco->pz_size,
+                                             log10(pbh_mass),
+                                             z,
+                                             &heat_eff,
+                                             error_message),
+             error_message,
+             error_message);
+
+  *energy_rate_hion = hion_eff * energy_rate;
+  *energy_rate_excite = excite_eff * energy_rate;
+  *energy_rate_heat = heat_eff * energy_rate;
+
+  return _SUCCESS_;
+}
+
+/**
+ * Subroutine evaluating the total energy deposition of PBHs for a log
+ * normal mass distribution.
+ *
+ * TODO(harry): test this function
+ *
+ * @param pba             Input: pointer to background structure
+ * @param preco           Input: pointer to recombination structure
+ * @param pbh_masses      Input: range of PBH masses to integrate over
+ * @param pbh_masses_size Input: size of pbh_masses
+ * @param z               Input: redshift to evaluate at
+ * @param hion_res        Output: result of hydrogen ionisation integral
+ * @param excite_res      Output: result of excitation integral
+ * @param heat_res        Output: result of heating integral
+ * @param error_message   Output: error message
+ */
+
+int thermodynamics_pbh_log_normal(
+                                  struct background * pba,
+                                  struct recombination * preco,
+                                  double * pbh_masses,
+                                  int pbh_masses_size,
+                                  double z,
+                                  double * hion_res,
+                                  double * excite_res,
+                                  double * heat_res,
+                                  ErrorMsg error_message
+                                  ) {
+  int i;
+  double mass_dist,pbh_mass;
+  double energy_rate_hion,energy_rate_excite,energy_rate_heat;
+  double * hion_tot;
+  double * excite_tot;
+  double * heat_tot;
+  double * trapz_weights;
+
+  class_alloc(hion_tot,pbh_masses_size*sizeof(double),error_message);
+  class_alloc(excite_tot,pbh_masses_size*sizeof(double),error_message);
+  class_alloc(heat_tot,pbh_masses_size*sizeof(double),error_message);
+
+  for (i = 0; i < pbh_masses_size; ++i) {
+    pbh_mass = *(pbh_masses+i);
+
+    /* Calculate the effective energy rate */
+    class_call(thermodynamics_pbh_effective_energy_injection(pba,preco,pbh_mass,z,&energy_rate_hion,&energy_rate_excite,&energy_rate_heat,error_message),
+                     error_message,
+                     error_message);
+
+    /* Calculate the log-normal mass distribution */
+    mass_dist = 1./(pbh_mass*preco->pbh_mass_width*_SQRT2_*_SQRT_PI_) * exp(-0.5*pow((log(pbh_mass)-preco->pbh_mass_mean)/preco->pbh_mass_width,2));
+
+    /* Fill arrays */
+    *(hion_tot+i) = energy_rate_hion * mass_dist;
+    *(excite_tot+i) = energy_rate_excite * mass_dist;
+    *(heat_tot+i) = energy_rate_heat * mass_dist;
+  }
+
+  class_alloc(trapz_weights,pbh_masses_size*sizeof(double),error_message);
+
+  /* Initialise trapezoidal weights */
+  class_call(array_trapezoidal_weights(pbh_masses,
+                                       pbh_masses_size,
+                                       trapz_weights,
+                                       error_message),
+             error_message,
+             error_message);
+
+  /* Perform trapezoidal integrals */
+  class_call(array_trapezoidal_integral(hion_tot,
+                                        pbh_masses_size,
+                                        trapz_weights,
+                                        hion_res,
+                                        error_message),
+            error_message,
+            error_message);
+
+  free(hion_tot);
+
+  class_call(array_trapezoidal_integral(excite_tot,
+                                        pbh_masses_size,
+                                        trapz_weights,
+                                        excite_res,
+                                        error_message),
+            error_message,
+            error_message);
+
+  free(excite_tot);
+
+  class_call(array_trapezoidal_integral(heat_tot,
+                                        pbh_masses_size,
+                                        trapz_weights,
+                                        heat_res,
+                                        error_message),
+            error_message,
+            error_message);
+
+  free(heat_tot);
+
+  free(trapz_weights);
+
+  return _SUCCESS_;
 }
 
 /**
@@ -2645,6 +2968,7 @@ int thermodynamics_recombination_with_hyrec(
   preco->decay = pth->decay;
   preco->annihilation_f_halo = pth->annihilation_f_halo;
   preco->annihilation_z_halo = pth->annihilation_z_halo;
+  preco->pbh_mass_dist = pth->pbh_mass_dist;
   preco->pbh_mass_mean = pth->pbh_mass_mean;
   preco->pbh_mass_width = pth->pbh_mass_width;
   pth->n_e=preco->Nnow;
@@ -2881,6 +3205,7 @@ int thermodynamics_recombination_with_recfast(
   preco->decay = pth->decay;
   preco->annihilation_f_halo = pth->annihilation_f_halo;
   preco->annihilation_z_halo = pth->annihilation_z_halo;
+  preco->pbh_mass_dist = pth->pbh_mass_dist;
   preco->pbh_mass_mean = pth->pbh_mass_mean;
   preco->pbh_mass_width = pth->pbh_mass_width;
 
@@ -3217,6 +3542,9 @@ int thermodynamics_derivs_with_recfast(
   //double C_He;
   double energy_rate;
 
+  /* used for energy injection from evaporating PBHs */
+  double pbh_hion_rate,pbh_excite_rate,pbh_heat_rate;
+
   double tau;
   double chi_heat;
   double chi_ion_H;
@@ -3255,6 +3583,38 @@ int thermodynamics_derivs_with_recfast(
   class_call(thermodynamics_energy_injection(ppr,pba,preco,z,&energy_rate,error_message),
              error_message,
              error_message);
+
+  /* Calculate PBH energy injection only within appropriate redshift range */
+  if (z > ppr->pbh_z_max) {
+    pbh_hion_rate = 0.;
+    pbh_excite_rate = 0.;
+    pbh_heat_rate = 0.;
+  }
+  else if (z < ppr->pbh_z_min) {
+    /* TODO(harry): implement smoothing function to prevent sudden cutoff of injection rates at z<pbh_z_min */
+    pbh_hion_rate = 0.;
+    pbh_excite_rate = 0.;
+    pbh_heat_rate = 0.;
+  }
+  else {
+    /* Choose appropriate method for given mass distribution */
+    if (preco->pbh_mass_dist == pbh_delta) {
+      class_call(thermodynamics_pbh_effective_energy_injection(pba,preco,preco->pbh_mass_mean,z,&pbh_hion_rate,&pbh_excite_rate,&pbh_heat_rate,error_message),
+               error_message,
+               error_message);
+    }
+    else if (preco->pbh_mass_dist == pbh_log_norm) {
+      class_call(thermodynamics_pbh_log_normal(pba,preco,preco->pbh_masses,preco->pm_size,z,&pbh_hion_rate,&pbh_excite_rate,&pbh_heat_rate,error_message),
+               error_message,
+               error_message);
+    }
+    else {
+      pbh_hion_rate = 0.;
+      pbh_excite_rate = 0.;
+      pbh_heat_rate = 0.;
+    }
+  }
+
 
   /* Hz is H in inverse seconds (while pvecback returns [H0/c] in inverse Mpcs) */
   Hz=pvecback[pba->index_bg_H]* _c_ / _Mpc_over_m_;
@@ -3370,7 +3730,8 @@ int thermodynamics_derivs_with_recfast(
     /* evolution of hydrogen ionisation fraction: */
 
     dy[0] = (x_e*x_H*n_H*Rdown - Rup*(1.-x_H)*exp(-preco->CL/Tmat)) * C / (Hz*(1.+z))       /* Peeble's equation with fudged factors */
-      -energy_rate*chi_ion_H/n_H*(1./_L_H_ion_+(1.-C)/_L_H_alpha_)/(_h_P_*_c_*Hz*(1.+z)); /* energy injection (neglect fraction going to helium) */
+      -energy_rate*chi_ion_H/n_H*(1./_L_H_ion_+(1.-C)/_L_H_alpha_)/(_h_P_*_c_*Hz*(1.+z)) /* energy injection (neglect fraction going to helium) */
+      -(pbh_hion_rate/_L_H_ion_+(1.-C)*pbh_excite_rate/_L_H_alpha_)/(n_H*_h_P_*_c_*Hz*(1.+z)); /* PBH energy injection */
 
   }
 
@@ -3427,7 +3788,7 @@ int thermodynamics_derivs_with_recfast(
       chi_heat = 1.;
 
     dy[2]= preco->CT * pow(Trad,4) * x_e / (1.+x_e+preco->fHe) * (Tmat-Trad) / (Hz*(1.+z)) + 2.*Tmat/(1.+z)
-      -2./(3.*_k_B_)*energy_rate*chi_heat/n_H/(1.+preco->fHe+x_e)/(Hz*(1.+z)); /* energy injection */
+      -2./(3.*_k_B_)*(energy_rate*chi_heat+pbh_heat_rate)/n_H/(1.+preco->fHe+x_e)/(Hz*(1.+z)); /* energy injection from WIMP + PBH DM */
   }
 
   return _SUCCESS_;
@@ -3469,7 +3830,6 @@ int thermodynamics_merge_reco_and_reio(
   /** - find number of redshift in full table = number in reco + number in reio - overlap */
 
   pth->tt_size = ppr->recfast_Nz0 + preio->rt_size - preio->index_reco_when_reio_start - 1;
-
 
   /** - allocate arrays in thermo structure */
 

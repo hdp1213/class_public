@@ -48,6 +48,7 @@ enum pbh_mass_distributions {
   pbh_log_norm  /**< log normal distribution */
 };
 
+
 /**
  * Two useful smooth step functions, for smoothing transitions in recfast.
  */
@@ -159,6 +160,10 @@ struct thermo
   double pbh_mass_mean; /**< mean PBH mass in \f$ 10^{10} \f$ g */
 
   double pbh_mass_width; /**< PBH mass dispersion/width in \f$ 10^{10} \f$ g */
+
+  short read_pbh_tables; /**< flag for reading in external PBH energy deposition tables */
+
+  char * pbh_energy_dep_files_root; /**< root filename for PBH energy deposition tables */
 
   //@}
 
@@ -365,9 +370,27 @@ struct recombination {
 
   /* parameters for PBH energy injection */
 
+  enum pbh_mass_distributions pbh_mass_dist; /**< PBH mass distribution, defaults to no distribution (no evaporating PBHs) */
+
   double pbh_mass_mean; /**< mean PBH mass in \f$ 10^{10} \f$ g */
 
   double pbh_mass_width; /**< PBH mass dispersion/width in \f$ 10^{10} \f$ g */
+
+  int pz_size; /**< size of PBH deposition redshift array needed for interpolation */
+
+  double * pbh_z_deps; /**< PBH deposition redshift array needed for interpolation */
+
+  int pm_size; /**< size of PBH mass array needed for interpolation */
+
+  double * pbh_masses; /**< PBH mass array needed for interpolation */
+
+  /* PBH energy deposition efficiency arrays */
+
+  double * pbh_hion; /**< PBH energy deposition efficiencies for hydrogen ionisation channel */
+
+  double * pbh_excite; /**< PBH energy deposition efficiencies for hydrogen excitation */
+
+  double * pbh_heat; /**< PBH energy deposition efficiencies for plasma heating */
 
   //@}
 
@@ -510,6 +533,17 @@ extern "C" {
                              struct reionization * preio
                              );
 
+  int thermodynamics_pbh_init(
+                              struct precision * ppr,
+                              struct background * pba,
+                              struct thermo * pth,
+                              struct recombination * preco
+                              );
+
+  int thermodynamics_pbh_free(
+                              struct recombination * preco
+                              );
+
   int thermodynamics_helium_from_bbn(
                                      struct precision * ppr,
                                      struct background * pba,
@@ -533,6 +567,29 @@ extern "C" {
                                       double * energy_rate,
                                       ErrorMsg error_message
                                       );
+
+  int thermodynamics_pbh_effective_energy_injection(
+                                            struct background * pba,
+                                            struct recombination * preco,
+                                            double pbh_mass,
+                                            double z,
+                                            double * energy_rate_hion,
+                                            double * energy_rate_excite,
+                                            double * energy_rate_heat,
+                                            ErrorMsg error_message
+                                            );
+
+  int thermodynamics_pbh_log_normal(
+                                    struct background * pba,
+                                    struct recombination * preco,
+                                    double * pbh_masses,
+                                    int pbh_masses_size,
+                                    double z,
+                                    double * hion_res,
+                                    double * excite_res,
+                                    double * heat_res,
+                                    ErrorMsg error_message
+                                    );
 
   int thermodynamics_reionization_function(
                                            double z,
