@@ -79,6 +79,14 @@ void* class_protect_memcpy(void* dest, void* from, size_t sz);
 
 int get_number_of_titles(char * titlestring);
 
+int class_read_2d_array_from_file(
+                                  char * filename,
+                                  double * array,
+                                  int x_size,
+                                  int y_size,
+                                  ErrorMsg error_message
+                                  );
+
 #define class_build_error_string(dest,tmpl,...) {                                                                \
   ErrorMsg FMsg;                                                                                                 \
   class_protect_sprintf(FMsg,tmpl,__VA_ARGS__);                                                                  \
@@ -479,6 +487,13 @@ struct precision
   FileName hyrec_R_inf_file;
   FileName hyrec_two_photon_tables_file;
 /* @endcond */
+  /* - for PBH recombination */
+
+  double pbh_z_min; /**< minimum redshift of precomputed deposition tables */
+  double pbh_z_max; /**< maximum redshift of precomputed deposition tables */
+  int pbh_z_steps; /**< number of redshift steps of precomputed deposition tables */
+  int pbh_mass_steps; /**< number of mass steps of precomputed deposition tables */
+
   /* - for reionization */
 
   double reionization_z_start_max; /**< maximum redshift at which reionization should start. If not, return an error. */
