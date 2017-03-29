@@ -1671,7 +1671,7 @@ int thermodynamics_pbh_log_normal(
                                   ErrorMsg error_message
                                   ) {
   int i;
-  double mass_dist,pbh_mass;
+  double mass_dist,pbh_mass,log10_pbh_mass;
   double energy_rate_hion,energy_rate_excite,energy_rate_heat;
   double * hion_tot;
   double * excite_tot;
@@ -1683,11 +1683,14 @@ int thermodynamics_pbh_log_normal(
   class_alloc(heat_tot,pbh_masses_size*sizeof(double),error_message);
 
   for (i = 0; i < pbh_masses_size; ++i) {
+    /* Needed for interpolation during pbh_effective_energy_injection() */
+    log10_pbh_mass = *(pbh_mass_exps+i);
+
     /* Transform exponents back into physical mass with units of 10^{10} g */
-    pbh_mass = pow(10.,*(pbh_mass_exps+i));
+    pbh_mass = pow(10.,log10_pbh_mass);
 
     /* Calculate the effective energy rate */
-    class_call(thermodynamics_pbh_effective_energy_injection(pba,preco,pbh_mass,z,&energy_rate_hion,&energy_rate_excite,&energy_rate_heat,error_message),
+    class_call(thermodynamics_pbh_effective_energy_injection(pba,preco,log10_pbh_mass,z,&energy_rate_hion,&energy_rate_excite,&energy_rate_heat,error_message),
                      error_message,
                      error_message);
 
