@@ -1036,6 +1036,9 @@ int input_read_parameters(
     }
   }
 
+  /** - Omega_0_pbh_ratio (ratio of PBH dark matter to WIMP DM) */
+  class_read_double("Omega_pbh_ratio",pba->Omega0_pbh_ratio);
+
   /** (b) assign values to thermodynamics cosmological parameters */
 
   /** - primordial helium fraction */
@@ -1238,6 +1241,40 @@ int input_read_parameters(
   if ((pth->pbh_mass_dist == pbh_log_norm)){
     class_read_double("pbh_mass_mean",pth->pbh_mass_mean);
     class_read_double("pbh_mass_width",pth->pbh_mass_width);
+  }
+
+  /** - external PBH energy deposition tables */
+  class_call(parser_read_string(pfc,
+                                "read pbh tables",
+                                &(string1),
+                                &(flag1),
+                                errmsg),
+             errmsg,
+             errmsg);
+
+  if (flag1 == _TRUE_) {
+    if ((strstr(string1,"y") != NULL) || (strstr(string1,"Y") != NULL)) {
+      pth->read_pbh_tables = _TRUE_;
+    }
+    else {
+      if ((strstr(string1,"n") != NULL) || (strstr(string1,"N") != NULL)) {
+        pth->read_pbh_tables = _FALSE_;
+      }
+      else {
+        class_stop(errmsg,"incomprehensible input '%s' for the field 'read pbh tables'",string1);
+      }
+    }
+  }
+
+  class_call(parser_read_string(pfc,"pbh_root",&string1,&flag1,errmsg),
+             errmsg,
+             errmsg);
+
+  if (flag1 == _TRUE_) {
+    strcpy(string2, "pbh/");
+    strcat(string2, string1);
+
+    pth->pbh_energy_dep_files_root = string2;
   }
 
   /** (c) define which perturbations and sources should be computed, and down to which scale */
@@ -2509,6 +2546,11 @@ int input_read_parameters(
   class_read_string("R_inf hyrec file",ppr->hyrec_R_inf_file);
   class_read_string("two_photon_tables hyrec file",ppr->hyrec_two_photon_tables_file);
 
+  class_read_double("pbh_z_min",ppr->pbh_z_min);
+  class_read_double("pbh_z_max",ppr->pbh_z_max);
+  class_read_int("pbh_z_steps",ppr->pbh_z_steps);
+  class_read_int("pbh_mass_steps",ppr->pbh_mass_steps);
+
   class_read_double("reionization_z_start_max",ppr->reionization_z_start_max);
   class_read_double("reionization_sampling",ppr->reionization_sampling);
   class_read_double("reionization_optical_depth_tol",ppr->reionization_optical_depth_tol);
@@ -2874,6 +2916,8 @@ int input_default_params(
   pba->wa_fld=0.;
   pba->cs2_fld=1.;
 
+  pba->Omega0_pbh_ratio = 0.;
+
   pba->shooting_failed = _FALSE_;
 
   /** - thermodynamics structure */
@@ -2908,6 +2952,9 @@ int input_default_params(
   pth->pbh_mass_dist = pbh_none;
   pth->pbh_mass_mean = 1.e6;
   pth->pbh_mass_width = 1.e3;
+
+  pth->read_pbh_tables = _TRUE_;
+  pth->pbh_energy_dep_files_root = "pbh/pbh_dep_table_";
 
   pth->compute_cb2_derivatives=_FALSE_;
 
@@ -3196,6 +3243,13 @@ int input_default_precision ( struct precision * ppr ) {
   strcat(ppr->hyrec_R_inf_file,"/hyrec/R_inf.dat");
   sprintf(ppr->hyrec_two_photon_tables_file,__CLASSDIR__);
   strcat(ppr->hyrec_two_photon_tables_file,"/hyrec/two_photon_tables.dat");
+
+  /* for PBH recombination */
+
+  ppr->pbh_z_min=12.;
+  ppr->pbh_z_max=2000.;
+  ppr->pbh_z_steps=1989;
+  ppr->pbh_mass_steps=41; // TODO(harry): dynamic allocation of these values
 
   /* for reionization */
 
