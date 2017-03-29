@@ -4,7 +4,7 @@ var thermodynamics_8h_structthermo =
     [ "recombination", "thermodynamics_8h.html#a5e6ec5533b6b93b80cfaa0d933117410", null ],
     [ "reio_parametrization", "thermodynamics_8h.html#a933d64335c2f8d29ac8966d311e76902", null ],
     [ "reio_z_or_tau", "thermodynamics_8h.html#aa911a8bfc092639aef86ba60351a3b0c", null ],
-    [ "pbh_mass_dist", "thermodynamics_8h.html#a592e347b1ba014d5b184005da0b6e70a", null ],
+    [ "pbh_mass_dist", "thermodynamics_8h.html#ac2b214871798700c0a56accfe8f66ddd", null ],
     [ "tau_reio", "thermodynamics_8h.html#a3a2458620f9e70183e0df4900abe2764", null ],
     [ "z_reio", "thermodynamics_8h.html#a09cdddaec3d9d3be0c790a119b1023f0", null ],
     [ "compute_cb2_derivatives", "thermodynamics_8h.html#a3d509e606f8d353fed5b353562fbec2a", null ],

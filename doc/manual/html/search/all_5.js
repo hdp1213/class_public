@@ -6,6 +6,5 @@ var searchData=
   ['evolve_5ftensor_5fncdm',['evolve_tensor_ncdm',['../perturbations_8h.html#adcaa3d85397351a0151065346f00b3d6',1,'perturbs']]],
   ['evolve_5ftensor_5fur',['evolve_tensor_ur',['../perturbations_8h.html#a08587660d0693d074671e86df628e4f2',1,'perturbs']]],
   ['evolver',['evolver',['../common_8h.html#abf73fec0ba7a2b9bfc2b31f0ad69637b',1,'precision']]],
-  ['evolver_5ftype',['evolver_type',['../common_8h.html#a554a0cdfc80aa49273197d324b2e9956',1,'common.h']]],
-  ['excite_5fchannel',['excite_channel',['../thermodynamics_8h.html#aaf41c331031e64e4514c91d72a147e98a6eb66229d8681187d4e9e7b71e15d056',1,'thermodynamics.h']]]
+  ['evolver_5ftype',['evolver_type',['../common_8h.html#a554a0cdfc80aa49273197d324b2e9956',1,'common.h']]]
 ];

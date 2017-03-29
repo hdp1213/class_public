@@ -45,7 +45,7 @@ var searchData=
   ['thermodynamics_5fpbh_5feffective_5fenergy_5finjection',['thermodynamics_pbh_effective_energy_injection',['../thermodynamics_8c.html#a0f130b6153706c5fee445f609f50ce4e',1,'thermodynamics.c']]],
   ['thermodynamics_5fpbh_5ffree',['thermodynamics_pbh_free',['../thermodynamics_8c.html#a13508b72cf0169f7bb4145c76d8da4ae',1,'thermodynamics.c']]],
   ['thermodynamics_5fpbh_5finit',['thermodynamics_pbh_init',['../thermodynamics_8c.html#afeb306d56315f485f24484b2eca8ab76',1,'thermodynamics.c']]],
-  ['thermodynamics_5fpbh_5flog_5fnormal',['thermodynamics_pbh_log_normal',['../thermodynamics_8c.html#a7253156b7ce1c5bc32755703c4de8033',1,'thermodynamics.c']]],
+  ['thermodynamics_5fpbh_5flog_5fnormal',['thermodynamics_pbh_log_normal',['../thermodynamics_8c.html#aaa3bb7a70b36e2aa60027ea47a22ea48',1,'thermodynamics.c']]],
   ['thermodynamics_5frecombination',['thermodynamics_recombination',['../thermodynamics_8c.html#a13696727ba92af10edfed3ebf8c43a8a',1,'thermodynamics.c']]],
   ['thermodynamics_5frecombination_5fwith_5fhyrec',['thermodynamics_recombination_with_hyrec',['../thermodynamics_8c.html#a3bddca88ed8e4de96ef783710739b2e6',1,'thermodynamics.c']]],
   ['thermodynamics_5frecombination_5fwith_5frecfast',['thermodynamics_recombination_with_recfast',['../thermodynamics_8c.html#ab7d2c22e2a933156c291bfa467731ab2',1,'thermodynamics.c']]],

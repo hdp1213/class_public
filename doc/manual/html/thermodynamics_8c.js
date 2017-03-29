@@ -10,7 +10,7 @@ var thermodynamics_8c =
     [ "thermodynamics_onthespot_energy_injection", "thermodynamics_8c.html#a7f1a04c6e4b080dbbe2855969e16eb25", null ],
     [ "thermodynamics_energy_injection", "thermodynamics_8c.html#ad83c9423d4031f0f3797afb6ff2e33b5", null ],
     [ "thermodynamics_pbh_effective_energy_injection", "thermodynamics_8c.html#a0f130b6153706c5fee445f609f50ce4e", null ],
-    [ "thermodynamics_pbh_log_normal", "thermodynamics_8c.html#a7253156b7ce1c5bc32755703c4de8033", null ],
+    [ "thermodynamics_pbh_log_normal", "thermodynamics_8c.html#aaa3bb7a70b36e2aa60027ea47a22ea48", null ],
     [ "thermodynamics_reionization_function", "thermodynamics_8c.html#a2c452e9b63299d65eaabe2065bfbb8a8", null ],
     [ "thermodynamics_get_xe_before_reionization", "thermodynamics_8c.html#a81120dad31dd155c4c3eaca36da53080", null ],
     [ "thermodynamics_reionization", "thermodynamics_8c.html#aa8e6b48cadc0a989b729fa624e1d61b3", null ],

@@ -22,7 +22,6 @@ var searchData=
   ['delta_5frho',['delta_rho',['../perturbations_8h.html#a313fc9485defc5c8c69ec3080eba1647',1,'perturb_workspace']]],
   ['delta_5ftot_5ffrom_5fpoisson_5fsquared',['delta_tot_from_poisson_squared',['../common_8h.html#aab161982846c9e414cccea37822f4b0ca8406d31036bb2d430753210d3270f7b2',1,'common.h']]],
   ['delta_5ftot_5fsquared',['delta_tot_squared',['../common_8h.html#aab161982846c9e414cccea37822f4b0caad4f0a8f52a0e789973f85d0351d359b',1,'common.h']]],
-  ['deposition_5fchannel_5ft',['deposition_channel_t',['../thermodynamics_8h.html#aaf41c331031e64e4514c91d72a147e98',1,'thermodynamics.h']]],
   ['dlnf0_5fdlnq_5fncdm',['dlnf0_dlnq_ncdm',['../background_8h.html#a0d55e502abf84a474a51af8d9d352ae3',1,'background']]],
   ['ds_5fd',['ds_d',['../thermodynamics_8h.html#af146a478a958c395eea06936778046a6',1,'thermo']]],
   ['ds_5frec',['ds_rec',['../thermodynamics_8h.html#a0b850d5fa4f35c4912a361a2de85b373',1,'thermo']]],

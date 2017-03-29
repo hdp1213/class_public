@@ -5,7 +5,7 @@ var searchData=
   ['pbh_5fexcite',['pbh_excite',['../thermodynamics_8h.html#a3f120ba33a8a5fce5caea7c338f465ce',1,'recombination']]],
   ['pbh_5fheat',['pbh_heat',['../thermodynamics_8h.html#a4268cb02763076fa3c9ecf92760aa96d',1,'recombination']]],
   ['pbh_5fhion',['pbh_hion',['../thermodynamics_8h.html#a07e3b4a7a0942e0a5526e50eff954b04',1,'recombination']]],
-  ['pbh_5fmass_5fdist',['pbh_mass_dist',['../thermodynamics_8h.html#a592e347b1ba014d5b184005da0b6e70a',1,'thermo::pbh_mass_dist()'],['../thermodynamics_8h.html#a97348c301088ee21d47b31398c3f3f0d',1,'recombination::pbh_mass_dist()']]],
+  ['pbh_5fmass_5fdist',['pbh_mass_dist',['../thermodynamics_8h.html#ac2b214871798700c0a56accfe8f66ddd',1,'thermo::pbh_mass_dist()'],['../thermodynamics_8h.html#ac20dad4353e038bc9a56fb96197cef99',1,'recombination::pbh_mass_dist()']]],
   ['pbh_5fmass_5fmean',['pbh_mass_mean',['../thermodynamics_8h.html#aead163559b58749db343e3d6a50c80ad',1,'thermo::pbh_mass_mean()'],['../thermodynamics_8h.html#a87bd9be54a99471780484b30dba0eb40',1,'recombination::pbh_mass_mean()']]],
   ['pbh_5fmass_5fsteps',['pbh_mass_steps',['../common_8h.html#a17c52ad638b73929bcd06fbd6245e000',1,'precision']]],
   ['pbh_5fmass_5fwidth',['pbh_mass_width',['../thermodynamics_8h.html#a032efab1c512474421da2169bc772a27',1,'thermo::pbh_mass_width()'],['../thermodynamics_8h.html#a4d6604a5075f9302df4ec9b005729e51',1,'recombination::pbh_mass_width()']]],
