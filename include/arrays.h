@@ -404,6 +404,17 @@ int array_integrate_all_trapzd_or_spline(
 				 double * ddy,
 				 ErrorMsg errmsg);
 
+  int array_interpolate_2d_array_bilinear_decy(
+         double * array,
+         double * x_values,
+         int x_size,
+         double * y_values,
+         int y_size,
+         double x,
+         double y,
+         double *result,
+         ErrorMsg errmsg);
+
   int array_smooth(double * array,
 		   int n_columns,
 		   int n_lines,
