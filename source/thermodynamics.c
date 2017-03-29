@@ -1593,7 +1593,7 @@ int thermodynamics_pbh_effective_energy_injection(
   rho_pbh_dm_today = pow(pba->H0*_c_/_Mpc_over_m_,2)*3/8./_PI_/_G_*Omega0_pbh_dm*_c_*_c_; /* energy density in J/m^3 */
 
   /* Approximate power radiated from PBH as in [arXiv:1612.07738], where pbh_mass is in units of 10^10 g */
-  energy_rate = +1.08e-5*rho_pbh_dm_today*pow((1+z)/pbh_mass,3);
+  energy_rate = 1.08e-5*rho_pbh_dm_today*pow((1.+z)/pbh_mass,3);
 
   /* Interpolate results to the specified mass and redshift. Note that both mass and redshifts can be out of bounds of the interpolation! */
   class_call(array_interpolate_2d_array_bilinear_decy(
@@ -1603,7 +1603,7 @@ int thermodynamics_pbh_effective_energy_injection(
                                              preco->pbh_z_deps,
                                              preco->pz_size,
                                              log10(pbh_mass),
-                                             z,
+                                             1.+z,
                                              &hion_eff,
                                              error_message),
              error_message,
@@ -1616,7 +1616,7 @@ int thermodynamics_pbh_effective_energy_injection(
                                              preco->pbh_z_deps,
                                              preco->pz_size,
                                              log10(pbh_mass),
-                                             z,
+                                             1.+z,
                                              &excite_eff,
                                              error_message),
              error_message,
@@ -1629,7 +1629,7 @@ int thermodynamics_pbh_effective_energy_injection(
                                              preco->pbh_z_deps,
                                              preco->pz_size,
                                              log10(pbh_mass),
-                                             z,
+                                             1.+z,
                                              &heat_eff,
                                              error_message),
              error_message,
@@ -1650,8 +1650,8 @@ int thermodynamics_pbh_effective_energy_injection(
  *
  * @param pba             Input: pointer to background structure
  * @param preco           Input: pointer to recombination structure
- * @param pbh_masses      Input: range of PBH masses to integrate over
- * @param pbh_masses_size Input: size of pbh_masses
+ * @param pbh_mass_exps   Input: range of exponents of PBH masses to integrate over, in original units of \f$ 10^{10} \f$ g
+ * @param pbh_masses_size Input: size of the pbh_mass_exps array
  * @param z               Input: redshift to evaluate at
  * @param hion_res        Output: result of hydrogen ionisation integral
  * @param excite_res      Output: result of excitation integral
@@ -1662,7 +1662,7 @@ int thermodynamics_pbh_effective_energy_injection(
 int thermodynamics_pbh_log_normal(
                                   struct background * pba,
                                   struct recombination * preco,
-                                  double * pbh_masses,
+                                  double * pbh_mass_exps,
                                   int pbh_masses_size,
                                   double z,
                                   double * hion_res,
@@ -1683,14 +1683,15 @@ int thermodynamics_pbh_log_normal(
   class_alloc(heat_tot,pbh_masses_size*sizeof(double),error_message);
 
   for (i = 0; i < pbh_masses_size; ++i) {
-    pbh_mass = *(pbh_masses+i);
+    /* Transform exponents back into physical mass with units of 10^{10} g */
+    pbh_mass = pow(10.,*(pbh_mass_exps+i));
 
     /* Calculate the effective energy rate */
     class_call(thermodynamics_pbh_effective_energy_injection(pba,preco,pbh_mass,z,&energy_rate_hion,&energy_rate_excite,&energy_rate_heat,error_message),
                      error_message,
                      error_message);
 
-    /* Calculate the log-normal mass distribution */
+    /* Calculate the log-normal mass distribution (worth checking) */
     mass_dist = 1./(pbh_mass*preco->pbh_mass_width*_SQRT2_*_SQRT_PI_) * exp(-0.5*pow((log(pbh_mass)-preco->pbh_mass_mean)/preco->pbh_mass_width,2));
 
     /* Fill arrays */
@@ -1702,7 +1703,7 @@ int thermodynamics_pbh_log_normal(
   class_alloc(trapz_weights,pbh_masses_size*sizeof(double),error_message);
 
   /* Initialise trapezoidal weights */
-  class_call(array_trapezoidal_weights(pbh_masses,
+  class_call(array_trapezoidal_weights(pbh_mass_exps,
                                        pbh_masses_size,
                                        trapz_weights,
                                        error_message),
@@ -3585,12 +3586,12 @@ int thermodynamics_derivs_with_recfast(
              error_message);
 
   /* Calculate PBH energy injection only within appropriate redshift range */
-  if (z > ppr->pbh_z_max) {
+  if ((1.+z) > ppr->pbh_z_max) {
     pbh_hion_rate = 0.;
     pbh_excite_rate = 0.;
     pbh_heat_rate = 0.;
   }
-  else if (z < ppr->pbh_z_min) {
+  else if ((1.+z) < ppr->pbh_z_min) {
     /* TODO(harry): implement smoothing function to prevent sudden cutoff of injection rates at z<pbh_z_min */
     pbh_hion_rate = 0.;
     pbh_excite_rate = 0.;
