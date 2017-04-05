@@ -1074,25 +1074,36 @@ int thermodynamics_pbh_init(
                             ) {
   int i;
   char pbh_table_file[_ARGUMENT_LENGTH_MAX_];
+  FILE * fp;
 
   /** - read in precomputed PBH energy deposition efficiencies */
 
-  /* allocate PBH deposition sizes and `axes' */
-  preco->pz_size = ppr->pbh_z_steps;
-  preco->pm_size = ppr->pbh_mass_steps;
+  /* read in axes */
+  strcpy(pbh_table_file, pth->pbh_energy_dep_files_root);
+  strcat(pbh_table_file, "axes.dat");
 
-  class_alloc(preco->pbh_z_deps,preco->pz_size*sizeof(double),pth->error_message);
-  class_alloc(preco->pbh_masses,preco->pm_size*sizeof(double),pth->error_message);
-
-  /* initialise axes */
   /* TODO(harry): make initialising axes more efficient when run in batch as these are independent of cosmology */
-  for (i = 0; i < preco->pz_size; ++i) {
-    *(preco->pbh_z_deps+i) = ppr->pbh_z_max - (ppr->pbh_z_max - ppr->pbh_z_min) * (double)(i) / (double)(preco->pz_size-1);
-  }
+  class_open(fp, pbh_table_file, "r", pth->error_message);
 
-  for (i = 0; i < preco->pm_size; ++i) {
-    *(preco->pbh_masses+i) = log10(_PBH_MASS_MIN_) + (log10(_PBH_MASS_MAX_) - log10(_PBH_MASS_MIN_)) * (double)(i) / (double)(preco->pm_size-1);
-  }
+  class_call(class_read_1d_array(fp,
+                                 &preco->pbh_z_deps,
+                                 &preco->pz_size,
+                                 pth->error_message),
+             pth->error_message,
+             pth->error_message);
+
+  class_call(class_read_1d_array(fp,
+                                 &preco->pbh_masses,
+                                 &preco->pm_size,
+                                 pth->error_message),
+             pth->error_message,
+             pth->error_message);
+
+  fclose(fp);
+
+  /* set min and max z-values */
+  preco->pbh_z_min = *(preco->pbh_z_deps+preco->pz_size-1);
+  preco->pbh_z_max = *(preco->pbh_z_deps);
 
   /* allocate PBH tables */
   class_alloc(preco->pbh_hion,preco->pz_size*preco->pm_size*sizeof(double),pth->error_message);
@@ -1105,37 +1116,43 @@ int thermodynamics_pbh_init(
     strcpy(pbh_table_file, pth->pbh_energy_dep_files_root);
     strcat(pbh_table_file, "hion.dat");
 
-    class_call(class_read_2d_array_from_file(pbh_table_file,
-                                             preco->pbh_hion,
-                                             preco->pm_size,
-                                             preco->pz_size,
-                                             pth->error_message),
+    class_open(fp, pbh_table_file, "r", pth->error_message);
+    class_call(class_read_2d_array(fp,
+                                   preco->pbh_hion,
+                                   preco->pm_size,
+                                   preco->pz_size,
+                                   pth->error_message),
                pth->error_message,
                pth->error_message);
+    fclose(fp);
 
     /* read in excitation table */
     strcpy(pbh_table_file, pth->pbh_energy_dep_files_root);
     strcat(pbh_table_file, "excite.dat");
 
-    class_call(class_read_2d_array_from_file(pbh_table_file,
-                                             preco->pbh_excite,
-                                             preco->pm_size,
-                                             preco->pz_size,
-                                             pth->error_message),
+    class_open(fp, pbh_table_file, "r", pth->error_message);
+    class_call(class_read_2d_array(fp,
+                                   preco->pbh_excite,
+                                   preco->pm_size,
+                                   preco->pz_size,
+                                   pth->error_message),
                pth->error_message,
                pth->error_message);
+    fclose(fp);
 
     /* read in heating table */
     strcpy(pbh_table_file, pth->pbh_energy_dep_files_root);
     strcat(pbh_table_file, "heat.dat");
 
-    class_call(class_read_2d_array_from_file(pbh_table_file,
-                                             preco->pbh_heat,
-                                             preco->pm_size,
-                                             preco->pz_size,
-                                             pth->error_message),
+    class_open(fp, pbh_table_file, "r", pth->error_message);
+    class_call(class_read_2d_array(fp,
+                                   preco->pbh_heat,
+                                   preco->pm_size,
+                                   preco->pz_size,
+                                   pth->error_message),
                pth->error_message,
                pth->error_message);
+    fclose(fp);
 
   }
 
@@ -1638,6 +1655,8 @@ int thermodynamics_pbh_effective_energy_injection(
   *energy_rate_hion = hion_eff * energy_rate;
   *energy_rate_excite = excite_eff * energy_rate;
   *energy_rate_heat = heat_eff * energy_rate;
+
+  printf("%f:\n\thion: %e\n\texcite: %e\n\theat: %e\n\trate: %e\n", z, hion_eff,excite_eff,heat_eff,energy_rate);
 
   return _SUCCESS_;
 }
@@ -3589,12 +3608,12 @@ int thermodynamics_derivs_with_recfast(
              error_message);
 
   /* Calculate PBH energy injection only within appropriate redshift range */
-  if ((1.+z) > ppr->pbh_z_max) {
+  if ((1.+z) > preco->pbh_z_max) {
     pbh_hion_rate = 0.;
     pbh_excite_rate = 0.;
     pbh_heat_rate = 0.;
   }
-  else if ((1.+z) < ppr->pbh_z_min) {
+  else if ((1.+z) < preco->pbh_z_min) {
     /* TODO(harry): implement smoothing function to prevent sudden cutoff of injection rates at z<pbh_z_min */
     pbh_hion_rate = 0.;
     pbh_excite_rate = 0.;
@@ -3617,8 +3636,10 @@ int thermodynamics_derivs_with_recfast(
       pbh_excite_rate = 0.;
       pbh_heat_rate = 0.;
     }
-  }
 
+    printf("\tx_H: %e\n\tx_He: %e\n\tTm: %e\n", x_H,x_He,Tmat);
+
+  }
 
   /* Hz is H in inverse seconds (while pvecback returns [H0/c] in inverse Mpcs) */
   Hz=pvecback[pba->index_bg_H]* _c_ / _Mpc_over_m_;

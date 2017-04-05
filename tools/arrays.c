@@ -2885,6 +2885,8 @@ int array_interpolate_2d_array_bilinear_decy(
   /* Perform a bilinear interpolation */
   *result = ((f11*(x2-x)+f21*(x-x1))*(y2-y)+(f12*(x2-x)+f22*(x-x1))*(y-y1))/((x2-x1)*(y2-y1));
 
+  // printf("%f\n", *result);
+
   return _SUCCESS_;
 }
 

@@ -1,8 +1,6 @@
 #include "common.h"
 #include "arrays.h"
 
-#define _FILEVALUESIZE_ 64
-
 int fill_spline_info(char *filename,
                      double **xknots,
                      int *nx,
@@ -18,12 +16,13 @@ int fill_eval_info(char *filename,
                    int ny,
                    ErrorMsg error_message);
 
+
 int main(int argc, char const *argv[])
 {
 
-  char spline_file[_FILEVALUESIZE_];
-  char bound_file[_FILEVALUESIZE_];
-  char out_file[_FILEVALUESIZE_];
+  char spline_file[_CSVVALUESIZE_];
+  char bound_file[_CSVVALUESIZE_];
+  char out_file[_CSVVALUESIZE_];
   FILE * ofp;
 
   int i;
@@ -149,155 +148,41 @@ int fill_spline_info(
                      ) {
   FILE *fp;
   int n_coeffs;
-  int col, char_ind;
-  int file_line_size;
-  char * line_buf;
-  char value_buf[_FILEVALUESIZE_];
-  char char_buf[2];
   int deg = 3;
   
-  // Set terminating C string character
-  char_buf[1] = '\0';
-
   class_open(fp, filename, "r", error_message);
 
-  // The first line contains the number of xknots, nx
-  fscanf(fp, "%d\n", nx);
-  *xknots = malloc(*nx * sizeof(double));
-  class_test((*xknots == NULL),
-       error_message,
-       "Cannot allocate xknots\n");
-
-  // Allocate line buffer
-  file_line_size = *nx * _FILEVALUESIZE_;
-  line_buf = malloc(file_line_size * sizeof(char));
-  class_test((line_buf == NULL),
-       error_message,
-       "Cannot allocate line_buf\n");
-  
-  // Get second line read into line buffer
-  fgets(line_buf, file_line_size, fp);
-  class_test((line_buf == NULL),
-       error_message,
-       "unexpected end of file");
-
-  // Read second line into xknots
-  col = 0;
-  char_ind = 0;
-  while (line_buf[char_ind] != '\n') {
-    if (line_buf[char_ind] != ',') { // continue reading in characters
-      char_buf[0] = line_buf[char_ind];
-      strncat(value_buf, char_buf, 2);
-    }
-    else { // save value to array of doubles
-      sscanf(value_buf, "%lf", *xknots+col);
-      strncpy(value_buf, "", 2);
-      col++;
-    }
-    char_ind++;
-  }
-  sscanf(value_buf, "%lf", *xknots+col);
-  strncpy(value_buf, "", 2);
-  col++;
-
-  free(line_buf);
-  // printf("Read %d/%d xknots\n", col, *nx);
+  class_call(class_read_1d_array(fp,
+                                 xknots,
+                                 nx,
+                                 error_message),
+             error_message,
+             error_message);
 
 
-  // The third line contains the number of yknots, ny
-  fscanf(fp, "%d\n", ny);
-  *yknots = malloc(*ny * sizeof(double));
-  class_test((*yknots == NULL),
-       error_message,
-       "Cannot allocate yknots");
-
-  // Allocate line buffer
-  file_line_size = *ny * _FILEVALUESIZE_;
-  line_buf = malloc(file_line_size * sizeof(char));
-  class_test((line_buf == NULL),
-       error_message,
-       "Cannot allocate line_buf\n");
-
-  // Get fourth line read into line buffer
-  fgets(line_buf, file_line_size, fp);
-  class_test((line_buf == NULL),
-       error_message,
-       "unexpected end of file");
-
-  // Read fourth line into yknots
-  col = 0;
-  char_ind = 0;
-  while (line_buf[char_ind] != '\n') {
-    if (line_buf[char_ind] != ',') { // continue reading in characters
-      char_buf[0] = line_buf[char_ind];
-      strncat(value_buf, char_buf, 2);
-    }
-    else { // save value to array of doubles
-      sscanf(value_buf, "%lf", *yknots+col);
-      strncpy(value_buf, "", 2);
-      col++;
-    }
-    char_ind++;
-  }
-  sscanf(value_buf, "%lf", *yknots+col);
-  strncpy(value_buf, "", 2);
-  col++;
-
-  free(line_buf);
-  // printf("Read %d/%d yknots\n", col, *ny);
+  class_call(class_read_1d_array(fp,
+                                 yknots,
+                                 ny,
+                                 error_message),
+             error_message,
+             error_message);
 
 
-  // The fifth line contains the number of coeffs, n_coeffs
-  fscanf(fp, "%d\n", &n_coeffs);
+  class_call(class_read_1d_array(fp,
+                                 coeffs,
+                                 &n_coeffs,
+                                 error_message),
+             error_message,
+             error_message);
+
   class_test((n_coeffs != (*nx-deg-1)*(*ny-deg-1)),
        error_message,
        "number of supplied coefficients is incorrect");
-
-  *coeffs = malloc(n_coeffs * sizeof(double));
-  class_test((*coeffs == NULL),
-       error_message,
-       "Cannot allocate coeffs");
-
-  // Allocate line buffer
-  file_line_size = n_coeffs * _FILEVALUESIZE_;
-  line_buf = malloc(file_line_size * sizeof(char));
-  class_test((line_buf == NULL),
-       error_message,
-       "Cannot allocate line_buf\n");
-
-  // Get sixth line read into line buffer
-  fgets(line_buf, file_line_size, fp);
-  class_test((line_buf == NULL),
-       error_message,
-       "unexpected end of file");
-
-  // Read sixth line into coeffs
-  col = 0;
-  char_ind = 0;
-  while (line_buf[char_ind] != '\n') {
-    if (line_buf[char_ind] != ',') { // continue reading in characters
-      char_buf[0] = line_buf[char_ind];
-      strncat(value_buf, char_buf, 2);
-    }
-    else { // save value to array of doubles
-      sscanf(value_buf, "%lf", *coeffs+col);
-      strncpy(value_buf, "", 2);
-      col++;
-    }
-    char_ind++;
-  }
-  sscanf(value_buf, "%lf", *coeffs+col);
-  strncpy(value_buf, "", 2);
-  col++;
-
-  free(line_buf);
-  // printf("Read %d/%d coeffs\n", col, n_coeffs);
 
   fclose(fp);
 
   return _SUCCESS_;
 }
-
 
 int fill_eval_info(char *filename,
                    double **xeval,
