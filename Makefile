@@ -21,6 +21,10 @@ CC       = gcc
 #CC       = icc
 #CC       = pgcc
 
+# your Fortran compiler:
+FC       = gfortran 
+# FC       = ifort #-nofor_main
+
 # your tool for creating static libraries:
 AR        = ar rv
 
@@ -28,8 +32,8 @@ AR        = ar rv
 PYTHON = python
 
 # your optimization flag
-OPTFLAG = -O4 -ffast-math #-march=native
-#OPTFLAG = -Ofast -ffast-math #-march=native
+# OPTFLAG = -O4 -ffast-math #-march=native
+OPTFLAG = -Ofast -ffast-math #-march=native
 #OPTFLAG = -fast
 
 # your openmp flag (comment for compiling without openmp)
@@ -39,11 +43,13 @@ OMPFLAG   = -fopenmp
 
 # all other compilation flags
 CCFLAG = -g -fPIC
+FCFLAG = -g -ffree-line-length-none -fPIC
 LDFLAG = -g -fPIC
 
 # leave blank to compile without HyRec, or put path to HyRec directory
 # (with no slash at the end: e.g. hyrec or ../hyrec)
-HYREC = hyrec
+# HYREC = hyrec
+HYREC = 
 
 ########################################################
 ###### IN PRINCIPLE THE REST SHOULD BE LEFT UNCHANGED ##
@@ -56,7 +62,12 @@ CCFLAG += -D__CLASSDIR__='"$(MDIR)"'
 INCLUDES = -I../include
 
 # automatically add external programs if needed. First, initialize to blank.
-EXTERNAL =
+EXTERNAL = bispev.o fpbisp.o fpbspl.o
+
+# any dependencies
+array.o: bispev.o
+bispev.o: fpbisp.o
+fpbisp.o: fpbspl.o
 
 # Try to automatically avoid an error 'error: can't combine user with ...'
 # which sometimes happens with brewed Python on OSX:
@@ -77,8 +88,13 @@ INCLUDES += -I../hyrec
 EXTERNAL += hyrectools.o helium.o hydrogen.o history.o
 endif
 
+vpath %.f dierckx
+
 %.o:  %.c .base
 	cd $(WRKDIR);$(CC) $(OPTFLAG) $(OMPFLAG) $(CCFLAG) $(INCLUDES) -c ../$< -o $*.o
+
+%.o: %.f .base
+	cd $(WRKDIR);$(FC) $(OPTFLAG) $(OMPFLAG) $(FCFLAG) $(INCLUDES) -c ../$< -o $*.o
 
 TOOLS = growTable.o dei_rkck.o sparse.o evolver_rkck.o  evolver_ndf15.o arrays.o parser.o quadrature.o hyperspherical.o common.o
 
@@ -127,6 +143,8 @@ TEST_BACKGROUND = test_background.o
 TEST_SIGMA = test_sigma.o
 
 TEST_HYPERSPHERICAL = test_hyperspherical.o
+
+TEST_BICUBIC_SPLINE = test_bicubic_spline.o
 
 TEST_STEPHANE = test_stephane.o
 
@@ -184,6 +202,9 @@ test_background: $(TOOLS) $(SOURCE) $(EXTERNAL) $(TEST_BACKGROUND)
 
 test_hyperspherical: $(TOOLS) $(TEST_HYPERSPHERICAL)
 	$(CC) $(OPTFLAG) $(OMPFLAG) $(LDFLAG) -o test_hyperspherical $(addprefix build/,$(notdir $^)) -lm
+
+test_bicubic_spline: $(TOOLS) $(TEST_BICUBIC_SPLINE) $(EXTERNAL)
+	$(CC) $(OPTFLAG) $(OMPFLAG) $(LDFLAG) -o test_bicubic_spline $(addprefix build/,$(notdir $^)) -lm -lgfortran
 
 
 tar: $(C_ALL) $(C_TEST) $(H_ALL) $(PRE_ALL) $(INI_ALL) $(MISC_FILES) $(HYREC) $(PYTHON_FILES)

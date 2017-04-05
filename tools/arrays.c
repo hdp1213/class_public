@@ -3206,3 +3206,47 @@ int array_trapezoidal_convolution(
   *I = res;
   return _SUCCESS_;
 }
+
+/**
+ * Compute bicubic b-spline given the knot points and coefficients.
+ *
+ * @param xknots  Input: x-coordinates of each knot
+ * @param nx      Input: number of knot x-coordinates
+ * @param yknots  Input: y-coordinates of each knot
+ * @param ny      Input: number of knot y-coordinates
+ * @param coeffs  Input: B-spline coefficients
+ * @param x       Input: array of x-values to evaluate on. must be strictly increasing
+ * @param mx      Input: non-zero size of above array
+ * @param y       Input: array of y-values to evaluate on. must be strictly increasing
+ * @param my      Input: non-zero size of above array
+ * @param z       Output: The interpolated values z[my*(i-1)+j] containing the value of s(x,y) at the point (x[i],y[j]),i=0,...,mx-1;j=0,...,my-1.
+ * @return the error status
+ */
+
+int array_eval_bicubic_bspline(
+                               double * __restrict__ xknots,
+                               int nx,
+                               double * __restrict__ yknots,
+                               int ny,
+                               double * __restrict__ coeffs,
+                               double * __restrict__ x,
+                               int mx,
+                               double * __restrict__ y,
+                               int my,
+                               double * __restrict__ z,
+                               ErrorMsg errmsg
+                               ) {
+  int deg = 3;
+  int lwrk = (mx+my)*(deg+1); // lwrk >= mx*(kx+1)+my*(ky+1)
+  int kwrk = mx+my; // kwrk >= mx+my
+  int ierr;
+  
+  double wrk[lwrk];
+  int iwrk[kwrk];
+
+  bispev_(xknots, &nx, yknots, &ny, coeffs, &deg, &deg, x, &mx, y, &my, z, wrk, &lwrk, iwrk, &kwrk, &ierr);
+
+  class_test((ierr != 0),
+          "thing failed",
+          errmsg);
+}
