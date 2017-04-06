@@ -1607,6 +1607,7 @@ int thermodynamics_pbh_effective_energy_injection(
   double Omega0_pbh_dm;
   double rho_pbh_dm_today;
   double energy_rate;
+  double f_elec = 0.142, f_phot = 0.06;
   double hion_eff, excite_eff, heat_eff;
 
   Omega0_pbh_dm = pba->Omega0_pbh_ratio*pba->Omega0_cdm;
@@ -1614,7 +1615,7 @@ int thermodynamics_pbh_effective_energy_injection(
   rho_pbh_dm_today = pow(pba->H0*_c_/_Mpc_over_m_,2)*3/8./_PI_/_G_*Omega0_pbh_dm*_c_*_c_; /* energy density in J/m^3 */
 
   /* Approximate power radiated from PBH as in [arXiv:1612.07738], where pbh_mass is in units of 10^10 g */
-  energy_rate = 1.08e-5*rho_pbh_dm_today*pow((1.+z)/pbh_mass,3);
+  energy_rate = 5.34e-5*(4.*f_elec+2.*f_phot)*rho_pbh_dm_today*pow((1.+z)/pbh_mass,3);
 
   /* Interpolate results to the specified mass and redshift. Note that both mass and redshifts can be out of bounds of the interpolation! */
   class_call(array_interpolate_2d_array_bilinear_decy(
