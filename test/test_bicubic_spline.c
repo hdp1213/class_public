@@ -206,7 +206,6 @@ int fill_eval_info(char *filename,
        error_message,
        "Cannot allocate xeval\n");
 
-
   for (i = 0; i < nx; ++i) {
     *(*xeval+i) = x_min + (double) (i)/(double) (nx-1) * (x_max - x_min);
   }

@@ -1126,6 +1126,10 @@ int thermodynamics_pbh_init(
                pth->error_message);
     fclose(fp);
 
+    // for (i = 0; i < preco->pm_size*preco->pz_size; ++i) {
+    //   printf("%e\n", *(preco->pbh_hion+i));
+    // }
+
     /* read in excitation table */
     strcpy(pbh_table_file, pth->pbh_energy_dep_files_root);
     strcat(pbh_table_file, "excite.dat");
@@ -1656,7 +1660,9 @@ int thermodynamics_pbh_effective_energy_injection(
   *energy_rate_excite = excite_eff * energy_rate;
   *energy_rate_heat = heat_eff * energy_rate;
 
-  printf("%f:\n\thion: %e\n\texcite: %e\n\theat: %e\n\trate: %e\n", z, hion_eff,excite_eff,heat_eff,energy_rate);
+#ifdef THERMO_DBUG
+  printf("%f,%e,%e,%e,%e,", z, hion_eff,excite_eff,heat_eff,energy_rate);
+#endif
 
   return _SUCCESS_;
 }
@@ -3637,7 +3643,9 @@ int thermodynamics_derivs_with_recfast(
       pbh_heat_rate = 0.;
     }
 
-    printf("\tx_H: %e\n\tx_He: %e\n\tTm: %e\n", x_H,x_He,Tmat);
+#ifdef THERMO_DBUG
+    printf("%e,%e,%e\n", x_H,x_He,Tmat);
+#endif
 
   }
 
