@@ -32,7 +32,7 @@ int get_number_of_titles(char * titlestring){
 }
 
 /**
- * Read in a 2D array given in a .csv-like file with space delimiter
+ * Read in a 2D array given in a .csv file
  *
  *
  * @param filename      Input: name of file to read in
@@ -43,31 +43,30 @@ int get_number_of_titles(char * titlestring){
  * @return the error status
  */
 
-int class_read_2d_array_from_file(
-                                  char * filename,
-                                  double * array,
-                                  int x_size,
-                                  int y_size,
-                                  ErrorMsg error_message
-                                  ) {
+int class_read_2d_array(
+                        FILE * fp,
+                        double * array,
+                        int x_size,
+                        int y_size,
+                        ErrorMsg error_message
+                        ) {
   int row,col,char_ind;
-  char line_buf[_ERRORMSGSIZE_];
-  char value_buf[_ERRORMSGSIZE_];
+  char line_buf[y_size*_CSVVALUESIZE_];
+  char value_buf[_CSVVALUESIZE_];
   char char_buf[2];
-  FILE *fp;
 
-  class_open(fp, filename, "r", error_message);
+  // Set terminating C string character
+  char_buf[1] = '\0';
 
   // First read in each row of data from file
   row=0;
-  while (fgets(line_buf, _ERRORMSGSIZE_, fp)!=NULL) {
+  while (fgets(line_buf, y_size*_ERRORMSGSIZE_, fp) != NULL) {
     // Then collect each value in the row
     col=0;
     char_ind=0;
     while (line_buf[char_ind] != '\n') {
-      if (line_buf[char_ind] != ' ') { // continue reading in value until it hits delimiter
+      if (line_buf[char_ind] != ',') { // continue reading in value until it hits delimiter
         char_buf[0] = line_buf[char_ind];
-        char_buf[1] = '\0';
         strncat(value_buf, char_buf, 2);
       }
       else { // save value to array of doubles
@@ -84,7 +83,80 @@ int class_read_2d_array_from_file(
     row++;
   }
 
-  fclose(fp);
-
   return _SUCCESS_;
+}
+
+/**
+ * Read in a 1D array given in a .csv file
+ *
+ * The .csv file must contain as its first line the number of elements
+ * in the array, and as its second line the elements of the array
+ * separated by commas.
+ *
+ *
+ * @param fp            Input: file pointer
+ * @param array         Output: array of values
+ * @param array_size    Output: size of array
+ * @param error_message Output: error message
+ * @return the error status
+ */
+
+int class_read_1d_array(
+                        FILE * fp,
+                        double ** array,
+                        int * array_size,
+                        ErrorMsg error_message
+                        ) {
+  char * line_buf;
+  char value_buf[_CSVVALUESIZE_];
+  char char_buf[2];
+  int col, char_ind;
+  int file_line_size;
+
+  // Set terminating C string character and clear value_buf buffer
+  // WARNING: It is sometimes full!!
+  char_buf[1] = '\0';
+  strncpy(value_buf, "", 2);
+
+  // The first line contains the array size
+  fscanf(fp, "%d\n", array_size);
+  *array = malloc(*array_size * sizeof(double));
+  class_test((*array == NULL),
+       error_message,
+       "Cannot allocate array\n");
+
+  // Allocate line buffer
+  file_line_size = *array_size * _CSVVALUESIZE_;
+  line_buf = malloc(file_line_size * sizeof(char));
+  class_test((line_buf == NULL),
+       error_message,
+       "Cannot allocate line_buf\n");
+  
+  // Get second line read into line buffer
+  fgets(line_buf, file_line_size, fp);
+  class_test((line_buf == NULL),
+       error_message,
+       "unexpected end of file");
+
+  // Read second line into array
+  col = 0;
+  char_ind = 0;
+  while (line_buf[char_ind] != '\n') {
+    if (line_buf[char_ind] != ',') { // continue reading in characters
+      char_buf[0] = line_buf[char_ind];
+      strncat(value_buf, char_buf, 2);
+    }
+    else { // save value to array of doubles
+      sscanf(value_buf, "%lf", *array+col);
+      strncpy(value_buf, "", 2);
+      col++;
+    }
+    char_ind++;
+  }
+  sscanf(value_buf, "%lf", *array+col);
+  strncpy(value_buf, "", 2);
+  col++;
+
+  // printf("Read %d/%d array points\n", col, *array_size);
+  free(line_buf);
 }

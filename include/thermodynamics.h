@@ -380,6 +380,11 @@ struct recombination {
 
   double * pbh_z_deps; /**< PBH deposition redshift array needed for interpolation */
 
+  double pbh_z_min; /**< PBH deposition redshift array needed for interpolation */
+
+  double pbh_z_max; /**< PBH deposition redshift array needed for interpolation */
+
+
   int pm_size; /**< size of PBH mass array needed for interpolation */
 
   double * pbh_masses; /**< PBH mass array needed for interpolation */

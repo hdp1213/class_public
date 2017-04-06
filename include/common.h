@@ -30,6 +30,8 @@ typedef char ErrorMsg[_ERRORMSGSIZE_]; /**< Generic error messages (there is suc
 #define _FILENAMESIZE_ 256 /**< size of the string read in each line of the file (extra characters not taken into account) */
 typedef char FileName[_FILENAMESIZE_];
 
+#define _CSVVALUESIZE_ 64 /**< size of single value in .csv files */
+
 #define _PI_ 3.1415926535897932384626433832795e0 /**< The number pi */
 
 #define _PIHALF_ 1.57079632679489661923132169164e0 /**< pi divided by 2 */
@@ -79,13 +81,20 @@ void* class_protect_memcpy(void* dest, void* from, size_t sz);
 
 int get_number_of_titles(char * titlestring);
 
-int class_read_2d_array_from_file(
-                                  char * filename,
-                                  double * array,
-                                  int x_size,
-                                  int y_size,
-                                  ErrorMsg error_message
-                                  );
+int class_read_2d_array(
+                        FILE * fp,
+                        double * array,
+                        int x_size,
+                        int y_size,
+                        ErrorMsg error_message
+                        );
+
+int class_read_1d_array(
+                        FILE * fp,
+                        double ** array,
+                        int * array_size,
+                        ErrorMsg error_message
+                        );
 
 #define class_build_error_string(dest,tmpl,...) {                                                                \
   ErrorMsg FMsg;                                                                                                 \
@@ -487,13 +496,6 @@ struct precision
   FileName hyrec_R_inf_file;
   FileName hyrec_two_photon_tables_file;
 /* @endcond */
-  /* - for PBH recombination */
-
-  double pbh_z_min; /**< minimum redshift of precomputed deposition tables */
-  double pbh_z_max; /**< maximum redshift of precomputed deposition tables */
-  int pbh_z_steps; /**< number of redshift steps of precomputed deposition tables */
-  int pbh_mass_steps; /**< number of mass steps of precomputed deposition tables */
-
   /* - for reionization */
 
   double reionization_z_start_max; /**< maximum redshift at which reionization should start. If not, return an error. */

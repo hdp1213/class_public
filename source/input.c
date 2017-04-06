@@ -2546,11 +2546,6 @@ int input_read_parameters(
   class_read_string("R_inf hyrec file",ppr->hyrec_R_inf_file);
   class_read_string("two_photon_tables hyrec file",ppr->hyrec_two_photon_tables_file);
 
-  class_read_double("pbh_z_min",ppr->pbh_z_min);
-  class_read_double("pbh_z_max",ppr->pbh_z_max);
-  class_read_int("pbh_z_steps",ppr->pbh_z_steps);
-  class_read_int("pbh_mass_steps",ppr->pbh_mass_steps);
-
   class_read_double("reionization_z_start_max",ppr->reionization_z_start_max);
   class_read_double("reionization_sampling",ppr->reionization_sampling);
   class_read_double("reionization_optical_depth_tol",ppr->reionization_optical_depth_tol);
@@ -3243,13 +3238,6 @@ int input_default_precision ( struct precision * ppr ) {
   strcat(ppr->hyrec_R_inf_file,"/hyrec/R_inf.dat");
   sprintf(ppr->hyrec_two_photon_tables_file,__CLASSDIR__);
   strcat(ppr->hyrec_two_photon_tables_file,"/hyrec/two_photon_tables.dat");
-
-  /* for PBH recombination */
-
-  ppr->pbh_z_min=12.;
-  ppr->pbh_z_max=2000.;
-  ppr->pbh_z_steps=1989;
-  ppr->pbh_mass_steps=41; // TODO(harry): dynamic allocation of these values
 
   /* for reionization */
 

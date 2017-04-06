@@ -56,7 +56,7 @@ HYREC =
 ########################################################
 
 # pass current working directory to the code
-CCFLAG += -D__CLASSDIR__='"$(MDIR)"'
+CCFLAG += -D__CLASSDIR__='"$(MDIR)"'# -DTHERMO_DBUG
 
 # where to find include files *.h
 INCLUDES = -I../include
