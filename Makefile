@@ -33,8 +33,9 @@ PYTHON = python
 
 # your optimization flag
 # OPTFLAG = -O4 -ffast-math #-march=native
-OPTFLAG = -Ofast -ffast-math #-march=native
+# OPTFLAG = -Ofast -ffast-math #-march=native
 #OPTFLAG = -fast
+OPTFLAG =
 
 # your openmp flag (comment for compiling without openmp)
 OMPFLAG   = -fopenmp
@@ -56,7 +57,7 @@ HYREC =
 ########################################################
 
 # pass current working directory to the code
-CCFLAG += -D__CLASSDIR__='"$(MDIR)"'# -DTHERMO_DBUG
+CCFLAG += -D__CLASSDIR__='"$(MDIR)"' -DTHERMO_DBUG
 
 # where to find include files *.h
 INCLUDES = -I../include

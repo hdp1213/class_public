@@ -368,10 +368,6 @@ int thermodynamics_init(
 
   /** - check PBH mass distribution parameters */
 
-  class_test((pth->pbh_mass_mean<0),
-             pth->error_message,
-             "PBH mean mass cannot be negative");
-
   class_test((pth->pbh_mass_width<0),
              pth->error_message,
              "PBH mass distribution width cannot be negative");
@@ -1080,7 +1076,7 @@ int thermodynamics_pbh_init(
 
   char * axes_file_root = "martin/slatyer_dep_table_axes.dat";
   char * elec_energy_dep_files_root = "martin/elec_dep_table_";
-  char * phot_energy_dep_files_root = "martin/elec_dep_table_";
+  char * phot_energy_dep_files_root = "martin/phot_dep_table_";
 
   /** - read in precomputed PBH energy deposition efficiencies */
 
@@ -1642,7 +1638,7 @@ int thermodynamics_energy_injection(
  *
  * @param pba Input: pointer to background structure
  * @param preco Input: pointer to recombination structure
- * @param pbh_mass Input: PBH mass
+ * @param pbh_mass Input: PBH mass in 10^10 g
  * @param z Input: redshift
  * @param energy_rate_hion Output: energy density injection rate for hydrogen ionisation
  * @param energy_rate_excite Output: energy density injection rate for Lyman alpha excitation
@@ -1667,53 +1663,112 @@ int thermodynamics_pbh_effective_energy_injection(
   double f_elec = 0.142, f_phot = 0.06;
   double hion_eff, excite_eff, heat_eff;
 
+  double pbh_T;
+  double E_elec, E_phot;
+  double elec_hion_eff, elec_excite_eff, elec_heat_eff;
+  double phot_hion_eff, phot_excite_eff, phot_heat_eff;
+
   Omega0_pbh_dm = pba->Omega0_pbh_ratio*pba->Omega0_cdm;
 
   rho_pbh_dm_today = pow(pba->H0*_c_/_Mpc_over_m_,2)*3/8./_PI_/_G_*Omega0_pbh_dm*_c_*_c_; /* energy density in J/m^3 */
 
+  pbh_T = 1.0566e12 / pbh_mass; // eV
+  E_elec = 4.18 * pbh_T; // eV
+  E_phot = 5.71 * pbh_T; // eV
+
   /* Approximate power radiated from PBH as in [arXiv:1612.07738], where pbh_mass is in units of 10^10 g */
-  energy_rate = 5.34e-5*(4.*f_elec+2.*f_phot)*rho_pbh_dm_today*pow((1.+z)/pbh_mass,3);
+  energy_rate = 5.34e-5*(4.*f_elec+2.*f_phot)*rho_pbh_dm_today*pow((1.+z)*pbh_T,3);
 
-  /* Interpolate results to the specified mass and redshift. Note that both mass and redshifts can be out of bounds of the interpolation! */
+  /* Interpolate effective electron hion */
   class_call(array_interpolate_2d_array_bilinear_decy(
-                                             preco->pbh_hion,
-                                             preco->pbh_masses,
-                                             preco->pm_size,
-                                             preco->pbh_z_deps,
-                                             preco->pz_size,
-                                             log10(pbh_mass),
+                                             preco->elec_hion,
+                                             preco->slatyer_energy,
+                                             preco->slatyer_energy_len,
+                                             preco->slatyer_redshift,
+                                             preco->slatyer_redshift_len,
+                                             log10(E_elec),
                                              1.+z,
-                                             &hion_eff,
+                                             &elec_hion_eff,
                                              error_message),
              error_message,
              error_message);
 
+  /* Interpolate effective electron excite */
   class_call(array_interpolate_2d_array_bilinear_decy(
-                                             preco->pbh_excite,
-                                             preco->pbh_masses,
-                                             preco->pm_size,
-                                             preco->pbh_z_deps,
-                                             preco->pz_size,
-                                             log10(pbh_mass),
+                                             preco->elec_excite,
+                                             preco->slatyer_energy,
+                                             preco->slatyer_energy_len,
+                                             preco->slatyer_redshift,
+                                             preco->slatyer_redshift_len,
+                                             log10(E_elec),
                                              1.+z,
-                                             &excite_eff,
+                                             &elec_excite_eff,
                                              error_message),
              error_message,
              error_message);
 
+  /* Interpolate effective electron heat */
   class_call(array_interpolate_2d_array_bilinear_decy(
-                                             preco->pbh_heat,
-                                             preco->pbh_masses,
-                                             preco->pm_size,
-                                             preco->pbh_z_deps,
-                                             preco->pz_size,
-                                             log10(pbh_mass),
+                                             preco->elec_heat,
+                                             preco->slatyer_energy,
+                                             preco->slatyer_energy_len,
+                                             preco->slatyer_redshift,
+                                             preco->slatyer_redshift_len,
+                                             log10(E_elec),
                                              1.+z,
-                                             &heat_eff,
+                                             &elec_heat_eff,
                                              error_message),
              error_message,
              error_message);
 
+  /* Interpolate effective photon hion */
+  class_call(array_interpolate_2d_array_bilinear_decy(
+                                             preco->phot_hion,
+                                             preco->slatyer_energy,
+                                             preco->slatyer_energy_len,
+                                             preco->slatyer_redshift,
+                                             preco->slatyer_redshift_len,
+                                             log10(E_phot),
+                                             1.+z,
+                                             &phot_hion_eff,
+                                             error_message),
+             error_message,
+             error_message);
+
+  /* Interpolate effective photon excite */
+  class_call(array_interpolate_2d_array_bilinear_decy(
+                                             preco->phot_excite,
+                                             preco->slatyer_energy,
+                                             preco->slatyer_energy_len,
+                                             preco->slatyer_redshift,
+                                             preco->slatyer_redshift_len,
+                                             log10(E_phot),
+                                             1.+z,
+                                             &phot_excite_eff,
+                                             error_message),
+             error_message,
+             error_message);
+
+  /* Interpolate effective photon heat */
+  class_call(array_interpolate_2d_array_bilinear_decy(
+                                             preco->phot_heat,
+                                             preco->slatyer_energy,
+                                             preco->slatyer_energy_len,
+                                             preco->slatyer_redshift,
+                                             preco->slatyer_redshift_len,
+                                             log10(E_phot),
+                                             1.+z,
+                                             &phot_heat_eff,
+                                             error_message),
+             error_message,
+             error_message);
+
+  /* Calculate the PBH efficiencies */
+  hion_eff = (4*f_elec*elec_hion_eff+2*f_phot*phot_hion_eff)/(4*f_elec+2*f_phot);
+  excite_eff = (4*f_elec*elec_excite_eff+2*f_phot*phot_excite_eff)/(4*f_elec+2*f_phot);
+  heat_eff = (4*f_elec*elec_heat_eff+2*f_phot*phot_heat_eff)/(4*f_elec+2*f_phot);
+
+  /* Calculate the total factors */
   *energy_rate_hion = hion_eff * energy_rate;
   *energy_rate_excite = excite_eff * energy_rate;
   *energy_rate_heat = heat_eff * energy_rate;
@@ -1773,7 +1828,7 @@ int thermodynamics_pbh_log_normal(
     pbh_mass = pow(10.,log10_pbh_mass);
 
     /* Calculate the effective energy rate */
-    class_call(thermodynamics_pbh_effective_energy_injection(pba,preco,log10_pbh_mass,z,&energy_rate_hion,&energy_rate_excite,&energy_rate_heat,error_message),
+    class_call(thermodynamics_pbh_effective_energy_injection(pba,preco,pbh_mass,z,&energy_rate_hion,&energy_rate_excite,&energy_rate_heat,error_message),
                      error_message,
                      error_message);
 
