@@ -384,7 +384,6 @@ struct recombination {
 
   double pbh_z_max; /**< PBH deposition redshift array needed for interpolation */
 
-
   int pm_size; /**< size of PBH mass array needed for interpolation */
 
   double * pbh_masses; /**< PBH mass array needed for interpolation */
@@ -396,6 +395,21 @@ struct recombination {
   double * pbh_excite; /**< PBH energy deposition efficiencies for hydrogen excitation */
 
   double * pbh_heat; /**< PBH energy deposition efficiencies for plasma heating */
+
+  /* Raw Slatyer data  */
+
+  double * slatyer_energy;
+  double * slatyer_redshift;
+  int slatyer_energy_len;
+  int slatyer_redshift_len;
+
+  double * elec_hion;
+  double * elec_excite;
+  double * elec_heat;
+
+  double * phot_hion;
+  double * phot_excite;
+  double * phot_heat;
 
   //@}
 

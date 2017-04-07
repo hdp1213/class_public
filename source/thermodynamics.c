@@ -1073,28 +1073,33 @@ int thermodynamics_pbh_init(
                             struct recombination * preco
                             ) {
   int i;
-  char pbh_table_file[_ARGUMENT_LENGTH_MAX_];
+  char axes_file[_ARGUMENT_LENGTH_MAX_];
+  char elec_table_file[_ARGUMENT_LENGTH_MAX_];
+  char phot_table_file[_ARGUMENT_LENGTH_MAX_];
   FILE * fp;
+
+  char * axes_file_root = "martin/slatyer_dep_table_axes.dat";
+  char * elec_energy_dep_files_root = "martin/elec_dep_table_";
+  char * phot_energy_dep_files_root = "martin/elec_dep_table_";
 
   /** - read in precomputed PBH energy deposition efficiencies */
 
   /* read in axes */
-  strcpy(pbh_table_file, pth->pbh_energy_dep_files_root);
-  strcat(pbh_table_file, "axes.dat");
+  strcpy(axes_file, axes_file_root);
 
   /* TODO(harry): make initialising axes more efficient when run in batch as these are independent of cosmology */
-  class_open(fp, pbh_table_file, "r", pth->error_message);
+  class_open(fp, axes_file, "r", pth->error_message);
 
   class_call(class_read_1d_array(fp,
-                                 &preco->pbh_z_deps,
-                                 &preco->pz_size,
+                                 &preco->slatyer_redshift,
+                                 &preco->slatyer_redshift_len,
                                  pth->error_message),
              pth->error_message,
              pth->error_message);
 
   class_call(class_read_1d_array(fp,
-                                 &preco->pbh_masses,
-                                 &preco->pm_size,
+                                 &preco->slatyer_energy,
+                                 &preco->slatyer_energy_len,
                                  pth->error_message),
              pth->error_message,
              pth->error_message);
@@ -1102,57 +1107,61 @@ int thermodynamics_pbh_init(
   fclose(fp);
 
   /* set min and max z-values */
-  preco->pbh_z_min = *(preco->pbh_z_deps+preco->pz_size-1);
-  preco->pbh_z_max = *(preco->pbh_z_deps);
+  preco->pbh_z_min = *(preco->slatyer_redshift+preco->slatyer_redshift_len-1);
+  preco->pbh_z_max = *(preco->slatyer_redshift);
 
-  /* allocate PBH tables */
-  class_alloc(preco->pbh_hion,preco->pz_size*preco->pm_size*sizeof(double),pth->error_message);
-  class_alloc(preco->pbh_excite,preco->pz_size*preco->pm_size*sizeof(double),pth->error_message);
-  class_alloc(preco->pbh_heat,preco->pz_size*preco->pm_size*sizeof(double),pth->error_message);
+  /* allocate Slatyer deposition tables */
+  class_alloc(preco->elec_hion,preco->slatyer_redshift_len*preco->slatyer_energy_len*sizeof(double),pth->error_message);
+  class_alloc(preco->elec_excite,preco->slatyer_redshift_len*preco->slatyer_energy_len*sizeof(double),pth->error_message);
+  class_alloc(preco->elec_heat,preco->slatyer_redshift_len*preco->slatyer_energy_len*sizeof(double),pth->error_message);
+
+  class_alloc(preco->phot_hion,preco->slatyer_redshift_len*preco->slatyer_energy_len*sizeof(double),pth->error_message);
+  class_alloc(preco->phot_excite,preco->slatyer_redshift_len*preco->slatyer_energy_len*sizeof(double),pth->error_message);
+  class_alloc(preco->phot_heat,preco->slatyer_redshift_len*preco->slatyer_energy_len*sizeof(double),pth->error_message);
 
   /* read in the precomputed files */
   if (pth->read_pbh_tables == _TRUE_) {
     /* read in hydrogen ionisation table */
-    strcpy(pbh_table_file, pth->pbh_energy_dep_files_root);
-    strcat(pbh_table_file, "hion.dat");
+    strcpy(elec_table_file, elec_energy_dep_files_root);
+    strcat(elec_table_file, "hion.dat");
 
-    class_open(fp, pbh_table_file, "r", pth->error_message);
+    class_open(fp, elec_table_file, "r", pth->error_message);
     class_call(class_read_2d_array(fp,
-                                   preco->pbh_hion,
-                                   preco->pm_size,
-                                   preco->pz_size,
+                                   preco->elec_hion,
+                                   preco->slatyer_energy_len,
+                                   preco->slatyer_redshift_len,
                                    pth->error_message),
                pth->error_message,
                pth->error_message);
     fclose(fp);
 
-    // for (i = 0; i < preco->pm_size*preco->pz_size; ++i) {
-    //   printf("%e\n", *(preco->pbh_hion+i));
+    // for (i = 0; i < preco->slatyer_energy_len*preco->slatyer_redshift_len; ++i) {
+    //   printf("%e\n", *(preco->elec_hion+i));
     // }
 
     /* read in excitation table */
-    strcpy(pbh_table_file, pth->pbh_energy_dep_files_root);
-    strcat(pbh_table_file, "excite.dat");
+    strcpy(elec_table_file, elec_energy_dep_files_root);
+    strcat(elec_table_file, "excite.dat");
 
-    class_open(fp, pbh_table_file, "r", pth->error_message);
+    class_open(fp, elec_table_file, "r", pth->error_message);
     class_call(class_read_2d_array(fp,
-                                   preco->pbh_excite,
-                                   preco->pm_size,
-                                   preco->pz_size,
+                                   preco->elec_excite,
+                                   preco->slatyer_energy_len,
+                                   preco->slatyer_redshift_len,
                                    pth->error_message),
                pth->error_message,
                pth->error_message);
     fclose(fp);
 
     /* read in heating table */
-    strcpy(pbh_table_file, pth->pbh_energy_dep_files_root);
-    strcat(pbh_table_file, "heat.dat");
+    strcpy(elec_table_file, elec_energy_dep_files_root);
+    strcat(elec_table_file, "heat.dat");
 
-    class_open(fp, pbh_table_file, "r", pth->error_message);
+    class_open(fp, elec_table_file, "r", pth->error_message);
     class_call(class_read_2d_array(fp,
-                                   preco->pbh_heat,
-                                   preco->pm_size,
-                                   preco->pz_size,
+                                   preco->elec_heat,
+                                   preco->slatyer_energy_len,
+                                   preco->slatyer_redshift_len,
                                    pth->error_message),
                pth->error_message,
                pth->error_message);
@@ -1175,11 +1184,16 @@ int thermodynamics_pbh_free(
                             struct recombination * preco
                             ) {
 
-  free(preco->pbh_z_deps);
-  free(preco->pbh_masses);
-  free(preco->pbh_hion);
-  free(preco->pbh_excite);
-  free(preco->pbh_heat);
+  free(preco->slatyer_redshift);
+  free(preco->slatyer_energy);
+
+  free(preco->elec_hion);
+  free(preco->elec_excite);
+  free(preco->elec_heat);
+
+  free(preco->phot_hion);
+  free(preco->phot_excite);
+  free(preco->phot_heat);
 
   return _SUCCESS_;
 }
