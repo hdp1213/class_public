@@ -1121,7 +1121,7 @@ int thermodynamics_pbh_init(
 
   /* read in the precomputed files */
   if (pth->read_pbh_tables == _TRUE_) {
-    /* read in hydrogen ionisation table */
+    /* read in electron hydrogen ionisation table */
     strcpy(elec_table_file, elec_energy_dep_files_root);
     strcat(elec_table_file, "hion.dat");
 
@@ -1139,7 +1139,7 @@ int thermodynamics_pbh_init(
     //   printf("%e\n", *(preco->elec_hion+i));
     // }
 
-    /* read in excitation table */
+    /* read in electron excitation table */
     strcpy(elec_table_file, elec_energy_dep_files_root);
     strcat(elec_table_file, "excite.dat");
 
@@ -1153,13 +1153,56 @@ int thermodynamics_pbh_init(
                pth->error_message);
     fclose(fp);
 
-    /* read in heating table */
+    /* read in electron heating table */
     strcpy(elec_table_file, elec_energy_dep_files_root);
     strcat(elec_table_file, "heat.dat");
 
     class_open(fp, elec_table_file, "r", pth->error_message);
     class_call(class_read_2d_array(fp,
                                    preco->elec_heat,
+                                   preco->slatyer_energy_len,
+                                   preco->slatyer_redshift_len,
+                                   pth->error_message),
+               pth->error_message,
+               pth->error_message);
+    fclose(fp);
+
+    /* read in photon hydrogen ionisation table */
+    strcpy(phot_table_file, phot_energy_dep_files_root);
+    strcat(phot_table_file, "hion.dat");
+
+    class_open(fp, phot_table_file, "r", pth->error_message);
+    class_call(class_read_2d_array(fp,
+                                   preco->phot_hion,
+                                   preco->slatyer_energy_len,
+                                   preco->slatyer_redshift_len,
+                                   pth->error_message),
+               pth->error_message,
+               pth->error_message);
+    fclose(fp);
+
+
+    /* read in photon excitation table */
+    strcpy(phot_table_file, phot_energy_dep_files_root);
+    strcat(phot_table_file, "excite.dat");
+
+    class_open(fp, phot_table_file, "r", pth->error_message);
+    class_call(class_read_2d_array(fp,
+                                   preco->phot_excite,
+                                   preco->slatyer_energy_len,
+                                   preco->slatyer_redshift_len,
+                                   pth->error_message),
+               pth->error_message,
+               pth->error_message);
+    fclose(fp);
+
+    /* read in photon heating table */
+    strcpy(phot_table_file, phot_energy_dep_files_root);
+    strcat(phot_table_file, "heat.dat");
+
+    class_open(fp, phot_table_file, "r", pth->error_message);
+    class_call(class_read_2d_array(fp,
+                                   preco->phot_heat,
                                    preco->slatyer_energy_len,
                                    preco->slatyer_redshift_len,
                                    pth->error_message),
