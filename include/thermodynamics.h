@@ -161,9 +161,9 @@ struct thermo
 
   double pbh_mass_width; /**< PBH mass dispersion/width in \f$ 10^{10} \f$ g */
 
-  short read_pbh_tables; /**< flag for reading in external PBH energy deposition tables */
+  short read_pbh_splines; /**< flag for reading in external PBH energy deposition splines */
 
-  char * pbh_energy_dep_files_root; /**< root filename for PBH energy deposition tables */
+  char * pbh_spline_files_root; /**< root filename for PBH energy deposition splines */
 
   //@}
 
@@ -376,26 +376,25 @@ struct recombination {
 
   double pbh_mass_width; /**< PBH mass dispersion/width in \f$ 10^{10} \f$ g */
 
+  double pbh_z_min; /**< minimum redshift of precomputed deposition tables */
+
+  double pbh_z_max; /**< maximum redshift of precomputed deposition tables */
+
   int pz_size; /**< size of PBH deposition redshift array needed for interpolation */
 
   double * pbh_z_deps; /**< PBH deposition redshift array needed for interpolation */
-
-  double pbh_z_min; /**< PBH deposition redshift array needed for interpolation */
-
-  double pbh_z_max; /**< PBH deposition redshift array needed for interpolation */
-
 
   int pm_size; /**< size of PBH mass array needed for interpolation */
 
   double * pbh_masses; /**< PBH mass array needed for interpolation */
 
-  /* PBH energy deposition efficiency arrays */
+  /* PBH energy deposition efficiency splines */
 
-  double * pbh_hion; /**< PBH energy deposition efficiencies for hydrogen ionisation channel */
+  struct bspline_2d * pbsp_pbh_hion; /**< PBH energy deposition efficiencies for hydrogen ionisation channel */
 
-  double * pbh_excite; /**< PBH energy deposition efficiencies for hydrogen excitation */
+  struct bspline_2d * pbsp_pbh_excite; /**< PBH energy deposition efficiencies for hydrogen excitation */
 
-  double * pbh_heat; /**< PBH energy deposition efficiencies for plasma heating */
+  struct bspline_2d * pbsp_pbh_heat; /**< PBH energy deposition efficiencies for plasma heating */
 
   //@}
 

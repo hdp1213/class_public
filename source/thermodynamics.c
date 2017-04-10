@@ -1073,17 +1073,26 @@ int thermodynamics_pbh_init(
                             struct recombination * preco
                             ) {
   int i;
-  char pbh_table_file[_ARGUMENT_LENGTH_MAX_];
+  char pbh_spline_file[_ARGUMENT_LENGTH_MAX_];
   FILE * fp;
+
+  struct bspline_2d bsp_pbh_hion;
+  struct bspline_2d bsp_pbh_excite;
+  struct bspline_2d bsp_pbh_heat;
 
   /** - read in precomputed PBH energy deposition efficiencies */
 
+  /* initialise b-spline pointers */
+  preco->pbsp_pbh_hion = &bsp_pbh_hion;
+  preco->pbsp_pbh_excite = &bsp_pbh_excite;
+  preco->pbsp_pbh_heat = &bsp_pbh_heat;
+
   /* read in axes */
-  strcpy(pbh_table_file, pth->pbh_energy_dep_files_root);
-  strcat(pbh_table_file, "axes.dat");
+  strcpy(pbh_spline_file, pth->pbh_spline_files_root);
+  strcat(pbh_spline_file, "axes.dat");
 
   /* TODO(harry): make initialising axes more efficient when run in batch as these are independent of cosmology */
-  class_open(fp, pbh_table_file, "r", pth->error_message);
+  class_open(fp, pbh_spline_file, "r", pth->error_message);
 
   class_call(class_read_1d_array(fp,
                                  &preco->pbh_z_deps,
@@ -1105,55 +1114,44 @@ int thermodynamics_pbh_init(
   preco->pbh_z_min = *(preco->pbh_z_deps+preco->pz_size-1);
   preco->pbh_z_max = *(preco->pbh_z_deps);
 
-  /* allocate PBH tables */
-  class_alloc(preco->pbh_hion,preco->pz_size*preco->pm_size*sizeof(double),pth->error_message);
-  class_alloc(preco->pbh_excite,preco->pz_size*preco->pm_size*sizeof(double),pth->error_message);
-  class_alloc(preco->pbh_heat,preco->pz_size*preco->pm_size*sizeof(double),pth->error_message);
-
-  /* read in the precomputed files */
-  if (pth->read_pbh_tables == _TRUE_) {
+  /* read in the precomputed splines */
+  if (pth->read_pbh_splines == _TRUE_) {
     /* read in hydrogen ionisation table */
-    strcpy(pbh_table_file, pth->pbh_energy_dep_files_root);
-    strcat(pbh_table_file, "hion.dat");
+    strcpy(pbh_spline_file, pth->pbh_spline_files_root);
+    strcat(pbh_spline_file, "hion.dat");
 
-    class_open(fp, pbh_table_file, "r", pth->error_message);
-    class_call(class_read_2d_array(fp,
-                                   preco->pbh_hion,
-                                   preco->pm_size,
-                                   preco->pz_size,
-                                   pth->error_message),
+    class_open(fp, pbh_spline_file, "r", pth->error_message);
+    class_call(class_read_bicubic_bspline(fp,
+                                          preco->pbsp_pbh_hion,
+                                          pth->error_message),
                pth->error_message,
                pth->error_message);
     fclose(fp);
 
     // for (i = 0; i < preco->pm_size*preco->pz_size; ++i) {
-    //   printf("%e\n", *(preco->pbh_hion+i));
+    //   printf("%e\n", *(preco->pbsp_pbh_hion->coeffs+i));
     // }
 
     /* read in excitation table */
-    strcpy(pbh_table_file, pth->pbh_energy_dep_files_root);
-    strcat(pbh_table_file, "excite.dat");
+    strcpy(pbh_spline_file, pth->pbh_spline_files_root);
+    strcat(pbh_spline_file, "excite.dat");
 
-    class_open(fp, pbh_table_file, "r", pth->error_message);
-    class_call(class_read_2d_array(fp,
-                                   preco->pbh_excite,
-                                   preco->pm_size,
-                                   preco->pz_size,
-                                   pth->error_message),
+    class_open(fp, pbh_spline_file, "r", pth->error_message);
+    class_call(class_read_bicubic_bspline(fp,
+                                          preco->pbsp_pbh_excite,
+                                          pth->error_message),
                pth->error_message,
                pth->error_message);
     fclose(fp);
 
     /* read in heating table */
-    strcpy(pbh_table_file, pth->pbh_energy_dep_files_root);
-    strcat(pbh_table_file, "heat.dat");
+    strcpy(pbh_spline_file, pth->pbh_spline_files_root);
+    strcat(pbh_spline_file, "heat.dat");
 
-    class_open(fp, pbh_table_file, "r", pth->error_message);
-    class_call(class_read_2d_array(fp,
-                                   preco->pbh_heat,
-                                   preco->pm_size,
-                                   preco->pz_size,
-                                   pth->error_message),
+    class_open(fp, pbh_spline_file, "r", pth->error_message);
+    class_call(class_read_bicubic_bspline(fp,
+                                          preco->pbsp_pbh_heat,
+                                          pth->error_message),
                pth->error_message,
                pth->error_message);
     fclose(fp);
@@ -1177,9 +1175,18 @@ int thermodynamics_pbh_free(
 
   free(preco->pbh_z_deps);
   free(preco->pbh_masses);
-  free(preco->pbh_hion);
-  free(preco->pbh_excite);
-  free(preco->pbh_heat);
+
+  free(preco->pbsp_pbh_hion->xknots);
+  free(preco->pbsp_pbh_hion->yknots);
+  free(preco->pbsp_pbh_hion->coeffs);
+
+  free(preco->pbsp_pbh_excite->xknots);
+  free(preco->pbsp_pbh_excite->yknots);
+  free(preco->pbsp_pbh_excite->coeffs);
+
+  free(preco->pbsp_pbh_heat->xknots);
+  free(preco->pbsp_pbh_heat->yknots);
+  free(preco->pbsp_pbh_heat->coeffs);
 
   return _SUCCESS_;
 }
@@ -1585,7 +1592,7 @@ int thermodynamics_energy_injection(
  *
  * @param pba Input: pointer to background structure
  * @param preco Input: pointer to recombination structure
- * @param pbh_mass Input: PBH mass
+ * @param pbh_mass Input: PBH mass in units of \f$ 10^{10} \f$ g
  * @param z Input: redshift
  * @param energy_rate_hion Output: energy density injection rate for hydrogen ionisation
  * @param energy_rate_excite Output: energy density injection rate for Lyman alpha excitation
@@ -1610,6 +1617,9 @@ int thermodynamics_pbh_effective_energy_injection(
   double f_elec = 0.142, f_phot = 0.06;
   double hion_eff, excite_eff, heat_eff;
 
+  double mass;
+  double redshift;
+
   Omega0_pbh_dm = pba->Omega0_pbh_ratio*pba->Omega0_cdm;
 
   rho_pbh_dm_today = pow(pba->H0*_c_/_Mpc_over_m_,2)*3/8./_PI_/_G_*Omega0_pbh_dm*_c_*_c_; /* energy density in J/m^3 */
@@ -1617,43 +1627,37 @@ int thermodynamics_pbh_effective_energy_injection(
   /* Approximate power radiated from PBH as in [arXiv:1612.07738], where pbh_mass is in units of 10^10 g */
   energy_rate = 5.34e-5*(4.*f_elec+2.*f_phot)*rho_pbh_dm_today*pow((1.+z)/pbh_mass,3);
 
+  mass = pbh_mass;
+  redshift = 1.+z;
+
   /* Interpolate results to the specified mass and redshift. Note that both mass and redshifts can be out of bounds of the interpolation! */
-  class_call(array_interpolate_2d_array_bilinear_decy(
-                                             preco->pbh_hion,
-                                             preco->pbh_masses,
-                                             preco->pm_size,
-                                             preco->pbh_z_deps,
-                                             preco->pz_size,
-                                             log10(pbh_mass),
-                                             1.+z,
-                                             &hion_eff,
-                                             error_message),
+  class_call(array_eval_bicubic_bspline(preco->pbsp_pbh_hion,
+                                        &redshift,
+                                        1,
+                                        &mass,
+                                        1,
+                                        &hion_eff,
+                                        error_message),
              error_message,
              error_message);
 
-  class_call(array_interpolate_2d_array_bilinear_decy(
-                                             preco->pbh_excite,
-                                             preco->pbh_masses,
-                                             preco->pm_size,
-                                             preco->pbh_z_deps,
-                                             preco->pz_size,
-                                             log10(pbh_mass),
-                                             1.+z,
-                                             &excite_eff,
-                                             error_message),
+  class_call(array_eval_bicubic_bspline(preco->pbsp_pbh_excite,
+                                        &redshift,
+                                        1,
+                                        &mass,
+                                        1,
+                                        &excite_eff,
+                                        error_message),
              error_message,
              error_message);
 
-  class_call(array_interpolate_2d_array_bilinear_decy(
-                                             preco->pbh_heat,
-                                             preco->pbh_masses,
-                                             preco->pm_size,
-                                             preco->pbh_z_deps,
-                                             preco->pz_size,
-                                             log10(pbh_mass),
-                                             1.+z,
-                                             &heat_eff,
-                                             error_message),
+  class_call(array_eval_bicubic_bspline(preco->pbsp_pbh_heat,
+                                        &redshift,
+                                        1,
+                                        &mass,
+                                        1,
+                                        &heat_eff,
+                                        error_message),
              error_message,
              error_message);
 
@@ -1697,7 +1701,7 @@ int thermodynamics_pbh_log_normal(
                                   ErrorMsg error_message
                                   ) {
   int i;
-  double mass_dist,pbh_mass,log10_pbh_mass;
+  double mass_dist,pbh_mass;
   double energy_rate_hion,energy_rate_excite,energy_rate_heat;
   double * hion_tot;
   double * excite_tot;
@@ -1709,14 +1713,11 @@ int thermodynamics_pbh_log_normal(
   class_alloc(heat_tot,pbh_masses_size*sizeof(double),error_message);
 
   for (i = 0; i < pbh_masses_size; ++i) {
-    /* Needed for interpolation during pbh_effective_energy_injection() */
-    log10_pbh_mass = *(pbh_mass_exps+i);
-
     /* Transform exponents back into physical mass with units of 10^{10} g */
-    pbh_mass = pow(10.,log10_pbh_mass);
+    pbh_mass = pow(10.,*(pbh_mass_exps+i));
 
     /* Calculate the effective energy rate */
-    class_call(thermodynamics_pbh_effective_energy_injection(pba,preco,log10_pbh_mass,z,&energy_rate_hion,&energy_rate_excite,&energy_rate_heat,error_message),
+    class_call(thermodynamics_pbh_effective_energy_injection(pba,preco,pbh_mass,z,&energy_rate_hion,&energy_rate_excite,&energy_rate_heat,error_message),
                      error_message,
                      error_message);
 
@@ -3620,12 +3621,14 @@ int thermodynamics_derivs_with_recfast(
     pbh_excite_rate = 0.;
     pbh_heat_rate = 0.;
   }
+  //*
   else if ((1.+z) < preco->pbh_z_min) {
-    /* TODO(harry): implement smoothing function to prevent sudden cutoff of injection rates at z<pbh_z_min */
+    // TODO(harry): implement smoothing function to prevent sudden cutoff of injection rates at z<pbh_z_min
     pbh_hion_rate = 0.;
     pbh_excite_rate = 0.;
     pbh_heat_rate = 0.;
   }
+  //*/
   else {
     /* Choose appropriate method for given mass distribution */
     if (preco->pbh_mass_dist == pbh_delta) {

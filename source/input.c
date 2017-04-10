@@ -1254,11 +1254,11 @@ int input_read_parameters(
 
   if (flag1 == _TRUE_) {
     if ((strstr(string1,"y") != NULL) || (strstr(string1,"Y") != NULL)) {
-      pth->read_pbh_tables = _TRUE_;
+      pth->read_pbh_splines = _TRUE_;
     }
     else {
       if ((strstr(string1,"n") != NULL) || (strstr(string1,"N") != NULL)) {
-        pth->read_pbh_tables = _FALSE_;
+        pth->read_pbh_splines = _FALSE_;
       }
       else {
         class_stop(errmsg,"incomprehensible input '%s' for the field 'read pbh tables'",string1);
@@ -1274,7 +1274,7 @@ int input_read_parameters(
     strcpy(string2, "pbh/");
     strcat(string2, string1);
 
-    pth->pbh_energy_dep_files_root = string2;
+    pth->pbh_spline_files_root = string2;
   }
 
   /** (c) define which perturbations and sources should be computed, and down to which scale */
@@ -2948,8 +2948,8 @@ int input_default_params(
   pth->pbh_mass_mean = 1.e6;
   pth->pbh_mass_width = 1.e3;
 
-  pth->read_pbh_tables = _TRUE_;
-  pth->pbh_energy_dep_files_root = "pbh/pbh_dep_table_";
+  pth->read_pbh_splines = _TRUE_;
+  pth->pbh_spline_files_root = "pbh/pbh_dep_table_";
 
   pth->compute_cb2_derivatives=_FALSE_;
 
