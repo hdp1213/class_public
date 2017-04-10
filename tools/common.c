@@ -138,7 +138,7 @@ int class_read_1d_array(
        error_message,
        "unexpected end of file");
 
-  // Read second line into array
+  // Read line buffer into array
   col = 0;
   char_ind = 0;
   while (line_buf[char_ind] != '\n') {
@@ -159,4 +159,62 @@ int class_read_1d_array(
 
   // printf("Read %d/%d array points\n", col, *array_size);
   free(line_buf);
+}
+
+/**
+ * Read in a bicubic b-spline given in a .csv file
+ *
+ * The .csv file must contain the following information on separate
+ * lines in the following order:
+ *   * number of knots in x direction
+ *   * x-coordinates of the knots, in CSV format
+ *   * number of knots in y direction
+ *   * y-coordinates of the knots, in CSV format
+ *   * spline coefficients
+ *
+ *
+ * @param fp            Input: file pointer
+ * @param pbsp          Input/Output: pointer to bspline_2d structure
+ * @param error_message Output: error message
+ * @return the error status
+ */
+
+int class_read_bicubic_bspline(
+                               FILE * fp,
+                               struct bspline_2d * pbsp,
+                               ErrorMsg error_message
+                               ) {
+  int n_coeffs;
+  int deg = 3;
+
+  pbsp->degree = deg;
+
+  class_call(class_read_1d_array(fp,
+                                 &(pbsp->xknots),
+                                 &(pbsp->nxknots),
+                                 error_message),
+             error_message,
+             error_message);
+
+
+  class_call(class_read_1d_array(fp,
+                                 &(pbsp->yknots),
+                                 &(pbsp->nyknots),
+                                 error_message),
+             error_message,
+             error_message);
+
+
+  class_call(class_read_1d_array(fp,
+                                 &(pbsp->coeffs),
+                                 &n_coeffs,
+                                 error_message),
+             error_message,
+             error_message);
+
+  class_test((n_coeffs != (pbsp->nxknots-deg-1)*(pbsp->nyknots-deg-1)),
+       error_message,
+       "number of supplied coefficients does not match degree of spline requested");
+
+  return _SUCCESS_;
 }

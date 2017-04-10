@@ -27,11 +27,16 @@ int main(int argc, char const *argv[])
 
   int i;
 
-  double * xknots;
-  int n_xknots;
-  double * yknots;
-  int n_yknots;
-  double * coeffs;
+  // double * xknots;
+  // int n_xknots;
+  // double * yknots;
+  // int n_yknots;
+  // double * coeffs;
+
+  FILE * fp;
+
+  struct bspline_2d bsp;
+  struct bspline_2d * pbsp;
 
   double * x_eval;
   int mx = 21;
@@ -41,6 +46,8 @@ int main(int argc, char const *argv[])
 
   double * z;
   ErrorMsg error_message;
+
+  pbsp = &bsp;
 
   // Read in command line arguments
   if (argc > 1) {
@@ -83,23 +90,17 @@ int main(int argc, char const *argv[])
 
   // Read in spline file
   printf("Reading in spline file '%s'...\n", spline_file);
-  class_call(fill_spline_info(spline_file,
-                              &xknots,
-                              &n_xknots,
-                              &yknots,
-                              &n_yknots,
-                              &coeffs,
-                              error_message),
+  class_open(fp, spline_file, "r", error_message);
+  class_call(class_read_bicubic_bspline(fp,
+                                        pbsp,
+                                        error_message),
              error_message,
              error_message);
+  fclose(fp);
 
   // Evaluate spline along x_eval and y_eval
   printf("Evaluating spline...\n");
-  class_call(array_eval_bicubic_bspline(xknots,
-                                        n_xknots,
-                                        yknots,
-                                        n_yknots,
-                                        coeffs,
+  class_call(array_eval_bicubic_bspline(pbsp,
                                         x_eval,
                                         mx,
                                         y_eval,
@@ -111,9 +112,9 @@ int main(int argc, char const *argv[])
 
   free(x_eval);
   free(y_eval);
-  free(xknots);
-  free(yknots);
-  free(coeffs);
+  free(pbsp->xknots);
+  free(pbsp->yknots);
+  free(pbsp->coeffs);
 
   // Write results to an output file
   strcpy(out_file, "spline.out");

@@ -446,17 +446,14 @@ int array_integrate_all_trapzd_or_spline(
                                     ErrorMsg errmsg);
 
 
-  int array_eval_bicubic_bspline(double * __restrict__ xknots,
-                                 int nx,
-                                 double * __restrict__ yknots,
-                                 int ny,
-                                 double * __restrict__ coeffs,
+  int array_eval_bicubic_bspline(struct bspline_2d * pbsp,
                                  double * __restrict__ x,
                                  int mx,
                                  double * __restrict__ y,
                                  int my,
                                  double * __restrict__ z,
-                                 ErrorMsg errmsg);
+                                 ErrorMsg errmsg
+                                 );
 
 #ifdef __cplusplus
 }

@@ -81,21 +81,6 @@ void* class_protect_memcpy(void* dest, void* from, size_t sz);
 
 int get_number_of_titles(char * titlestring);
 
-int class_read_2d_array(
-                        FILE * fp,
-                        double * array,
-                        int x_size,
-                        int y_size,
-                        ErrorMsg error_message
-                        );
-
-int class_read_1d_array(
-                        FILE * fp,
-                        double ** array,
-                        int * array_size,
-                        ErrorMsg error_message
-                        );
-
 #define class_build_error_string(dest,tmpl,...) {                                                                \
   ErrorMsg FMsg;                                                                                                 \
   class_protect_sprintf(FMsg,tmpl,__VA_ARGS__);                                                                  \
@@ -818,6 +803,51 @@ struct precision
 
 };
 
+/**
+ * structure containing knot points and coefficients for a 2d b-spline
+ */
 
+struct bspline_2d {
+
+  int nxknots; /**< number of knots in the x direction */
+  double * xknots; /**< x-coordinate values of these knots */
+
+  int nyknots; /**< number of knots in the y direction */
+  double * yknots; /**< y-coordinate values of these knots */
+
+  double * coeffs; /**< coefficients describing spline **/
+
+  int degree; /**< degree of b-spline. 1 for bilinear splines, 3 for bicubic splines */
+
+};
+
+/**
+ * Boilerplate for C++
+ */
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+  int class_read_2d_array(FILE * fp,
+                          double * array,
+                          int x_size,
+                          int y_size,
+                          ErrorMsg error_message
+                          );
+
+  int class_read_1d_array(FILE * fp,
+                          double ** array,
+                          int * array_size,
+                          ErrorMsg error_message
+                          );
+
+  int class_read_bicubic_bspline(FILE * fp,
+                                 struct bspline_2d * pbsp,
+                                 ErrorMsg error_message
+                                 );
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

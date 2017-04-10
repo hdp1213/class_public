@@ -3212,11 +3212,7 @@ int array_trapezoidal_convolution(
 /**
  * Compute bicubic b-spline given the knot points and coefficients.
  *
- * @param xknots  Input: x-coordinates of each knot
- * @param nx      Input: number of knot x-coordinates
- * @param yknots  Input: y-coordinates of each knot
- * @param ny      Input: number of knot y-coordinates
- * @param coeffs  Input: B-spline coefficients
+ * @param pbsp    Input: pointer to bspline_2d struct containing b-spline
  * @param x       Input: array of x-values to evaluate on. must be strictly increasing
  * @param mx      Input: non-zero size of above array
  * @param y       Input: array of y-values to evaluate on. must be strictly increasing
@@ -3226,11 +3222,7 @@ int array_trapezoidal_convolution(
  */
 
 int array_eval_bicubic_bspline(
-                               double * __restrict__ xknots,
-                               int nx,
-                               double * __restrict__ yknots,
-                               int ny,
-                               double * __restrict__ coeffs,
+                               struct bspline_2d * pbsp,
                                double * __restrict__ x,
                                int mx,
                                double * __restrict__ y,
@@ -3238,15 +3230,14 @@ int array_eval_bicubic_bspline(
                                double * __restrict__ z,
                                ErrorMsg errmsg
                                ) {
-  int deg = 3;
-  int lwrk = (mx+my)*(deg+1); // lwrk >= mx*(kx+1)+my*(ky+1)
+  int lwrk = (mx+my)*(pbsp->degree+1); // lwrk >= mx*(kx+1)+my*(ky+1)
   int kwrk = mx+my; // kwrk >= mx+my
   int ierr;
   
   double wrk[lwrk];
   int iwrk[kwrk];
 
-  bispev_(xknots, &nx, yknots, &ny, coeffs, &deg, &deg, x, &mx, y, &my, z, wrk, &lwrk, iwrk, &kwrk, &ierr);
+  bispev_(pbsp->xknots, &(pbsp->nxknots), pbsp->yknots, &(pbsp->nyknots), pbsp->coeffs, &(pbsp->degree), &(pbsp->degree), x, &mx, y, &my, z, wrk, &lwrk, iwrk, &kwrk, &ierr);
 
   class_test((ierr != 0),
           "thing failed",
