@@ -213,7 +213,7 @@ int fill_eval_info(char *filename,
 
   // The second line contains y_min and y_max
   fscanf(fp, "%lf,%lf\n", &y_min, &y_max);
-  *yeval = malloc(nx * sizeof(double));
+  *yeval = malloc(ny * sizeof(double));
   class_test((*yeval == NULL),
        error_message,
        "Cannot allocate yeval\n");
