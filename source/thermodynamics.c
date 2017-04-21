@@ -3575,6 +3575,7 @@ int thermodynamics_derivs_with_recfast(
 
   /* used for energy injection from evaporating PBHs */
   double pbh_hion_rate,pbh_excite_rate,pbh_heat_rate;
+  double pbh_hion_fudge,pbh_excite_fudge,pbh_heat_fudge;
 
   double tau;
   double chi_heat;
@@ -3622,14 +3623,62 @@ int thermodynamics_derivs_with_recfast(
     pbh_heat_rate = 0.;
   }
   //*
-  else if ((1.+z) < preco->pbh_z_min) {
-    // TODO(harry): implement smoothing function to prevent sudden cutoff of injection rates at z<pbh_z_min
+  else if ((1.+z) < 6.) {
+    // TODO(harry): implement smoothing function to prevent sudden cutoff of injection rates at 1+z < 6
     pbh_hion_rate = 0.;
     pbh_excite_rate = 0.;
     pbh_heat_rate = 0.;
   }
   //*/
   else {
+    // fudge factors to get results close to Clark et al. (2016)
+    if (((1.+z) >= 380) && ((1.+z) < 400.)) {
+      // Smooth out transition
+      double x = ((1.+z)-380.)/20.; // get x in range of [0,1)
+      pbh_hion_fudge = 0.8 + f2(x)*0.2;
+      pbh_excite_fudge = 0.8 + f2(x)*0.2;
+    }
+    if (((1.+z) >= 330.) && ((1.+z) < 380.)) {
+      pbh_hion_fudge = 0.8;
+      pbh_excite_fudge = 0.8;
+    }
+    else if (((1.+z) >= 315.) && ((1.+z) < 325.)) {
+      // Smooth out transition
+      double x = ((1.+z)-315.)/10.; // get x in range of [0,1)
+      pbh_hion_fudge = 0.68 + f2(x)*0.12;
+      pbh_excite_fudge = 0.68 + f2(x)*0.12;
+    }
+    else if (((1.+z) >= 105.) && ((1.+z) < 315.)) {
+      pbh_hion_fudge = 0.68;
+      pbh_excite_fudge = 0.68;
+    }
+    else if (((1.+z) >= 95.) && ((1.+z) < 105.)) {
+      // Smooth out transition
+      double x = ((1.+z)-95.)/10.; // get x in range of [0,1)
+      pbh_hion_fudge = 0.6 + f2(x)*0.08;
+      pbh_excite_fudge = 0.6 + f2(x)*0.08;
+    }
+    else if (((1.+z) >= 40.) && ((1.+z) < 95.)) {
+      pbh_hion_fudge = 0.6;
+      pbh_excite_fudge = 0.6;
+    }
+    else {
+      pbh_hion_fudge = 1.0;
+      pbh_excite_fudge = 1.0;
+    }
+
+    if (((1.+z) >= 6.) && ((1.+z) < 45.)) {
+      pbh_heat_fudge = 0.74;
+    }
+    else if (((1.+z) >= 45) && ((1.+z) < 55)) {
+      // Smooth out transition
+      double x = ((1.+z)-45.)/10.; // get x in range of [0,1)
+      pbh_heat_fudge = 0.74 + f2(x)*0.26;
+    }
+    else {
+      pbh_heat_fudge = 1.0;
+    }
+
     /* Choose appropriate method for given mass distribution */
     if (preco->pbh_mass_dist == pbh_delta) {
       class_call(thermodynamics_pbh_effective_energy_injection(pba,preco,preco->pbh_mass_mean,z,&pbh_hion_rate,&pbh_excite_rate,&pbh_heat_rate,error_message),
@@ -3647,8 +3696,14 @@ int thermodynamics_derivs_with_recfast(
       pbh_heat_rate = 0.;
     }
 
+    /*
+    pbh_hion_rate *= pbh_hion_fudge;
+    pbh_excite_rate *= pbh_excite_fudge;
+    pbh_heat_rate *= pbh_heat_fudge;
+    //*/
+
 #ifdef THERMO_DBUG
-    printf("%e,%e,%e\n", x_H,x_He,Tmat);
+    printf("%e,%e,%e,%e\n", x_H,x_He,Tmat,x_e);
 #endif
 
   }
@@ -3737,8 +3792,10 @@ int thermodynamics_derivs_with_recfast(
   /* hydrogen */
   /************/
 
-  if (x_H > ppr->recfast_x_H0_trigger)
+  if (x_H > ppr->recfast_x_H0_trigger) {
     dy[0] = 0.;
+    // printf("At z=%f, I've hit x_H=%f>%f\n", z, x_H, ppr->recfast_x_H0_trigger);
+  }
   else {
 
     /* Peebles' coefficient (approximated as one when the Hydrogen
