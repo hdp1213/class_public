@@ -3159,6 +3159,7 @@ int array_eval_bicubic_bspline(
   double wrk[lwrk];
   int iwrk[kwrk];
 
+  // As of 21/03/17, bispev returns the square of the interpolation
   bispev_(pbsp->xknots, &(pbsp->nxknots), pbsp->yknots, &(pbsp->nyknots), pbsp->coeffs, &(pbsp->degree), &(pbsp->degree), x, &mx, y, &my, z, wrk, &lwrk, iwrk, &kwrk, &ierr);
 
   class_test((ierr != 0),

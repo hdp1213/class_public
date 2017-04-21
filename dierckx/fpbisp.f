@@ -1,3 +1,4 @@
+c  21/04/2017 HP: added squaring of data after interpolation
       subroutine fpbisp(tx,nx,ty,ny,c,kx,ky,x,mx,y,my,z,wx,wy,lx,ly)
 c  ..scalar arguments..
       integer nx,ny,kx,ky,mx,my
@@ -71,7 +72,7 @@ c  ..
             l1 = l1+nky1
  110      continue
           m = m+1
-          z(m) = sp
+          z(m) = sp*sp
  120    continue
  130  continue
       return
