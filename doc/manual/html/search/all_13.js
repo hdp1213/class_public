@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['the_20_60external_5fpk_60_20mode',['The `external_Pk` mode',['../md__home_deannah88_Documents_Uni_stuff_Master_Student_Job_class_doxygen_class_external_Pk_README.html',1,'']]],
+  ['the_20_60external_5fpk_60_20mode',['The `external_Pk` mode',['../md__home_harry_Documents_git-repos_class_external_Pk_README.html',1,'']]],
   ['t_5fcmb',['T_cmb',['../background_8h.html#aacce0972bf2d6ba25b4fa6ebb0cbf42a',1,'background']]],
   ['t_5fncdm_5fdefault',['T_ncdm_default',['../background_8h.html#a10ccd157c2ca672eec8a402cdb330054',1,'background']]],
   ['target_5fnames',['target_names',['../input_8h.html#a2ab2421221f92f632c015f3d088f047c',1,'input.h']]],
@@ -42,6 +42,10 @@ var searchData=
   ['thermodynamics_5fonthespot_5fenergy_5finjection',['thermodynamics_onthespot_energy_injection',['../thermodynamics_8c.html#a7f1a04c6e4b080dbbe2855969e16eb25',1,'thermodynamics.c']]],
   ['thermodynamics_5foutput_5ftitles',['thermodynamics_output_titles',['../thermodynamics_8c.html#a4f8b2bc131699db3ff7e2b9c14dfe940',1,'thermodynamics.c']]],
   ['thermodynamics_5fparameters_5fand_5fworkspace',['thermodynamics_parameters_and_workspace',['../thermodynamics_8h.html#structthermodynamics__parameters__and__workspace',1,'']]],
+  ['thermodynamics_5fpbh_5feffective_5fenergy_5finjection',['thermodynamics_pbh_effective_energy_injection',['../thermodynamics_8c.html#a0f130b6153706c5fee445f609f50ce4e',1,'thermodynamics.c']]],
+  ['thermodynamics_5fpbh_5ffree',['thermodynamics_pbh_free',['../thermodynamics_8c.html#a13508b72cf0169f7bb4145c76d8da4ae',1,'thermodynamics.c']]],
+  ['thermodynamics_5fpbh_5finit',['thermodynamics_pbh_init',['../thermodynamics_8c.html#afeb306d56315f485f24484b2eca8ab76',1,'thermodynamics.c']]],
+  ['thermodynamics_5fpbh_5flog_5fnormal',['thermodynamics_pbh_log_normal',['../thermodynamics_8c.html#aaa3bb7a70b36e2aa60027ea47a22ea48',1,'thermodynamics.c']]],
   ['thermodynamics_5frecombination',['thermodynamics_recombination',['../thermodynamics_8c.html#a13696727ba92af10edfed3ebf8c43a8a',1,'thermodynamics.c']]],
   ['thermodynamics_5frecombination_5fwith_5fhyrec',['thermodynamics_recombination_with_hyrec',['../thermodynamics_8c.html#a3bddca88ed8e4de96ef783710739b2e6',1,'thermodynamics.c']]],
   ['thermodynamics_5frecombination_5fwith_5frecfast',['thermodynamics_recombination_with_recfast',['../thermodynamics_8c.html#ab7d2c22e2a933156c291bfa467731ab2',1,'thermodynamics.c']]],

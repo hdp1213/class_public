@@ -9,3 +9,7 @@ libclass.a
 python/classy.c
 python/*.pyc
 python/build/
+*.bnds
+*.info
+*.o
+*.tar*

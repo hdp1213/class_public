@@ -1036,6 +1036,9 @@ int input_read_parameters(
     }
   }
 
+  /** - Omega_0_pbh_ratio (ratio of PBH dark matter to WIMP DM) */
+  class_read_double("Omega_pbh_ratio",pba->Omega0_pbh_ratio);
+
   /** (b) assign values to thermodynamics cosmological parameters */
 
   /** - primordial helium fraction */
@@ -1201,6 +1204,77 @@ int input_read_parameters(
         class_stop(errmsg,"incomprehensible input '%s' for the field 'compute damping scale'",string1);
       }
     }
+  }
+
+  /** - mass distribution parameters for PBH energy injection */
+
+  class_call(parser_read_string(pfc,"pbh_mass_dist",&string1,&flag1,errmsg),
+             errmsg,
+             errmsg);
+
+  if (flag1 == _TRUE_) {
+    flag2=_FALSE_;
+    if (strcmp(string1,"pbh_none") == 0) {
+      pth->pbh_mass_dist=pbh_none;
+      flag2=_TRUE_;
+    }
+    if (strcmp(string1,"pbh_delta") == 0) {
+      pth->pbh_mass_dist=pbh_delta;
+      flag2=_TRUE_;
+    }
+    if (strcmp(string1,"pbh_log_norm") == 0) {
+      pth->pbh_mass_dist=pbh_log_norm;
+      flag2=_TRUE_;
+    }
+
+    class_test(flag2==_FALSE_,
+               errmsg,
+               "could not identify pbh_mass_dist value, check that it is one of 'pbh_none', 'pbh_delta', 'pbh_log_norm'...");
+  }
+
+  /** - distribution parameters if pbh_mass_dist==pbh_delta */
+  if (pth->pbh_mass_dist == pbh_delta){
+    class_read_double("pbh_mass_mean",pth->pbh_mass_mean);
+  }
+
+  /** - distribution parameters if pbh_mass_dist==pbh_log_norm */
+  if ((pth->pbh_mass_dist == pbh_log_norm)){
+    class_read_double("pbh_mass_mean",pth->pbh_mass_mean);
+    class_read_double("pbh_mass_width",pth->pbh_mass_width);
+  }
+
+  /** - external PBH energy deposition tables */
+  class_call(parser_read_string(pfc,
+                                "read pbh tables",
+                                &(string1),
+                                &(flag1),
+                                errmsg),
+             errmsg,
+             errmsg);
+
+  if (flag1 == _TRUE_) {
+    if ((strstr(string1,"y") != NULL) || (strstr(string1,"Y") != NULL)) {
+      pth->read_pbh_splines = _TRUE_;
+    }
+    else {
+      if ((strstr(string1,"n") != NULL) || (strstr(string1,"N") != NULL)) {
+        pth->read_pbh_splines = _FALSE_;
+      }
+      else {
+        class_stop(errmsg,"incomprehensible input '%s' for the field 'read pbh tables'",string1);
+      }
+    }
+  }
+
+  class_call(parser_read_string(pfc,"pbh_root",&string1,&flag1,errmsg),
+             errmsg,
+             errmsg);
+
+  if (flag1 == _TRUE_) {
+    strcpy(string2, "pbh/");
+    strcat(string2, string1);
+
+    pth->pbh_spline_files_root = string2;
   }
 
   /** (c) define which perturbations and sources should be computed, and down to which scale */
@@ -2837,6 +2911,8 @@ int input_default_params(
   pba->wa_fld=0.;
   pba->cs2_fld=1.;
 
+  pba->Omega0_pbh_ratio = 0.;
+
   pba->shooting_failed = _FALSE_;
 
   /** - thermodynamics structure */
@@ -2867,6 +2943,13 @@ int input_default_params(
   pth->annihilation_f_halo = 0.;
   pth->annihilation_z_halo = 30.;
   pth->has_on_the_spot = _TRUE_;
+
+  pth->pbh_mass_dist = pbh_none;
+  pth->pbh_mass_mean = 1.e6;
+  pth->pbh_mass_width = 1.e3;
+
+  pth->read_pbh_splines = _TRUE_;
+  pth->pbh_spline_files_root = "pbh/pbh_dep_table_";
 
   pth->compute_cb2_derivatives=_FALSE_;
 

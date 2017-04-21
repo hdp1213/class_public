@@ -113,6 +113,8 @@ struct background
   char * ncdm_psd_files;                /**< list of filenames for tabulated p-s-d */
   /* end of parameters for tabulated ncdm p-s-d */
 
+  double Omega0_pbh_ratio; /**< \f$ \Omega_{0 PBH}/\Omega_{0 cdm} \f$: ratio of PBH DM to WIMP DM densities assumed constant over universe time scales */
+
   //@}
 
   /** @name - related parameters */

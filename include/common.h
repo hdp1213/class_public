@@ -30,6 +30,8 @@ typedef char ErrorMsg[_ERRORMSGSIZE_]; /**< Generic error messages (there is suc
 #define _FILENAMESIZE_ 256 /**< size of the string read in each line of the file (extra characters not taken into account) */
 typedef char FileName[_FILENAMESIZE_];
 
+#define _CSVVALUESIZE_ 64 /**< size of single value in .csv files */
+
 #define _PI_ 3.1415926535897932384626433832795e0 /**< The number pi */
 
 #define _PIHALF_ 1.57079632679489661923132169164e0 /**< pi divided by 2 */
@@ -801,6 +803,51 @@ struct precision
 
 };
 
+/**
+ * structure containing knot points and coefficients for a 2d b-spline
+ */
 
+struct bspline_2d {
+
+  int nxknots; /**< number of knots in the x direction */
+  double * xknots; /**< x-coordinate values of these knots */
+
+  int nyknots; /**< number of knots in the y direction */
+  double * yknots; /**< y-coordinate values of these knots */
+
+  double * coeffs; /**< coefficients describing spline **/
+
+  int degree; /**< degree of b-spline. 1 for bilinear splines, 3 for bicubic splines */
+
+};
+
+/**
+ * Boilerplate for C++
+ */
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+  int class_read_2d_array(FILE * fp,
+                          double * array,
+                          int x_size,
+                          int y_size,
+                          ErrorMsg error_message
+                          );
+
+  int class_read_1d_array(FILE * fp,
+                          double ** array,
+                          int * array_size,
+                          ErrorMsg error_message
+                          );
+
+  int class_read_bicubic_bspline(FILE * fp,
+                                 struct bspline_2d * pbsp,
+                                 ErrorMsg error_message
+                                 );
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

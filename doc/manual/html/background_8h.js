@@ -32,6 +32,7 @@ var background_8h =
       [ "ncdm_psd_parameters", "background_8h.html#a974529db1fe5cbf91fc8513c1b56b7f3", null ],
       [ "got_files", "background_8h.html#a1f83cf53eb9a656c780428a86ab995bc", null ],
       [ "ncdm_psd_files", "background_8h.html#aa45063cc56ed270925f22707465b4592", null ],
+      [ "Omega0_pbh_ratio", "background_8h.html#aa20c22062c7b058f271052e14979c268", null ],
       [ "h", "background_8h.html#a15e42418e0ae22959e110abf99a5e07e", null ],
       [ "age", "background_8h.html#a369a4c5c388a06aa9fc7b348fa07a898", null ],
       [ "conformal_age", "background_8h.html#af5353323a6707b6284399d8b44dd2b3c", null ],

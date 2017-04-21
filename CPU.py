@@ -71,9 +71,9 @@ def CPU_parser():
     parser.add_argument('--scale', type=str,
                         choices=['lin', 'loglog', 'loglin', 'george'],
                         help='Specify the scale to use for the plot')
-    parser.add_argument('--xlim', dest='xlim', nargs='+', type=float,
+    parser.add_argument('--xlim', dest='xlim', nargs='+', type=str,
                         default=[], help='Specify the x range')
-    parser.add_argument('--ylim', dest='ylim', nargs='+', type=float,
+    parser.add_argument('--ylim', dest='ylim', nargs='+', type=str,
                         default=[], help='Specify the y range')
     parser.add_argument(
         '-p, --print',
@@ -482,6 +482,9 @@ def main():
     if args.ratio and args.scale == 'loglog':
         print "Defaulting to loglin scale"
         args.scale = 'loglin'
+
+    args.xlim = [float(eval(elem)) for elem in args.xlim]
+    args.ylim = [float(eval(elem)) for elem in args.ylim]
 
     plot_CLASS_output(args.files, args.x_axis, args.y_axis,
                       ratio=args.ratio, printing=args.printfile,

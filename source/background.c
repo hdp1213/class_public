@@ -581,6 +581,11 @@ int background_init(
              pba->error_message,
              "_Gyr_over_Mpc = %e instead of strictly positive",_Gyr_over_Mpc_);
 
+  /* check that the PBH-to-WIMP ratio is in range [0.0, 1.0] */
+  class_test((pba->Omega0_pbh_ratio < 0.0)||(pba->Omega0_pbh_ratio > 1.0),
+             pba->error_message,
+             "Omega_pbh_ratio=%g out of bounds (0.0<=Omega_pbh_ratio<=1.0) \n",pba->Omega0_pbh_ratio);
+
   /** - this function integrates the background over time, allocates
       and fills the background table */
   class_call(background_solve(ppr,pba),
