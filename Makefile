@@ -22,8 +22,8 @@ CC       = icc
 #CC       = pgcc
 
 # your Fortran compiler:
-FC       = gfortran 
-# FC       = ifort #-nofor_main
+# FC       = gfortran 
+FC       = ifort #-nofor_main
 
 # your tool for creating static libraries:
 AR        = ar rv
@@ -33,7 +33,7 @@ PYTHON = python
 
 # your optimization flag
 # OPTFLAG = -O4 -ffast-math #-march=native
-OPTFLAG = -Ofast -ffast-math #-march=native
+OPTFLAG = -Ofast -march=core-avx2
 #OPTFLAG = -fast
 
 # your openmp flag (comment for compiling without openmp)
@@ -42,9 +42,9 @@ OMPFLAG   = -qopenmp
 #OMPFLAG   = -openmp
 
 # all other compilation flags
-CCFLAG = -g -fPIC
-FCFLAG = -g -ffree-line-length-none -fPIC
-LDFLAG = -g -fPIC
+CCFLAG = -fPIC #-g
+FCFLAG = -fPIC #-g
+LDFLAG = -fPIC #-g
 
 # leave blank to compile without HyRec, or put path to HyRec directory
 # (with no slash at the end: e.g. hyrec or ../hyrec)
