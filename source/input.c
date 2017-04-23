@@ -1245,7 +1245,7 @@ int input_read_parameters(
 
   /** - external PBH energy deposition tables */
   class_call(parser_read_string(pfc,
-                                "read pbh tables",
+                                "read pbh splines",
                                 &(string1),
                                 &(flag1),
                                 errmsg),
@@ -1261,7 +1261,7 @@ int input_read_parameters(
         pth->read_pbh_splines = _FALSE_;
       }
       else {
-        class_stop(errmsg,"incomprehensible input '%s' for the field 'read pbh tables'",string1);
+        class_stop(errmsg,"incomprehensible input '%s' for the field 'read pbh splines'",string1);
       }
     }
   }
@@ -2949,7 +2949,7 @@ int input_default_params(
   pth->pbh_mass_width = 1.e3;
 
   pth->read_pbh_splines = _TRUE_;
-  pth->pbh_spline_files_root = "pbh/pbh_dep_table_";
+  pth->pbh_spline_files_root = "pbh/pbh_bspline_";
 
   pth->compute_cb2_derivatives=_FALSE_;
 
