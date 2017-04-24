@@ -72,7 +72,8 @@ public:
   ClassEngine(const ClassParams& pars);
   //with a class .pre file
   ClassEngine(const ClassParams& pars,const string & precision_file);
-  
+  //with a set of PBH splines
+  ClassEngine(const ClassParams& pars, struct pbh_external* pbh_info);
 
   // destructor
   ~ClassEngine();
@@ -183,6 +184,8 @@ private:
 		 ErrorMsg errmsg);
   //parnames
   std::vector<std::string> parNames;
+
+  struct pbh_external* m_pbh_info;
 
 protected:
  

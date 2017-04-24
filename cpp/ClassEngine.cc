@@ -65,7 +65,7 @@ template string str(const unsigned long long &x);
 //---------------
 // Constructors --
 //----------------
-ClassEngine::ClassEngine(const ClassParams& pars): cl(0),dofree(true){
+ClassEngine::ClassEngine(const ClassParams& pars): cl(0),dofree(true),m_pbh_info(0){
 
   //prepare fp structure
   size_t n=pars.size();
@@ -89,7 +89,7 @@ ClassEngine::ClassEngine(const ClassParams& pars): cl(0),dofree(true){
   assert(_lmax>0);
 
     //input
-  if (input_init(&fc,&pr,&ba,&th,&pt,&tr,&pm,&sp,&nl,&le,&op,_errmsg) == _FAILURE_) 
+  if (input_init(&fc,&pr,&ba,&th,&pt,&tr,&pm,&sp,&nl,&le,&op,m_pbh_info,_errmsg) == _FAILURE_)
     throw invalid_argument(_errmsg);
 
   //proetction parametres mal defini
@@ -108,7 +108,7 @@ ClassEngine::ClassEngine(const ClassParams& pars): cl(0),dofree(true){
 }
 
 
-ClassEngine::ClassEngine(const ClassParams& pars,const string & precision_file): cl(0),dofree(true){
+ClassEngine::ClassEngine(const ClassParams& pars,const string & precision_file): cl(0),dofree(true),m_pbh_info(0){
 
   struct file_content fc_precision;
   fc_precision.size = 0;
@@ -145,7 +145,7 @@ ClassEngine::ClassEngine(const ClassParams& pars,const string & precision_file):
   parser_free(&fc_precision);
   
   //input
-  if (input_init(&fc,&pr,&ba,&th,&pt,&tr,&pm,&sp,&nl,&le,&op,_errmsg) == _FAILURE_) 
+  if (input_init(&fc,&pr,&ba,&th,&pt,&tr,&pm,&sp,&nl,&le,&op,m_pbh_info,_errmsg) == _FAILURE_)
     throw invalid_argument(_errmsg);
 
   //proetction parametres mal defini
@@ -163,7 +163,51 @@ ClassEngine::ClassEngine(const ClassParams& pars,const string & precision_file):
 
 
 }
+
+// This method is the only one that initialises m_pbh_info to be non-zero
+ClassEngine::ClassEngine(const ClassParams& pars, struct pbh_external* pbh_info): cl(0),dofree(true),m_pbh_info(pbh_info){
+
+  //prepare fp structure
+  size_t n=pars.size();
+  //
+  parser_init(&fc,n,"pipo",_errmsg);
   
+  //config
+  for (size_t i=0;i<pars.size();i++){
+    strcpy(fc.name[i],pars.key(i).c_str());
+    strcpy(fc.value[i],pars.value(i).c_str());
+    //store
+    parNames.push_back(pars.key(i));
+    //identify lmax
+    cout << pars.key(i) << "\t" << pars.value(i) <<endl;
+    if (pars.key(i)=="l_max_scalars") {
+      istringstream strstrm(pars.value(i));
+      strstrm >> _lmax;
+    }
+  }
+  cout << __FILE__ << " : using lmax=" << _lmax <<endl;
+  assert(_lmax>0);
+
+    //input
+  if (input_init(&fc,&pr,&ba,&th,&pt,&tr,&pm,&sp,&nl,&le,&op,m_pbh_info,_errmsg) == _FAILURE_)
+    throw invalid_argument(_errmsg);
+
+  //proetction parametres mal defini
+  for (size_t i=0;i<pars.size();i++){
+    if (fc.read[i] !=_TRUE_) throw invalid_argument(string("invalid CLASS parameter: ")+fc.name[i]);
+  }
+
+
+  //calcul class
+  computeCls();
+
+  //cout <<"creating " << sp.ct_size << " arrays" <<endl;
+  cl=new double[sp.ct_size];
+
+  //printFC();
+
+}
+
 
 
 //--------------
@@ -222,7 +266,7 @@ int ClassEngine::class_main(
                             ErrorMsg errmsg) {
   
 
-  if (input_init(pfc,ppr,pba,pth,ppt,ptr,ppm,psp,pnl,ple,pop,errmsg) == _FAILURE_) {
+  if (input_init(pfc,ppr,pba,pth,ppt,ptr,ppm,psp,pnl,ple,pop,m_pbh_info,errmsg) == _FAILURE_) {
     printf("\n\nError running input_init_from_arguments \n=>%s\n",errmsg);
     dofree=false;
     return _FAILURE_;
@@ -234,7 +278,7 @@ int ClassEngine::class_main(
     return _FAILURE_;
   }
 
-  if (thermodynamics_init(ppr,pba,pth) == _FAILURE_) {
+  if (thermodynamics_init(ppr,pba,pth,m_pbh_info) == _FAILURE_) {
     printf("\n\nError in thermodynamics_init \n=>%s\n",pth->error_message);
     background_free(&ba);
     dofree=false;
@@ -314,7 +358,7 @@ int ClassEngine::computeCls(){
 
 #ifdef DBUG
   cout <<"call computecls" << endl;
-  //printFC();
+  printFC();
 #endif
 
   int status=this->class_main(&fc,&pr,&ba,&th,&pt,&tr,&pm,&sp,&nl,&le,&op,_errmsg);
