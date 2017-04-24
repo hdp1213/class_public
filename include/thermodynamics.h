@@ -502,6 +502,26 @@ struct thermodynamics_parameters_and_workspace {
 
 };
 
+/**
+ * Structure containing externally-read b-splines and axes needed for PBH energy injection computation
+ *
+ * Should only be used by an external CLASS engine
+ */
+
+struct pbh_external {
+
+  /* structures containing b-spline information */
+  struct bspline_2d hion;
+  struct bspline_2d excite;
+  struct bspline_2d heat;
+
+  /* axes arrays and their sizes */
+  double* masses;
+  int masses_size;
+  double* z_deps;
+  int z_deps_size;
+};
+
 /**************************************************************/
 /* @cond INCLUDE_WITH_DOXYGEN */
 /*
@@ -524,7 +544,8 @@ extern "C" {
   int thermodynamics_init(
                           struct precision * ppr,
                           struct background * pba,
-                          struct thermo * pth
+                          struct thermo * pth,
+                          void * ext_objs
                           );
 
   int thermodynamics_free(

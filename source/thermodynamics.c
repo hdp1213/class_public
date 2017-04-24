@@ -246,12 +246,14 @@ int thermodynamics_at_z(
  * @param ppr Input: pointer to precision structure
  * @param pba Input: pointer to background structure
  * @param pth Input/Output: pointer to initialized thermo structure
+ * @param ext_objs Input: only used in external calls to CLASS
  * @return the error status
  */
 int thermodynamics_init(
                         struct precision * ppr,
                         struct background * pba,
-                        struct thermo * pth
+                        struct thermo * pth,
+                        void * ext_objs
                         ) {
 
   /** Summary: */
@@ -283,11 +285,40 @@ int thermodynamics_init(
   double g_max;
   int index_tau_max;
 
+  struct pbh_external * pbh_info;
+
+  struct bspline_2d bsp_pbh_hion;
+  struct bspline_2d bsp_pbh_excite;
+  struct bspline_2d bsp_pbh_heat;
+
   /** - initialize pointers, allocate background vector */
 
   preco=&reco;
   preio=&reio;
   class_alloc(pvecback,pba->bg_size*sizeof(double),pba->error_message);
+
+  /** - initialise b-spline pointers either from file or externally */
+
+  if (pth->read_pbh_splines == _TRUE_) {
+    preco->pbsp_pbh_hion = &bsp_pbh_hion;
+    preco->pbsp_pbh_excite = &bsp_pbh_excite;
+    preco->pbsp_pbh_heat = &bsp_pbh_heat;
+  }
+  else {
+    pbh_info = (struct pbh_external*) ext_objs;
+
+    preco->pbh_z_deps = pbh_info->z_deps;
+    preco->pz_size = pbh_info->z_deps_size;
+    preco->pbh_masses = pbh_info->masses;
+    preco->pm_size = pbh_info->masses_size;
+
+    preco->pbh_z_min = *(preco->pbh_z_deps+preco->pz_size-1);
+    preco->pbh_z_max = *(preco->pbh_z_deps);
+
+    preco->pbsp_pbh_hion = &(pbh_info->hion);
+    preco->pbsp_pbh_excite = &(pbh_info->excite);
+    preco->pbsp_pbh_heat = &(pbh_info->heat);
+  }
 
   if (pth->thermodynamics_verbose > 0)
     printf("Computing thermodynamics");
@@ -402,9 +433,11 @@ int thermodynamics_init(
 
   /** - initialise PBH quantities in recombination structure */
 
-  class_call(thermodynamics_pbh_init(ppr,pba,pth,preco),
-             pth->error_message,
-             pth->error_message);
+  if (pth->read_pbh_splines == _TRUE_) {
+    class_call(thermodynamics_pbh_init(ppr,pba,pth,preco),
+               pth->error_message,
+               pth->error_message);
+  }
 
   /** - solve recombination and store values of \f$ z, x_e, d \kappa / d \tau, T_b, c_b^2 \f$ with thermodynamics_recombination() */
 
@@ -414,9 +447,11 @@ int thermodynamics_init(
 
   /** - free PBH quantities from recombination structure */
 
-  class_call(thermodynamics_pbh_free(preco),
-             pth->error_message,
-             pth->error_message);
+  if (pth->read_pbh_splines == _TRUE_) {
+    class_call(thermodynamics_pbh_free(preco),
+               pth->error_message,
+               pth->error_message);
+  }
 
   /** - if there is reionization, solve reionization and store values of \f$ z, x_e, d \kappa / d \tau, T_b, c_b^2 \f$ with thermodynamics_reionization()*/
 
@@ -1057,7 +1092,14 @@ int thermodynamics_indices(
 
 /**
  * Initialize PBH quantities in the recombination structure, and in
- * particular the precomputed energy depositions.
+ * particular the precomputed energy depositions. Only called if
+ * read_pbh_splines is set to _TRUE_.
+ *
+ * Must set: preco->pbh_z_deps and preco->pz_size,
+ *           preco->pbh_masses and preco->pm_size,
+ *           preco->pbh_z_min and preco->pbh_z_max,
+ *           preco->pbsp_pbh_hion, preco->pbsp_pbh_excite and
+ *             preco->pbsp_pbh_heat
  *
  * @param ppr   Input: pointer to precision structure
  * @param pba   Input: pointer to background structure
@@ -1076,18 +1118,8 @@ int thermodynamics_pbh_init(
   char pbh_spline_file[_ARGUMENT_LENGTH_MAX_];
   FILE * fp;
 
-  struct bspline_2d bsp_pbh_hion;
-  struct bspline_2d bsp_pbh_excite;
-  struct bspline_2d bsp_pbh_heat;
+  /** - read in PBH mass and redshift axes */
 
-  /** - read in precomputed PBH energy deposition efficiencies */
-
-  /* initialise b-spline pointers */
-  preco->pbsp_pbh_hion = &bsp_pbh_hion;
-  preco->pbsp_pbh_excite = &bsp_pbh_excite;
-  preco->pbsp_pbh_heat = &bsp_pbh_heat;
-
-  /* read in axes */
   strcpy(pbh_spline_file, pth->pbh_spline_files_root);
   strcat(pbh_spline_file, "axes.dat");
 
@@ -1114,55 +1146,54 @@ int thermodynamics_pbh_init(
   preco->pbh_z_min = *(preco->pbh_z_deps+preco->pz_size-1);
   preco->pbh_z_max = *(preco->pbh_z_deps);
 
-  /* read in the precomputed splines */
-  if (pth->read_pbh_splines == _TRUE_) {
-    /* read in hydrogen ionisation table */
-    strcpy(pbh_spline_file, pth->pbh_spline_files_root);
-    strcat(pbh_spline_file, "hion.dat");
+  /** - read in precomputed splines */
 
-    class_open(fp, pbh_spline_file, "r", pth->error_message);
-    class_call(class_read_bicubic_bspline(fp,
-                                          preco->pbsp_pbh_hion,
-                                          pth->error_message),
-               pth->error_message,
-               pth->error_message);
-    fclose(fp);
+  /* read in hydrogen ionisation table */
+  strcpy(pbh_spline_file, pth->pbh_spline_files_root);
+  strcat(pbh_spline_file, "hion.dat");
 
-    // for (i = 0; i < preco->pm_size*preco->pz_size; ++i) {
-    //   printf("%e\n", *(preco->pbsp_pbh_hion->coeffs+i));
-    // }
+  class_open(fp, pbh_spline_file, "r", pth->error_message);
+  class_call(class_read_bicubic_bspline(fp,
+                                        preco->pbsp_pbh_hion,
+                                        pth->error_message),
+             pth->error_message,
+             pth->error_message);
+  fclose(fp);
 
-    /* read in excitation table */
-    strcpy(pbh_spline_file, pth->pbh_spline_files_root);
-    strcat(pbh_spline_file, "excite.dat");
+  // for (i = 0; i < preco->pm_size*preco->pz_size; ++i) {
+  //   printf("%e\n", *(preco->pbsp_pbh_hion->coeffs+i));
+  // }
 
-    class_open(fp, pbh_spline_file, "r", pth->error_message);
-    class_call(class_read_bicubic_bspline(fp,
-                                          preco->pbsp_pbh_excite,
-                                          pth->error_message),
-               pth->error_message,
-               pth->error_message);
-    fclose(fp);
+  /* read in excitation table */
+  strcpy(pbh_spline_file, pth->pbh_spline_files_root);
+  strcat(pbh_spline_file, "excite.dat");
 
-    /* read in heating table */
-    strcpy(pbh_spline_file, pth->pbh_spline_files_root);
-    strcat(pbh_spline_file, "heat.dat");
+  class_open(fp, pbh_spline_file, "r", pth->error_message);
+  class_call(class_read_bicubic_bspline(fp,
+                                        preco->pbsp_pbh_excite,
+                                        pth->error_message),
+             pth->error_message,
+             pth->error_message);
+  fclose(fp);
 
-    class_open(fp, pbh_spline_file, "r", pth->error_message);
-    class_call(class_read_bicubic_bspline(fp,
-                                          preco->pbsp_pbh_heat,
-                                          pth->error_message),
-               pth->error_message,
-               pth->error_message);
-    fclose(fp);
+  /* read in heating table */
+  strcpy(pbh_spline_file, pth->pbh_spline_files_root);
+  strcat(pbh_spline_file, "heat.dat");
 
-  }
+  class_open(fp, pbh_spline_file, "r", pth->error_message);
+  class_call(class_read_bicubic_bspline(fp,
+                                        preco->pbsp_pbh_heat,
+                                        pth->error_message),
+             pth->error_message,
+             pth->error_message);
+  fclose(fp);
 
   return _SUCCESS_;
 }
 
 /**
- * Free all memory space allocated by thermodynamics_pbh_init().
+ * Free all memory space allocated by thermodynamics_pbh_init().  Only
+ * called if read_pbh_splines is set to _TRUE_.
  *
  *
  * @param preco Input/Output: pointer to recombination structure (to be freed)
@@ -1172,9 +1203,6 @@ int thermodynamics_pbh_init(
 int thermodynamics_pbh_free(
                             struct recombination * preco
                             ) {
-
-  free(preco->pbh_z_deps);
-  free(preco->pbh_masses);
 
   free(preco->pbsp_pbh_hion->xknots);
   free(preco->pbsp_pbh_hion->yknots);
@@ -1187,6 +1215,9 @@ int thermodynamics_pbh_free(
   free(preco->pbsp_pbh_heat->xknots);
   free(preco->pbsp_pbh_heat->yknots);
   free(preco->pbsp_pbh_heat->coeffs);
+
+  free(preco->pbh_z_deps);
+  free(preco->pbh_masses);
 
   return _SUCCESS_;
 }
