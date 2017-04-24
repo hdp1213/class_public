@@ -50,6 +50,8 @@ int input_init_from_arguments(
   FileArg stringoutput, inifilename;
   int flag1, filenum;
 
+  void * context = 0;
+
   pfc_input = &fc_input;
 
   /** - Initialize the two file_content structures (for input
@@ -174,6 +176,7 @@ int input_init_from_arguments(
                         pnl,
                         ple,
                         pop,
+                        context,
                         errmsg),
              errmsg,
              errmsg);
@@ -203,6 +206,7 @@ int input_init(
                struct nonlinear * pnl,
                struct lensing *ple,
                struct output *pop,
+               void * ext_objs,
                ErrorMsg errmsg
                ) {
 
@@ -323,6 +327,7 @@ int input_init(
       class_call_try(input_find_root(&xzero,
                                      &fevals,
                                      &fzw,
+                                     ext_objs,
                                      errmsg),
                      errmsg,
                      pba->shooting_error,
@@ -358,6 +363,7 @@ int input_init(
                                   1e-6,
                                   &fzw,
                                   &fevals,
+                                  ext_objs,
                                   errmsg),
                      errmsg, pba->shooting_error,shooting_failed=_TRUE_);
 
@@ -3461,12 +3467,14 @@ int get_machine_precision(double * smallest_allowed_variation) {
 int input_fzerofun_1d(double input,
                       void* pfzw,
                       double *output,
+                      void * ext_objs,
                       ErrorMsg error_message){
 
   class_call(input_try_unknown_parameters(&input,
                                           1,
                                           pfzw,
                                           output,
+                                          ext_objs,
                                           error_message),
              error_message,
              error_message);
@@ -3474,7 +3482,7 @@ int input_fzerofun_1d(double input,
   return _SUCCESS_;
 }
 
-int class_fzero_ridder(int (*func)(double x, void *param, double *y, ErrorMsg error_message),
+int class_fzero_ridder(int (*func)(double x, void *param, double *y, void * ext, ErrorMsg error_message),
                        double x1,
                        double x2,
                        double xtol,
@@ -3483,6 +3491,7 @@ int class_fzero_ridder(int (*func)(double x, void *param, double *y, ErrorMsg er
                        double *Fx2,
                        double *xzero,
                        int *fevals,
+                       void * ext_objs,
                        ErrorMsg error_message){
   /**Using Ridders' method, return the root of a function func known to
      lie between x1 and x2. The root, returned as zriddr, will be found to
@@ -3495,9 +3504,9 @@ int class_fzero_ridder(int (*func)(double x, void *param, double *y, ErrorMsg er
     fh = *Fx2;
   }
   else{
-    class_call((*func)(x1, param, &fl, error_message),
+    class_call((*func)(x1, param, &fl, ext_objs, error_message),
                error_message, error_message);
-    class_call((*func)(x2, param, &fh, error_message),
+    class_call((*func)(x2, param, &fh, ext_objs, error_message),
                error_message, error_message);
 
     *fevals = (*fevals)+2;
@@ -3508,7 +3517,7 @@ int class_fzero_ridder(int (*func)(double x, void *param, double *y, ErrorMsg er
     ans=-1.11e11;
     for (j=1;j<=MAXIT;j++) {
       xm=0.5*(xl+xh);
-      class_call((*func)(xm, param, &fm, error_message),
+      class_call((*func)(xm, param, &fm, ext_objs, error_message),
                  error_message, error_message);
       *fevals = (*fevals)+1;
       s=sqrt(fm*fm-fl*fh);
@@ -3523,7 +3532,7 @@ int class_fzero_ridder(int (*func)(double x, void *param, double *y, ErrorMsg er
         return _SUCCESS_;
       }
       ans=xnew;
-      class_call((*func)(ans, param, &fnew, error_message),
+      class_call((*func)(ans, param, &fnew, ext_objs, error_message),
                  error_message, error_message);
       *fevals = (*fevals)+1;
       if (fnew == 0.0){
@@ -3563,6 +3572,7 @@ int input_try_unknown_parameters(double * unknown_parameter,
                                  int unknown_parameters_size,
                                  void * voidpfzw,
                                  double * output,
+                                 void * ext_objs,
                                  ErrorMsg errmsg){
   /** Summary:
    * - Call the structures*/
@@ -3631,7 +3641,7 @@ int input_try_unknown_parameters(double * unknown_parameter,
      printf("Stage 2: thermodynamics\n");
     pr.recfast_Nz0 = 10000;
     th.thermodynamics_verbose = 0;
-    class_call(thermodynamics_init(&pr,&ba,&th), th.error_message, errmsg);
+    class_call(thermodynamics_init(&pr,&ba,&th,ext_objs), th.error_message, errmsg);
   }
 
   if (pfzw->required_computation_stage >= cs_perturbations){
@@ -3885,6 +3895,7 @@ int input_get_guess(double *xguess,
 int input_find_root(double *xzero,
                     int *fevals,
                     struct fzerofun_workspace *pfzw,
+                    void * ext_objs,
                     ErrorMsg errmsg){
   double x1, x2, f1, f2, dxdy, dx;
   int iter, iter2;
@@ -3898,6 +3909,7 @@ int input_find_root(double *xzero,
   class_call(input_fzerofun_1d(x1,
                                pfzw,
                                &f1,
+                               ext_objs,
                                errmsg),
                  errmsg, errmsg);
   (*fevals)++;
@@ -3911,7 +3923,7 @@ int input_find_root(double *xzero,
     x2 = x1 - dx;
 
     for (iter2=1; iter2 <= 3; iter2++) {
-      return_function = input_fzerofun_1d(x2,pfzw,&f2,errmsg);
+      return_function = input_fzerofun_1d(x2,pfzw,&f2,ext_objs,errmsg);
       (*fevals)++;
       //printf("x2= %g, f2= %g\n",x2,f2);
       //fprintf(stderr,"iter2=%d\n",iter2);
@@ -3951,6 +3963,7 @@ int input_find_root(double *xzero,
                                 &f2,
                                 xzero,
                                 fevals,
+                                ext_objs,
                                 errmsg),
              errmsg,errmsg);
 

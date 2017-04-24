@@ -1058,6 +1058,7 @@ int fzero_Newton(int (*func)(double *x,
                              int x_size,
                              void *param,
                              double *F,
+                             void * ext,
                              ErrorMsg error_message),
                  double *x_inout,
                  double *dxdF,
@@ -1066,6 +1067,7 @@ int fzero_Newton(int (*func)(double *x,
                  double tolF,
                  void *param,
                  int *fevals,
+                 void * ext_objs,
                  ErrorMsg error_message){
   /**Given an initial guess x[1..n] for a root in n dimensions,
      take ntrial Newton-Raphson steps to improve the root.
@@ -1101,7 +1103,7 @@ int fzero_Newton(int (*func)(double *x,
     /** Compute F(x): */
     /**printf("x = [%f, %f], delx = [%e, %e]\n",
        x_inout[0],x_inout[1],delx[0],delx[1]);*/
-    class_call(func(x_inout, x_size, param, F0, error_message),
+    class_call(func(x_inout, x_size, param, F0, ext_objs, error_message),
                error_message, error_message);
     /**    printf("F0 = [%f, %f]\n",F0[0],F0[1]);*/
     *fevals = *fevals + 1;
@@ -1129,7 +1131,7 @@ int fzero_Newton(int (*func)(double *x,
 
       /**      printf("x = [%f, %f], delx = [%e, %e]\n",
                x_inout[0],x_inout[1],delx[0],delx[1]);*/
-      class_call(func(x_inout, x_size, param, Fdel, error_message),
+      class_call(func(x_inout, x_size, param, Fdel, ext_objs, error_message),
                  error_message, error_message);
       /**      printf("F = [%f, %f]\n",Fdel[0],Fdel[1]);*/
       for (j=1; j<=x_size; j++)

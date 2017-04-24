@@ -191,6 +191,7 @@ extern "C" {
 		 struct nonlinear *pnl,
 		 struct lensing *ple,
 		 struct output *pop,
+     void * ext_objs,
 		 ErrorMsg errmsg
 		 );
 
@@ -227,7 +228,7 @@ extern "C" {
 
   int get_machine_precision(double * smallest_allowed_variation);
 
-  int class_fzero_ridder(int (*func)(double x, void *param, double *y, ErrorMsg error_message),
+  int class_fzero_ridder(int (*func)(double x, void *param, double *y, void * ext, ErrorMsg error_message),
 			 double x1,
 			 double x2,
 			 double xtol,
@@ -236,6 +237,7 @@ extern "C" {
 			 double *Fx2,
 			 double *xzero,
 			 int *fevals,
+       void * ext_objs,
 			 ErrorMsg error_message);
 
   int input_fzerofun_for_background(double Omega_ini_dcdm,
@@ -247,11 +249,13 @@ extern "C" {
                                    int unknown_parameters_size,
                                    void * pfzw,
                                    double * output,
+                                   void * ext_objs,
                                    ErrorMsg errmsg);
 
   int input_fzerofun_1d(double input,
                         void* fzerofun_workspace,
                         double *output,
+                        void * ext_objs,
                         ErrorMsg error_message);
 
   int input_get_guess(double *xguess,
@@ -262,6 +266,7 @@ extern "C" {
   int input_find_root(double *xzero,
                       int *fevals,
                       struct fzerofun_workspace *pfzw,
+                      void * ext_objs,
                       ErrorMsg errmsg);
 
   int file_exists(const char *fname);

@@ -75,6 +75,7 @@ extern "C" {
                                int x_size,
                                void *param,
                                double *F,
+                               void * ext,
                                ErrorMsg error_message),
                    double *x_inout,
                    double *dxdF,
@@ -83,6 +84,7 @@ extern "C" {
                    double tolF,
                    void *param,
                    int *fevals,
+                   void * ext_objs,
                    ErrorMsg error_message);
 
   int numjac(int (*derivs)(double x,double * y,double * dy,void * parameters_and_workspace,ErrorMsg error_message),
