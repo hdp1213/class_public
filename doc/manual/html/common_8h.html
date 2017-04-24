@@ -105,7 +105,8 @@ $(document).ready(function(){initNavTree('common_8h.html','');});
 <div class="header">
   <div class="summary">
 <a href="#nested-classes">Data Structures</a> &#124;
-<a href="#enum-members">Enumerations</a>  </div>
+<a href="#enum-members">Enumerations</a> &#124;
+<a href="#func-members">Functions</a>  </div>
   <div class="headertitle">
 <div class="title">common.h File Reference</div>  </div>
 </div><!--header-->
@@ -173,9 +174,16 @@ $(document).ready(function(){initNavTree('common_8h.html','');});
 Data Structures</h2></td></tr>
 <tr class="memitem:structprecision"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="common_8h.html#structprecision">precision</a></td></tr>
 <tr class="separator:structprecision"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:structbspline__2d"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="common_8h.html#structbspline__2d">bspline_2d</a></td></tr>
+<tr class="separator:structbspline__2d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="enum-members"></a>
 Enumerations</h2></td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
+Functions</h2></td></tr>
+<tr class="memitem:a04aef2bc5d099756428630e507e36aa5"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="common_8h.html#a04aef2bc5d099756428630e507e36aa5">class_read_2d_array</a> (FILE *fp, double *array, int x_size, int y_size, ErrorMsg error_message)</td></tr>
+<tr class="separator:a04aef2bc5d099756428630e507e36aa5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Generic libraries, parameters and functions used in the whole code. </p>
@@ -458,34 +466,6 @@ recfast_x_H0_trigger_delta</td>
 recfast_H_frac</td>
 <td class="fielddoc">
 <p>governs time at which full equation of evolution for Tmat is used </p>
-</td></tr>
-<tr><td class="fieldtype">
-<a class="anchor" id="aa1e7991f47a38513302ed36ce47ff5e4"></a>double</td>
-<td class="fieldname">
-pbh_z_min</td>
-<td class="fielddoc">
-<p>minimum redshift of precomputed deposition tables </p>
-</td></tr>
-<tr><td class="fieldtype">
-<a class="anchor" id="a6d3e9d9887f270ccc1f4873a8e722579"></a>double</td>
-<td class="fieldname">
-pbh_z_max</td>
-<td class="fielddoc">
-<p>maximum redshift of precomputed deposition tables </p>
-</td></tr>
-<tr><td class="fieldtype">
-<a class="anchor" id="a3c525a0e2f0d821e1fe918a9bc892178"></a>int</td>
-<td class="fieldname">
-pbh_z_steps</td>
-<td class="fielddoc">
-<p>number of redshift steps of precomputed deposition tables </p>
-</td></tr>
-<tr><td class="fieldtype">
-<a class="anchor" id="a17c52ad638b73929bcd06fbd6245e000"></a>int</td>
-<td class="fieldname">
-pbh_mass_steps</td>
-<td class="fielddoc">
-<p>number of mass steps of precomputed deposition tables </p>
 </td></tr>
 <tr><td class="fieldtype">
 <a class="anchor" id="a54f06b9c9e4358e85ae00a82d2be3073"></a>double</td>
@@ -1240,6 +1220,64 @@ error_message</td>
 
 </div>
 </div>
+<a name="structbspline__2d" id="structbspline__2d"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">struct bspline_2d</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<div class="textblock"><p>structure containing knot points and coefficients for a 2d b-spline </p>
+</div><table class="fieldtable">
+<tr><th colspan="3">Data Fields</th></tr>
+<tr><td class="fieldtype">
+<a class="anchor" id="a3a5a49a8a18b597ef7f1c563d6ff5b11"></a>int</td>
+<td class="fieldname">
+nxknots</td>
+<td class="fielddoc">
+<p>number of knots in the x direction </p>
+</td></tr>
+<tr><td class="fieldtype">
+<a class="anchor" id="a509586fff77b06f674a65004352fc305"></a>double *</td>
+<td class="fieldname">
+xknots</td>
+<td class="fielddoc">
+<p>x-coordinate values of these knots </p>
+</td></tr>
+<tr><td class="fieldtype">
+<a class="anchor" id="ae8f68c4863c03d2b6bfeb8386845b186"></a>int</td>
+<td class="fieldname">
+nyknots</td>
+<td class="fielddoc">
+<p>number of knots in the y direction </p>
+</td></tr>
+<tr><td class="fieldtype">
+<a class="anchor" id="a521eb61ee8bc420d47d013ee41d9c6e3"></a>double *</td>
+<td class="fieldname">
+yknots</td>
+<td class="fielddoc">
+<p>y-coordinate values of these knots </p>
+</td></tr>
+<tr><td class="fieldtype">
+<a class="anchor" id="a5e959c6d854dc8be1a3a9bbefb765f82"></a>double *</td>
+<td class="fieldname">
+coeffs</td>
+<td class="fielddoc">
+<p>coefficients describing spline </p>
+</td></tr>
+<tr><td class="fieldtype">
+<a class="anchor" id="a5a6ae308d7e309114f63f313bf73df75"></a>int</td>
+<td class="fieldname">
+degree</td>
+<td class="fielddoc">
+<p>degree of b-spline. 1 for bilinear splines, 3 for bicubic splines </p>
+</td></tr>
+</table>
+
+</div>
+</div>
 <h2 class="groupheader">Enumeration Type Documentation</h2>
 <a class="anchor" id="a554a0cdfc80aa49273197d324b2e9956"></a>
 <div class="memitem">
@@ -1294,13 +1332,59 @@ error_message</td>
 
 </div>
 </div>
+<h2 class="groupheader">Function Documentation</h2>
+<a class="anchor" id="a04aef2bc5d099756428630e507e36aa5"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int class_read_2d_array </td>
+          <td>(</td>
+          <td class="paramtype">FILE *&#160;</td>
+          <td class="paramname"><em>fp</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">double *&#160;</td>
+          <td class="paramname"><em>array</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>x_size</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>y_size</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">ErrorMsg&#160;</td>
+          <td class="paramname"><em>error_message</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Boilerplate for C++ </p>
+
+</div>
+</div>
 </div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="dir_d44c64559bbebec7f509842c48db8b23.html">include</a></li><li class="navelem"><a class="el" href="common_8h.html">common.h</a></li>
-    <li class="footer">Generated on Wed Mar 29 2017 23:05:13 for CLASS MANUAL by
+    <li class="footer">Generated on Mon Apr 24 2017 14:56:50 for CLASS MANUAL by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.11 </li>
   </ul>

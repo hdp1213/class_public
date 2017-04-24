@@ -37,7 +37,7 @@ var searchData=
   ['thermodynamics_5fget_5fxe_5fbefore_5freionization',['thermodynamics_get_xe_before_reionization',['../thermodynamics_8c.html#a81120dad31dd155c4c3eaca36da53080',1,'thermodynamics.c']]],
   ['thermodynamics_5fhelium_5ffrom_5fbbn',['thermodynamics_helium_from_bbn',['../thermodynamics_8c.html#aa99e8a0f968b10a07df134c51011ed2e',1,'thermodynamics.c']]],
   ['thermodynamics_5findices',['thermodynamics_indices',['../thermodynamics_8c.html#a8fff80fda27805f33d1f3deaf9f90cce',1,'thermodynamics.c']]],
-  ['thermodynamics_5finit',['thermodynamics_init',['../thermodynamics_8c.html#a1acbfae38edb0c73d8991645f89b2d13',1,'thermodynamics.c']]],
+  ['thermodynamics_5finit',['thermodynamics_init',['../thermodynamics_8c.html#a2abbc9d43978b497de896f8d98b14a7d',1,'thermodynamics.c']]],
   ['thermodynamics_5fmerge_5freco_5fand_5freio',['thermodynamics_merge_reco_and_reio',['../thermodynamics_8c.html#a49f9b949c30411585549b523d2033089',1,'thermodynamics.c']]],
   ['thermodynamics_5fonthespot_5fenergy_5finjection',['thermodynamics_onthespot_energy_injection',['../thermodynamics_8c.html#a7f1a04c6e4b080dbbe2855969e16eb25',1,'thermodynamics.c']]],
   ['thermodynamics_5foutput_5ftitles',['thermodynamics_output_titles',['../thermodynamics_8c.html#a4f8b2bc131699db3ff7e2b9c14dfe940',1,'thermodynamics.c']]],

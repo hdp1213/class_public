@@ -33,8 +33,8 @@ var thermodynamics_8h =
       [ "annihilation_z_halo", "thermodynamics_8h.html#a64f8f97a949b86579bdc382a3ab5ae6c", null ],
       [ "pbh_mass_mean", "thermodynamics_8h.html#aead163559b58749db343e3d6a50c80ad", null ],
       [ "pbh_mass_width", "thermodynamics_8h.html#a032efab1c512474421da2169bc772a27", null ],
-      [ "read_pbh_tables", "thermodynamics_8h.html#ac83354222bbe5a04c51cf9aaff69a18c", null ],
-      [ "pbh_energy_dep_files_root", "thermodynamics_8h.html#a6a98bfe0fdac285baa28234420d37762", null ],
+      [ "read_pbh_splines", "thermodynamics_8h.html#ae6f1d9c1effd41182c79bf5e3d8655da", null ],
+      [ "pbh_spline_files_root", "thermodynamics_8h.html#ad61c31787ac6caa64f2ad4611737a354", null ],
       [ "index_th_xe", "thermodynamics_8h.html#aba1579aad519a4b990438d8a15670b40", null ],
       [ "index_th_dkappa", "thermodynamics_8h.html#aea1ea1f3e5c0c64eee3d527b6663e9d5", null ],
       [ "index_th_tau_d", "thermodynamics_8h.html#a35e688c8d2c87b79aafbcdae01cef507", null ],
@@ -116,13 +116,15 @@ var thermodynamics_8h =
       [ "pbh_mass_dist", "thermodynamics_8h.html#ac20dad4353e038bc9a56fb96197cef99", null ],
       [ "pbh_mass_mean", "thermodynamics_8h.html#a87bd9be54a99471780484b30dba0eb40", null ],
       [ "pbh_mass_width", "thermodynamics_8h.html#a4d6604a5075f9302df4ec9b005729e51", null ],
+      [ "pbh_z_min", "thermodynamics_8h.html#a87fe33e7ca549655d39c8a844c7fcb6a", null ],
+      [ "pbh_z_max", "thermodynamics_8h.html#a44dc3b1f35825f2195325b57029a8c34", null ],
       [ "pz_size", "thermodynamics_8h.html#a69e5710de54a66188352b8c3056c1129", null ],
       [ "pbh_z_deps", "thermodynamics_8h.html#a7724414964ced2eee107bc5616e5f4d0", null ],
       [ "pm_size", "thermodynamics_8h.html#af9ceb58e04530cbf63bc94d680fbb07f", null ],
       [ "pbh_masses", "thermodynamics_8h.html#a1901464f2b8318584d4686cc6748885a", null ],
-      [ "pbh_hion", "thermodynamics_8h.html#a07e3b4a7a0942e0a5526e50eff954b04", null ],
-      [ "pbh_excite", "thermodynamics_8h.html#a3f120ba33a8a5fce5caea7c338f465ce", null ],
-      [ "pbh_heat", "thermodynamics_8h.html#a4268cb02763076fa3c9ecf92760aa96d", null ]
+      [ "pbsp_pbh_hion", "thermodynamics_8h.html#a2b7759c777d9a42605cad4f4243820b0", null ],
+      [ "pbsp_pbh_excite", "thermodynamics_8h.html#a4b937f08933835ddec133693c5d60f96", null ],
+      [ "pbsp_pbh_heat", "thermodynamics_8h.html#ad1d55b7ee628b826d810721349eeeb67", null ]
     ] ],
     [ "reionization", "thermodynamics_8h.html#structreionization", [
       [ "index_re_z", "thermodynamics_8h.html#af9ee97caa4f45869edc2fbb37b678125", null ],
@@ -154,6 +156,7 @@ var thermodynamics_8h =
       [ "index_reco_when_reio_start", "thermodynamics_8h.html#a30f0d1b6c4446e56137d17ebe95fda72", null ]
     ] ],
     [ "thermodynamics_parameters_and_workspace", "thermodynamics_8h.html#structthermodynamics__parameters__and__workspace", null ],
+    [ "pbh_external", "thermodynamics_8h.html#structpbh__external", null ],
     [ "f1", "thermodynamics_8h.html#af26abb8c819fd3cf4d6cb0711c80b9ee", null ],
     [ "f2", "thermodynamics_8h.html#a5cd67c8452696b8eebb34709acc71f36", null ],
     [ "_m_e_", "thermodynamics_8h.html#aaf570956b7fa283b597a0488e356a4a0", null ],

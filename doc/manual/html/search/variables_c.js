@@ -34,6 +34,8 @@ var searchData=
   ['number_5fof_5fscalar_5ftitles',['number_of_scalar_titles',['../perturbations_8h.html#a6fbc7c6b0ac2d6174553e8f3ab1cec20',1,'perturbs']]],
   ['number_5fof_5ftensor_5ftitles',['number_of_tensor_titles',['../perturbations_8h.html#a90eb42b47485bf70870f9917f54cd68f',1,'perturbs']]],
   ['number_5fof_5fvector_5ftitles',['number_of_vector_titles',['../perturbations_8h.html#a160f6bde2eebbe55f15790b995a4902d',1,'perturbs']]],
+  ['nxknots',['nxknots',['../common_8h.html#a3a5a49a8a18b597ef7f1c563d6ff5b11',1,'bspline_2d']]],
+  ['nyknots',['nyknots',['../common_8h.html#ae8f68c4863c03d2b6bfeb8386845b186',1,'bspline_2d']]],
   ['nz_5fddnz',['nz_ddnz',['../transfer_8h.html#a8a60fad65c936fd7c8efcd18e30a7dec',1,'transfers']]],
   ['nz_5fevo_5fdd_5fdlog_5fnz',['nz_evo_dd_dlog_nz',['../transfer_8h.html#ae3d34e1bf2485dfc59d3885714fe23e9',1,'transfers']]],
   ['nz_5fevo_5fdlog_5fnz',['nz_evo_dlog_nz',['../transfer_8h.html#a07477648687d9b344a838ac4545a39ce',1,'transfers']]],

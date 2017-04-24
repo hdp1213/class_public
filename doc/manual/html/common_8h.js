@@ -39,10 +39,6 @@ var common_8h =
       [ "recfast_x_H0_trigger2", "common_8h.html#a9ae32d778f02b1f7cc5c59d6f7dc3500", null ],
       [ "recfast_x_H0_trigger_delta", "common_8h.html#a0bc3ac27b918dd2fcb0eea0ebcac7252", null ],
       [ "recfast_H_frac", "common_8h.html#ac74ae582d36b809d49ae1e385951f51e", null ],
-      [ "pbh_z_min", "common_8h.html#aa1e7991f47a38513302ed36ce47ff5e4", null ],
-      [ "pbh_z_max", "common_8h.html#a6d3e9d9887f270ccc1f4873a8e722579", null ],
-      [ "pbh_z_steps", "common_8h.html#a3c525a0e2f0d821e1fe918a9bc892178", null ],
-      [ "pbh_mass_steps", "common_8h.html#a17c52ad638b73929bcd06fbd6245e000", null ],
       [ "reionization_z_start_max", "common_8h.html#a54f06b9c9e4358e85ae00a82d2be3073", null ],
       [ "reionization_sampling", "common_8h.html#a328de572f865c8d0bda2f583e3617d59", null ],
       [ "reionization_optical_depth_tol", "common_8h.html#a3763d41dc9c0bb87f04fc8d446034beb", null ],
@@ -151,6 +147,14 @@ var common_8h =
       [ "smallest_allowed_variation", "common_8h.html#a6ce36b0a85e6a760aa8ec232fb5289fb", null ],
       [ "error_message", "common_8h.html#a1ad6fe4f58eff070f3879d20aa05dc5b", null ]
     ] ],
+    [ "bspline_2d", "common_8h.html#structbspline__2d", [
+      [ "nxknots", "common_8h.html#a3a5a49a8a18b597ef7f1c563d6ff5b11", null ],
+      [ "xknots", "common_8h.html#a509586fff77b06f674a65004352fc305", null ],
+      [ "nyknots", "common_8h.html#ae8f68c4863c03d2b6bfeb8386845b186", null ],
+      [ "yknots", "common_8h.html#a521eb61ee8bc420d47d013ee41d9c6e3", null ],
+      [ "coeffs", "common_8h.html#a5e959c6d854dc8be1a3a9bbefb765f82", null ],
+      [ "degree", "common_8h.html#a5a6ae308d7e309114f63f313bf73df75", null ]
+    ] ],
     [ "evolver_type", "common_8h.html#a554a0cdfc80aa49273197d324b2e9956", null ],
     [ "pk_def", "common_8h.html#aab161982846c9e414cccea37822f4b0c", [
       [ "delta_m_squared", "common_8h.html#aab161982846c9e414cccea37822f4b0cadf09cc6e3587e8d8f58386df9305c6ce", null ],
@@ -158,5 +162,6 @@ var common_8h =
       [ "delta_bc_squared", "common_8h.html#aab161982846c9e414cccea37822f4b0ca3ac991356a90d7ef50cf06f2e287939e", null ],
       [ "delta_tot_from_poisson_squared", "common_8h.html#aab161982846c9e414cccea37822f4b0ca8406d31036bb2d430753210d3270f7b2", null ]
     ] ],
-    [ "file_format", "common_8h.html#abd81d11867ad50357ea8332e8d36cf8a", null ]
+    [ "file_format", "common_8h.html#abd81d11867ad50357ea8332e8d36cf8a", null ],
+    [ "class_read_2d_array", "common_8h.html#a04aef2bc5d099756428630e507e36aa5", null ]
 ];

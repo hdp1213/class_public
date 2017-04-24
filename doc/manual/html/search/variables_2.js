@@ -21,6 +21,7 @@ var searchData=
   ['cl',['cl',['../spectra_8h.html#a69a6084de38d2cc86b9c2e25eb7cd1e9',1,'spectra::cl()'],['../thermodynamics_8h.html#a855a4893fcf363c3932a991748c3146b',1,'recombination::CL()']]],
   ['cl_5fhe',['CL_He',['../thermodynamics_8h.html#a0d9b5cad8b15d5b62676fb7215700629',1,'recombination']]],
   ['cl_5flens',['cl_lens',['../lensing_8h.html#acc56a1d7a46570f79ba64abc1a6f8d63',1,'lensing']]],
+  ['coeffs',['coeffs',['../common_8h.html#a5e959c6d854dc8be1a3a9bbefb765f82',1,'bspline_2d']]],
   ['command',['command',['../primordial_8h.html#a3ee1124987e79d818ad2987c3a9dfe29',1,'primordial']]],
   ['compute_5fcb2_5fderivatives',['compute_cb2_derivatives',['../thermodynamics_8h.html#a3d509e606f8d353fed5b353562fbec2a',1,'thermo']]],
   ['compute_5fdamping_5fscale',['compute_damping_scale',['../thermodynamics_8h.html#a0ad4a85264f773d11292fc66c5f9d598',1,'thermo']]],

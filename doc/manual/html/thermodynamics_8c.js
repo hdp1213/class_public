@@ -1,7 +1,7 @@
 var thermodynamics_8c =
 [
     [ "thermodynamics_at_z", "thermodynamics_8c.html#a5763e8991ba30efe92c3007d1abfee95", null ],
-    [ "thermodynamics_init", "thermodynamics_8c.html#a1acbfae38edb0c73d8991645f89b2d13", null ],
+    [ "thermodynamics_init", "thermodynamics_8c.html#a2abbc9d43978b497de896f8d98b14a7d", null ],
     [ "thermodynamics_free", "thermodynamics_8c.html#a689045596045ab02bb1853298d81f634", null ],
     [ "thermodynamics_indices", "thermodynamics_8c.html#a8fff80fda27805f33d1f3deaf9f90cce", null ],
     [ "thermodynamics_pbh_init", "thermodynamics_8c.html#afeb306d56315f485f24484b2eca8ab76", null ],

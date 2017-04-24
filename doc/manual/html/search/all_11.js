@@ -8,7 +8,7 @@ var searchData=
   ['radiation_5fstreaming_5ftrigger_5ftau_5fover_5ftau_5fk',['radiation_streaming_trigger_tau_over_tau_k',['../common_8h.html#a70be98231733bf02a15e1a27fa15a7c4',1,'precision']]],
   ['rd_5frec',['rd_rec',['../thermodynamics_8h.html#ac4ff58ec97d05ed2f0fe09e6a6d9d7f0',1,'thermo']]],
   ['re_5fsize',['re_size',['../thermodynamics_8h.html#a9367b1aedf6f36715ff227cd4ce8ee05',1,'recombination::re_size()'],['../thermodynamics_8h.html#af689627b42e1f4851fff7e20bb5a8ad2',1,'reionization::re_size()']]],
-  ['read_5fpbh_5ftables',['read_pbh_tables',['../thermodynamics_8h.html#ac83354222bbe5a04c51cf9aaff69a18c',1,'thermo']]],
+  ['read_5fpbh_5fsplines',['read_pbh_splines',['../thermodynamics_8h.html#ae6f1d9c1effd41182c79bf5e3d8655da',1,'thermo']]],
   ['recfast_5fagauss1',['recfast_AGauss1',['../common_8h.html#a5e3afcd2c33645568a7552e37799e6ca',1,'precision']]],
   ['recfast_5fagauss2',['recfast_AGauss2',['../common_8h.html#a4a07b656500992c88780f6af63f98e66',1,'precision']]],
   ['recfast_5fdelta_5ffudge_5fh',['recfast_delta_fudge_H',['../common_8h.html#abff0c7d09550d634ef93c4be63e44a7b',1,'precision']]],

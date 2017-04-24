@@ -37,5 +37,6 @@ var searchData=
   ['binned_5freio_5fstep_5fsharpness',['binned_reio_step_sharpness',['../thermodynamics_8h.html#a8059572ea77e901114e2a617cd31c8e7',1,'thermo']]],
   ['binned_5freio_5fxe',['binned_reio_xe',['../thermodynamics_8h.html#a502646184962388167cc9e77f6318f2a',1,'thermo']]],
   ['binned_5freio_5fz',['binned_reio_z',['../thermodynamics_8h.html#a88cd6b43f9f3ec6251d087324ce99a0f',1,'thermo']]],
+  ['bspline_5f2d',['bspline_2d',['../common_8h.html#structbspline__2d',1,'']]],
   ['bt_5fsize',['bt_size',['../background_8h.html#aa44b240483b9a5d173cfcde81340c733',1,'background']]]
 ];

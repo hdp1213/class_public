@@ -13,6 +13,7 @@ var searchData=
   ['ddmatter_5ftransfer',['ddmatter_transfer',['../spectra_8h.html#aeb346f3ee67d3cf0fd74353277e7a1b5',1,'spectra']]],
   ['decay',['decay',['../thermodynamics_8h.html#a2200cfa2674a5489210d32c6d0fc48cb',1,'thermo::decay()'],['../thermodynamics_8h.html#a3c52e95d8a82a4dcfbc9495e708cf044',1,'recombination::decay()']]],
   ['deg_5fncdm_5fdefault',['deg_ncdm_default',['../background_8h.html#a3b3564e036c5598f9f759c115f8d8a32',1,'background']]],
+  ['degree',['degree',['../common_8h.html#a5a6ae308d7e309114f63f313bf73df75',1,'bspline_2d']]],
   ['delta_5fbc_5fsquared',['delta_bc_squared',['../common_8h.html#aab161982846c9e414cccea37822f4b0ca3ac991356a90d7ef50cf06f2e287939e',1,'common.h']]],
   ['delta_5fl_5fmax',['delta_l_max',['../common_8h.html#a9170fe3386b23313c66d6baaaa182ff7',1,'precision']]],
   ['delta_5fm',['delta_m',['../perturbations_8h.html#ae531e6d411f7f9dc56e39d3d3cc09b4a',1,'perturb_workspace']]],
