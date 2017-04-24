@@ -18,6 +18,9 @@ int main(int argc, char **argv) {
   struct output op;           /* for output files */
   ErrorMsg errmsg;            /* for error messages */
 
+  void *context = 0;          /* for thermodynamics_init */
+
+  // the call to input_init_from_arguments implicitly requires PBH splines to be read from file during program execution
   if (input_init_from_arguments(argc, argv,&pr,&ba,&th,&pt,&tr,&pm,&sp,&nl,&le,&op,errmsg) == _FAILURE_) {
     printf("\n\nError running input_init_from_arguments \n=>%s\n",errmsg);
     return _FAILURE_;
@@ -28,7 +31,7 @@ int main(int argc, char **argv) {
     return _FAILURE_;
   }
 
-  if (thermodynamics_init(&pr,&ba,&th) == _FAILURE_) {
+  if (thermodynamics_init(&pr,&ba,&th,context) == _FAILURE_) {
     printf("\n\nError in thermodynamics_init \n=>%s\n",th.error_message);
     return _FAILURE_;
   }
