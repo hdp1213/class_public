@@ -17,13 +17,13 @@ vpath .base build
 ########################################################
 
 # your C compiler:
-# CC       = gcc
-CC       = icc
+CC       = gcc
+# CC       = icc
 #CC       = pgcc
 
 # your Fortran compiler:
-# FC       = gfortran 
-FC       = ifort #-nofor_main
+FC       = gfortran
+# FC       = ifort #-nofor_main
 
 # your tool for creating static libraries:
 AR        = ar rv
@@ -32,12 +32,12 @@ AR        = ar rv
 PYTHON = python
 
 # your optimization flag
-# OPTFLAG = -O4 -ffast-math #-march=native
-OPTFLAG = -Ofast -march=core-avx2
+OPTFLAG = -Ofast -ffast-math -march=native
+# OPTFLAG = -Ofast -march=core-avx2
 #OPTFLAG = -fast
 
 # your openmp flag (comment for compiling without openmp)
-OMPFLAG   = -qopenmp
+OMPFLAG   = -fopenmp
 #OMPFLAG   = -mp -mp=nonuma -mp=allcores -g
 #OMPFLAG   = -openmp
 
