@@ -71,9 +71,11 @@ public:
   //constructors
   ClassEngine(const ClassParams& pars);
   //with a class .pre file
-  ClassEngine(const ClassParams& pars,const string & precision_file);
+  ClassEngine(const ClassParams& pars,const string& precision_file);
   //with a set of PBH splines
   ClassEngine(const ClassParams& pars, struct pbh_external* pbh_info);
+  //from a CLASS .ini file with PBH splines
+  ClassEngine(const string& init_file, int l_max, struct pbh_external* pbh_info);
 
   // destructor
   ~ClassEngine();

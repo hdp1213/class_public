@@ -208,6 +208,66 @@ ClassEngine::ClassEngine(const ClassParams& pars, struct pbh_external* pbh_info)
 
 }
 
+// There's also this method
+ClassEngine::ClassEngine(const string& init_file, int l_max, struct pbh_external* pbh_info): cl(0),dofree(true),m_pbh_info(pbh_info),Engine(l_max) {
+
+  // variables
+  size_t i;
+  std::string lmax_str = str(l_max);
+  bool found_lmax = false;
+
+  //pars
+  fc.size = 0;
+  //decode init structure
+  if (parser_read_file(const_cast<char*>(init_file.c_str()),&fc,_errmsg) == _FAILURE_){
+    throw invalid_argument(_errmsg);
+  }
+  
+  //config
+  for (i = 0; i < fc.size; i++) {
+    //store
+    parNames.push_back(fc.name[i]);
+    //identify if lmax is given in init_file, and override
+    if (strcmp(fc.name[i], "l_max_scalars") == 0) {
+      strcpy(fc.value[i], lmax_str.c_str());
+      found_lmax = true;
+      // istringstream strstrm(fc.value[i]);
+      // strstrm >> _lmax;
+    }
+    cout << i << ": " << fc.name[i] << "\t" << fc.value[i] <<endl;
+  }
+
+  if (found_lmax) {
+    cout << "Overriding l_max_scalars value found in init file..." << endl;
+  }
+  else {
+    strcpy(fc.name[i], "l_max_scalars");
+    strcpy(fc.value[i], lmax_str.c_str());
+  }
+
+
+  cout << __FILE__ << " : using lmax=" << _lmax <<endl;
+  assert(_lmax>0);
+
+  //input
+  if (input_init(&fc,&pr,&ba,&th,&pt,&tr,&pm,&sp,&nl,&le,&op,m_pbh_info,_errmsg) == _FAILURE_)
+    throw invalid_argument(_errmsg);
+
+  //proetction parametres mal defini
+  for (i = 0; i < fc.size; i++){
+    if (fc.read[i] != _TRUE_) throw invalid_argument(string("invalid CLASS parameter: ")+fc.name[i]);
+  }
+
+  //calcul class
+  computeCls();
+
+  // cout <<"creating " << sp.ct_size << " arrays" <<endl;
+  cl = new double[sp.ct_size];
+
+  // printFC();
+
+}
+
 
 
 //--------------

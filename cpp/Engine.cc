@@ -28,6 +28,10 @@ using namespace std;
 Engine::Engine():_lmax(-1)
 {
 }
+
+Engine::Engine(int lmax):_lmax(lmax)
+{
+}
 //--------------
 // Destructor --
 //--------------

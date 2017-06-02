@@ -28,6 +28,7 @@ public:
 
   //constructors
   Engine();
+  Engine(int lmax);
 
   //pure virtual:
   virtual bool updateParValues(const std::vector<double>& cosmopars)=0;
