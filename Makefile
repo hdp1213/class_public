@@ -32,7 +32,7 @@ AR        = ar rv
 PYTHON = python
 
 # your optimization flag
-OPTFLAG = -Ofast -ffast-math -march=native
+OPTFLAG = -O3 -ffast-math -march=native
 # OPTFLAG = -Ofast -march=core-avx2
 #OPTFLAG = -fast
 
@@ -162,10 +162,13 @@ PYTHON_FILES = python/classy.pyx python/setup.py python/cclassy.pxd python/test_
 
 
 
-all: class libclass.a classy
+all: class libclass.so classy
 
 libclass.a: $(TOOLS) $(SOURCE) $(EXTERNAL)
 	$(AR)  $@ $(addprefix build/, $(TOOLS) $(SOURCE) $(EXTERNAL))
+
+libclass.so: $(TOOLS) $(SOURCE) $(EXTERNAL)
+	$(CC) -shared -o $@ $(addprefix build/, $(TOOLS) $(SOURCE) $(EXTERNAL))
 
 class: $(TOOLS) $(SOURCE) $(EXTERNAL) $(OUTPUT) $(CLASS)
 	$(CC) $(OPTFLAG) $(OMPFLAG) $(LDFLAG) -o class $(addprefix build/,$(notdir $^)) -lm
@@ -215,6 +218,6 @@ classy: libclass.a python/classy.pyx python/cclassy.pxd
 
 clean: .base
 	rm -rf $(WRKDIR);
-	rm -f libclass.a
+	rm -f libclass.*
 	rm -f $(MDIR)/python/classy.c
 	rm -rf $(MDIR)/python/build
