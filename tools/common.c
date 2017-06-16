@@ -159,6 +159,8 @@ int class_read_1d_array(
 
   // printf("Read %d/%d array points\n", col, *array_size);
   free(line_buf);
+
+  return _SUCCESS_;
 }
 
 /**

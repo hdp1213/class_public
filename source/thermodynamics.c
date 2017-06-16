@@ -1114,7 +1114,6 @@ int thermodynamics_pbh_init(
                             struct thermo * pth,
                             struct recombination * preco
                             ) {
-  int i;
   char pbh_spline_file[_ARGUMENT_LENGTH_MAX_];
   FILE * fp;
 
@@ -3606,7 +3605,9 @@ int thermodynamics_derivs_with_recfast(
 
   /* used for energy injection from evaporating PBHs */
   double pbh_hion_rate,pbh_excite_rate,pbh_heat_rate;
+#ifdef FUDGE_PBH
   double pbh_hion_fudge,pbh_excite_fudge,pbh_heat_fudge;
+#endif
 
   double tau;
   double chi_heat;
@@ -3662,6 +3663,7 @@ int thermodynamics_derivs_with_recfast(
   }
   //*/
   else {
+#ifdef FUDGE_PBH
     // fudge factors to get results close to Clark et al. (2016)
     if (((1.+z) >= 380) && ((1.+z) < 400.)) {
       // Smooth out transition
@@ -3709,6 +3711,7 @@ int thermodynamics_derivs_with_recfast(
     else {
       pbh_heat_fudge = 1.0;
     }
+#endif
 
     /* Choose appropriate method for given mass distribution */
     if (preco->pbh_mass_dist == pbh_delta) {
@@ -3727,11 +3730,11 @@ int thermodynamics_derivs_with_recfast(
       pbh_heat_rate = 0.;
     }
 
-    /*
+#ifdef FUDGE_PBH
     pbh_hion_rate *= pbh_hion_fudge;
     pbh_excite_rate *= pbh_excite_fudge;
     pbh_heat_rate *= pbh_heat_fudge;
-    //*/
+#endif
 
 #ifdef THERMO_DBUG
     printf("%e,%e,%e,%e\n", x_H,x_He,Tmat,x_e);

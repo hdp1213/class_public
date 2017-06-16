@@ -434,6 +434,8 @@ int array_integrate_all_trapzd_or_spline(
                                     double * __restrict__ I,
                                     ErrorMsg errmsg);
 
+  // Prototype for fortran function
+  void bispev_(double*, int*, double*, int*, double*, int*, int*, double*, int*, double*, int*, double*, double*, int*, int*, int*, int*);
 
   int array_eval_bicubic_bspline(struct bspline_2d * pbsp,
                                  double * __restrict__ x,

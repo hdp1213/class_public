@@ -3165,4 +3165,6 @@ int array_eval_bicubic_bspline(
   class_test((ierr != 0),
           "thing failed",
           errmsg);
+
+  return _SUCCESS_;
 }
