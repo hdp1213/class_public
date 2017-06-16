@@ -209,7 +209,7 @@ ClassEngine::ClassEngine(const ClassParams& pars, struct pbh_external* pbh_info)
 }
 
 // There's also this method
-ClassEngine::ClassEngine(const string& init_file, int l_max, struct pbh_external* pbh_info): cl(0),dofree(true),m_pbh_info(pbh_info),Engine(l_max) {
+ClassEngine::ClassEngine(const string& init_file, int l_max, struct pbh_external* pbh_info): Engine(l_max),cl(0),dofree(true),m_pbh_info(pbh_info) {
 
   // variables
   size_t i;
@@ -626,6 +626,8 @@ double ClassEngine::get_Az(double z)
   // A(z)=100DV(z)sqrt(~mh2)/cz
   double omega_bidon = 0.12 ;
   double Az = 100.*Dv*sqrt(omega_bidon)/(_c_ * z);
+
+  return Az;
 }
 //      --------------------------
 
