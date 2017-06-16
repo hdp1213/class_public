@@ -312,8 +312,8 @@ int thermodynamics_init(
     preco->pbh_masses = pbh_info->masses;
     preco->pm_size = pbh_info->masses_size;
 
-    preco->pbh_z_min = *(preco->pbh_z_deps+preco->pz_size-1);
-    preco->pbh_z_max = *(preco->pbh_z_deps);
+    preco->pbh_z_min = preco->pbh_z_deps[preco->pz_size-1];
+    preco->pbh_z_max = preco->pbh_z_deps[0];
 
     preco->pbsp_pbh_hion = &(pbh_info->hion);
     preco->pbsp_pbh_excite = &(pbh_info->excite);
