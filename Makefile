@@ -28,6 +28,9 @@ FC       = gfortran
 # your tool for creating static libraries:
 AR        = ar rv
 
+# your tool for creating shared libraries:
+LD        = ld -shared
+
 # (OPT) your python interpreter
 PYTHON = python
 
@@ -164,11 +167,11 @@ PYTHON_FILES = python/classy.pyx python/setup.py python/cclassy.pxd python/test_
 
 all: class libclass.so classy
 
-libclass.a: $(TOOLS) $(SOURCE) $(EXTERNAL)
-	$(AR)  $@ $(addprefix build/, $(TOOLS) $(SOURCE) $(EXTERNAL))
+libclass.a: $(TOOLS) $(SOURCE) $(EXTERNAL) $(OUTPUT)
+	$(AR)  $@ $(addprefix build/, $(TOOLS) $(SOURCE) $(EXTERNAL) $(OUTPUT))
 
-libclass.so: $(TOOLS) $(SOURCE) $(EXTERNAL)
-	$(CC) -shared -o $@ $(addprefix build/, $(TOOLS) $(SOURCE) $(EXTERNAL))
+libclass.so: $(TOOLS) $(SOURCE) $(EXTERNAL) $(OUTPUT)
+	$(CC) -shared -o $@ $(addprefix build/, $(TOOLS) $(SOURCE) $(EXTERNAL) $(OUTPUT))
 
 class: $(TOOLS) $(SOURCE) $(EXTERNAL) $(OUTPUT) $(CLASS)
 	$(CC) $(OPTFLAG) $(OMPFLAG) $(LDFLAG) -o class $(addprefix build/,$(notdir $^)) -lm
