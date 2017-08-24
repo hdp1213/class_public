@@ -316,9 +316,9 @@ int thermodynamics_init(
     preco->pbh_z_min = preco->pbh_z_deps[preco->pz_size-1];
     preco->pbh_z_max = preco->pbh_z_deps[0];
 
-    preco->pbsp_pbh_hion = &(pbh_info->hion);
-    preco->pbsp_pbh_excite = &(pbh_info->excite);
-    preco->pbsp_pbh_heat = &(pbh_info->heat);
+    preco->pbsp_pbh_hion = pbh_info->hion;
+    preco->pbsp_pbh_excite = pbh_info->excite;
+    preco->pbsp_pbh_heat = pbh_info->heat;
   }
 
   if (pth->thermodynamics_verbose > 0)

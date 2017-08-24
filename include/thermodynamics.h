@@ -524,14 +524,14 @@ struct pbh_external {
   //@{
 
   /* structures containing b-spline information */
-  struct bspline_2d hion; /**< hydrogen ionisation 2d b-spline */
-  struct bspline_2d excite; /**< hydrogen excitation 2d b-spline */
-  struct bspline_2d heat; /**< plasma heating 2d b-spline */
+  struct bspline_2d * hion; /**< hydrogen ionisation 2d b-spline */
+  struct bspline_2d * excite; /**< hydrogen excitation 2d b-spline */
+  struct bspline_2d * heat; /**< plasma heating 2d b-spline */
 
   /* axes arrays and their sizes */
-  double* masses; /**< pbh masses given in units of \f$ 10^{10} \f$ g in log10 space. must be monotonically decreasing */
+  double * masses; /**< pbh masses given in units of \f$ 10^{10} \f$ g in log10 space. must be monotonically decreasing */
+  double * z_deps; /**< deposition redshifts for pbh energy injections */
   int masses_size; /**< size of masses array */
-  double* z_deps; /**< deposition redshifts for pbh energy injections */
   int z_deps_size; /**< size of z_deps array */
 
   //@}
