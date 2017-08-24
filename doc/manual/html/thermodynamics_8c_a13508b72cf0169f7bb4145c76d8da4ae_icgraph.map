@@ -1,7 +1,0 @@
-<map id="thermodynamics_pbh_free" name="thermodynamics_pbh_free">
-<area shape="rect" id="node2" href="$thermodynamics_8c.html#a2abbc9d43978b497de896f8d98b14a7d" title="thermodynamics_init" alt="" coords="228,31,371,57"/>
-<area shape="rect" id="node3" href="$input_8c.html#a7bab75ff414e57f039b44c7eb7542b10" title="input_try_unknown_parameters" alt="" coords="419,31,621,57"/>
-<area shape="rect" id="node4" href="$input_8c.html#afecac3797e2fd31900688f8472d695a9" title="input_init" alt="" coords="709,5,784,32"/>
-<area shape="rect" id="node6" href="$input_8c.html#a0b2960329fe47db0b2793700ddd4a604" title="get_machine_precision" alt="" coords="669,56,824,83"/>
-<area shape="rect" id="node5" href="$input_8c.html#a40aecd22732b07db752cb4bc34e55ad4" title="input_init_from_arguments" alt="" coords="872,5,1047,32"/>
-</map>

@@ -1,7 +1,0 @@
-<map id="perturb_workspace_init" name="perturb_workspace_init">
-<area shape="rect" id="node2" href="$perturbations_8c.html#a8c49cf2b10de95fbf09d8823bc37c512" title="perturb_init" alt="" coords="209,31,296,57"/>
-<area shape="rect" id="node3" href="$input_8c.html#a7bab75ff414e57f039b44c7eb7542b10" title="input_try_unknown_parameters" alt="" coords="344,31,547,57"/>
-<area shape="rect" id="node4" href="$input_8c.html#afecac3797e2fd31900688f8472d695a9" title="input_init" alt="" coords="635,5,709,32"/>
-<area shape="rect" id="node6" href="$input_8c.html#a0b2960329fe47db0b2793700ddd4a604" title="get_machine_precision" alt="" coords="595,56,749,83"/>
-<area shape="rect" id="node5" href="$input_8c.html#a40aecd22732b07db752cb4bc34e55ad4" title="input_init_from_arguments" alt="" coords="797,5,972,32"/>
-</map>
