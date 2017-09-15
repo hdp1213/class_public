@@ -2773,6 +2773,11 @@ int thermodynamics_reionization_sample(
                pth->error_message,
                "stuck in the loop for reionization sampling, as if you were trying to impose a discontinuous evolution for xe(z)");
 
+    // check if xe_next is nan
+    class_test(xe_next != xe_next,
+               pth->error_message,
+               "xe_next=%f is nan and hence cannot be used", xe_next);
+
     /* - try next step */
     z_next=z-dz;
     if (z_next < 0.) z_next=0.;
