@@ -3575,6 +3575,10 @@ int thermodynamics_derivs_with_recfast(
       -2./(3.*_k_B_)*energy_rate*chi_heat/n/(1.+preco->fHe+x)/(Hz*(1.+z)); /* energy injection */
   }
 
+  class_test(dy[2] != dy[2],
+             error_message,
+             "dT_b/dz=%f is nan and cannot be used", dy[2]);
+
   return _SUCCESS_;
 }
 
