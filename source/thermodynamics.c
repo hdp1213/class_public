@@ -318,10 +318,12 @@ int thermodynamics_init(
              pth->error_message,
              "annihilation parameter cannot be negative");
 
+  /*
   class_test((pth->annihilation>1.e-4),
              pth->error_message,
              "annihilation parameter suspiciously large (%e, while typical bounds are in the range of 1e-7 to 1e-6)",
              pth->annihilation);
+  */
 
   class_test((pth->annihilation_variation>0),
              pth->error_message,
