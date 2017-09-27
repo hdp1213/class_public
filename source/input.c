@@ -2935,6 +2935,8 @@ int input_default_params(
 
   pth->compute_damping_scale = _FALSE_;
 
+  pth->has_allocated_tables = _FALSE_;
+
   /** - perturbation structure */
 
   ppt->has_cl_cmb_temperature = _FALSE_;
@@ -3603,7 +3605,7 @@ int input_try_unknown_parameters(double * unknown_parameter,
   /** - Do computations */
   if (pfzw->required_computation_stage >= cs_background){
     if (input_verbose>2)
-      printf("Stage 1: background\n");
+      printf("Stage 1: background_init\n");
     ba.background_verbose = 0;
     class_call_try(background_init(&pr,&ba),
                    ba.error_message,
@@ -3613,7 +3615,7 @@ int input_try_unknown_parameters(double * unknown_parameter,
 
   if ((computation_stage_failed == _FALSE_) && (pfzw->required_computation_stage >= cs_thermodynamics)){
    if (input_verbose>2)
-     printf("Stage 2: thermodynamics\n");
+     printf("Stage 2: thermodynamics_init\n");
     pr.recfast_Nz0 = 10000;
     th.thermodynamics_verbose = 0;
     class_call_try(thermodynamics_init(&pr,&ba,&th),
@@ -3624,7 +3626,7 @@ int input_try_unknown_parameters(double * unknown_parameter,
 
   if ((computation_stage_failed == _FALSE_) && (pfzw->required_computation_stage >= cs_perturbations)){
        if (input_verbose>2)
-         printf("Stage 3: perturbations\n");
+         printf("Stage 3: perturbations_init\n");
     pt.perturbations_verbose = 0;
     class_call_try(perturb_init(&pr,&ba,&th,&pt),
                    pt.error_message,
@@ -3634,7 +3636,7 @@ int input_try_unknown_parameters(double * unknown_parameter,
 
   if ((computation_stage_failed == _FALSE_) && (pfzw->required_computation_stage >= cs_primordial)){
     if (input_verbose>2)
-      printf("Stage 4: primordial\n");
+      printf("Stage 4: primordial_init\n");
     pm.primordial_verbose = 0;
     class_call_try(primordial_init(&pr,&pt,&pm),
                    pm.error_message,
@@ -3644,7 +3646,7 @@ int input_try_unknown_parameters(double * unknown_parameter,
 
   if ((computation_stage_failed == _FALSE_) && (pfzw->required_computation_stage >= cs_nonlinear)){
     if (input_verbose>2)
-      printf("Stage 5: nonlinear\n");
+      printf("Stage 5: nonlinear_init\n");
     nl.nonlinear_verbose = 0;
     class_call_try(nonlinear_init(&pr,&ba,&th,&pt,&pm,&nl),
                    nl.error_message,
@@ -3654,7 +3656,7 @@ int input_try_unknown_parameters(double * unknown_parameter,
 
   if ((computation_stage_failed == _FALSE_) && (pfzw->required_computation_stage >= cs_transfer)){
     if (input_verbose>2)
-      printf("Stage 6: transfer\n");
+      printf("Stage 6: transfer_init\n");
     tr.transfer_verbose = 0;
     class_call_try(transfer_init(&pr,&ba,&th,&pt,&nl,&tr),
                    tr.error_message,
@@ -3664,7 +3666,7 @@ int input_try_unknown_parameters(double * unknown_parameter,
 
   if ((computation_stage_failed == _FALSE_) && (pfzw->required_computation_stage >= cs_spectra)){
     if (input_verbose>2)
-      printf("Stage 7: spectra\n");
+      printf("Stage 7: spectra_init\n");
     sp.spectra_verbose = 0;
     class_call_try(spectra_init(&pr,&ba,&pt,&pm,&nl,&tr,&sp),
                    sp.error_message,
@@ -3673,6 +3675,8 @@ int input_try_unknown_parameters(double * unknown_parameter,
   }
 
   if (computation_stage_failed == _FALSE_) {
+    if (input_verbose>2)
+      printf("%s\n", "Computation stage succeeded");
     for (i=0; i < pfzw->target_size; i++) {
       switch (pfzw->target_name[i]) {
       case theta_s:
@@ -3711,28 +3715,46 @@ int input_try_unknown_parameters(double * unknown_parameter,
       }
     }
   }
+  else {
+    if (input_verbose>2)
+      printf("%s\n", "Computation stage failed");
+  }
 
 
   /** - Free structures */
   if (pfzw->required_computation_stage >= cs_spectra){
+    if (input_verbose>2)
+      printf("%s\n", "Stage 7: spectra_free");
     class_call(spectra_free(&sp), sp.error_message, errmsg);
   }
   if (pfzw->required_computation_stage >= cs_transfer){
+    if (input_verbose>2)
+      printf("%s\n", "Stage 6: transfer_free");
     class_call(transfer_free(&tr), tr.error_message, errmsg);
   }
   if (pfzw->required_computation_stage >= cs_nonlinear){
+    if (input_verbose>2)
+      printf("%s\n", "Stage 5: nonlinear_free");
     class_call(nonlinear_free(&nl), nl.error_message, errmsg);
   }
   if (pfzw->required_computation_stage >= cs_primordial){
+    if (input_verbose>2)
+      printf("%s\n", "Stage 4: primordial_free");
     class_call(primordial_free(&pm), pm.error_message, errmsg);
   }
   if (pfzw->required_computation_stage >= cs_perturbations){
+    if (input_verbose>2)
+      printf("%s\n", "Stage 3: perturb_free");
     class_call(perturb_free(&pt), pt.error_message, errmsg);
   }
   if (pfzw->required_computation_stage >= cs_thermodynamics){
+    if (input_verbose>2)
+      printf("%s\n", "Stage 2: thermodynamics_free");
     class_call(thermodynamics_free(&th), th.error_message, errmsg);
   }
   if (pfzw->required_computation_stage >= cs_background){
+    if (input_verbose>2)
+      printf("%s\n", "Stage 1: background_free");
     class_call(background_free(&ba), ba.error_message, errmsg);
   }
 

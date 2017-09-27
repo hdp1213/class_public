@@ -284,11 +284,10 @@ int thermodynamics_init(
   double g_max;
   int index_tau_max;
 
-  /** - initialize pointers, allocate background vector */
+  /** - initialize pointers */
 
   preco=&reco;
   preio=&reio;
-  class_alloc(pvecback,pba->bg_size*sizeof(double),pba->error_message);
 
   if (pth->thermodynamics_verbose > 0)
     printf("Computing thermodynamics");
@@ -383,18 +382,24 @@ int thermodynamics_init(
              pth->error_message,
              pth->error_message);
 
+  /** - allocate background vector */
+
+  class_alloc(pvecback,pba->bg_size*sizeof(double),pba->error_message);
+
   /** - solve recombination and store values of \f$ z, x_e, d \kappa / d \tau, T_b, c_b^2 \f$ with thermodynamics_recombination() */
 
-  class_call(thermodynamics_recombination(ppr,pba,pth,preco,pvecback),
-             pth->error_message,
-             pth->error_message);
+  class_call_except(thermodynamics_recombination(ppr,pba,pth,preco,pvecback),
+                    pth->error_message,
+                    pth->error_message,
+                    free(pvecback));
 
   /** - if there is reionization, solve reionization and store values of \f$ z, x_e, d \kappa / d \tau, T_b, c_b^2 \f$ with thermodynamics_reionization()*/
 
   if (pth->reio_parametrization != reio_none) {
-    class_call(thermodynamics_reionization(ppr,pba,pth,preco,preio,pvecback),
-               pth->error_message,
-               pth->error_message);
+    class_call_except(thermodynamics_reionization(ppr,pba,pth,preco,preio,pvecback),
+                      pth->error_message,
+                      pth->error_message,
+                      free(pvecback));
   }
   else {
     preio->rt_size=0;
@@ -402,22 +407,24 @@ int thermodynamics_init(
   }
 
   /** - merge tables in recombination and reionization structures into
-      a single table in thermo structure */
+      a single table in thermo structure. Allocates pth tables */
 
-  class_call(thermodynamics_merge_reco_and_reio(ppr,pth,preco,preio),
-             pth->error_message,
-             pth->error_message);
+  class_call_except(thermodynamics_merge_reco_and_reio(ppr,pth,preco,preio),
+                    pth->error_message,
+                    pth->error_message,
+                    free(pvecback));
 
   /** - compute table of corresponding conformal times */
 
-  class_alloc(tau_table,pth->tt_size*sizeof(double),pth->error_message);
+  class_alloc_except(tau_table,pth->tt_size*sizeof(double),pth->error_message,free(pvecback));
 
   for (index_tau=0; index_tau < pth->tt_size; index_tau++) {
-    class_call(background_tau_of_z(pba,
-                                   pth->z_table[index_tau],
-                                   tau_table+index_tau),
-               pba->error_message,
-               pth->error_message);
+    class_call_except(background_tau_of_z(pba,
+                                          pth->z_table[index_tau],
+                                          tau_table+index_tau),
+                      pba->error_message,
+                      pth->error_message,
+                      free(pvecback);free(tau_table));
   }
 
   /** - store initial value of conformal time in the structure */
@@ -432,14 +439,15 @@ int thermodynamics_init(
 
   for (index_tau=0; index_tau < pth->tt_size; index_tau++) {
 
-    class_call(background_at_tau(pba,
-                                 tau_table[index_tau],
-                                 pba->normal_info,
-                                 pba->inter_closeby,
-                                 &last_index_back,
-                                 pvecback),
-               pba->error_message,
-               pth->error_message);
+    class_call_except(background_at_tau(pba,
+                                        tau_table[index_tau],
+                                        pba->normal_info,
+                                        pba->inter_closeby,
+                                        &last_index_back,
+                                        pvecback),
+                      pba->error_message,
+                      pth->error_message,
+                      free(pvecback);free(tau_table));
 
     pth->thermodynamics_table[index_tau*pth->th_size+pth->index_th_ddkappa] =
       -4./3.*pvecback[pba->index_bg_rho_g]/pvecback[pba->index_bg_rho_b]
@@ -448,28 +456,30 @@ int thermodynamics_init(
   }
 
   /** - --> second derivative of this rate, -[R * kappa']'', stored temporarily in column dddkappa */
-  class_call(array_spline_table_line_to_line(tau_table,
-                                             pth->tt_size,
-                                             pth->thermodynamics_table,
-                                             pth->th_size,
-                                             pth->index_th_ddkappa,
-                                             pth->index_th_dddkappa,
-                                             _SPLINE_EST_DERIV_,
-                                             pth->error_message),
-             pth->error_message,
-             pth->error_message);
+  class_call_except(array_spline_table_line_to_line(tau_table,
+                                                    pth->tt_size,
+                                                    pth->thermodynamics_table,
+                                                    pth->th_size,
+                                                    pth->index_th_ddkappa,
+                                                    pth->index_th_dddkappa,
+                                                    _SPLINE_EST_DERIV_,
+                                                    pth->error_message),
+                    pth->error_message,
+                    pth->error_message,
+                    free(pvecback);free(tau_table));
 
   /** - --> compute tau_d = [int_{tau_today}^{tau} dtau -dkappa_d/dtau] */
-  class_call(array_integrate_spline_table_line_to_line(tau_table,
-                                                       pth->tt_size,
-                                                       pth->thermodynamics_table,
-                                                       pth->th_size,
-                                                       pth->index_th_ddkappa,
-                                                       pth->index_th_dddkappa,
-                                                       pth->index_th_tau_d,
-                                                       pth->error_message),
-             pth->error_message,
-             pth->error_message);
+  class_call_except(array_integrate_spline_table_line_to_line(tau_table,
+                                                              pth->tt_size,
+                                                              pth->thermodynamics_table,
+                                                              pth->th_size,
+                                                              pth->index_th_ddkappa,
+                                                              pth->index_th_dddkappa,
+                                                              pth->index_th_tau_d,
+                                                              pth->error_message),
+                    pth->error_message,
+                    pth->error_message,
+                    free(pvecback);free(tau_table));
 
   /* the temporary quantities stored in columns ddkappa and dddkappa
      will not be used anymore, they will be overwritten */
@@ -477,7 +487,7 @@ int thermodynamics_init(
   /** - --> compute r_d = [int_{tau_ini}^{tau} dtau [1/kappa'] */
   if (pth->compute_damping_scale == _TRUE_) {
 
-    class_alloc(tau_table_growing,pth->tt_size*sizeof(double),pth->error_message);
+    class_alloc_except(tau_table_growing,pth->tt_size*sizeof(double),pth->error_message,free(pvecback);free(tau_table));
 
     /* compute integrand 1/kappa' and store temporarily in column "ddkappa" */
     for (index_tau=0; index_tau < pth->tt_size; index_tau++) {
@@ -490,28 +500,30 @@ int thermodynamics_init(
     }
 
     /* compute second derivative of integrand 1/kappa' and store temporarily in column "dddkappa" */
-    class_call(array_spline_table_line_to_line(tau_table_growing,
-                                               pth->tt_size,
-                                               pth->thermodynamics_table,
-                                               pth->th_size,
-                                               pth->index_th_ddkappa,
-                                               pth->index_th_dddkappa,
-                                               _SPLINE_EST_DERIV_,
-                                               pth->error_message),
-               pth->error_message,
-               pth->error_message);
+    class_call_except(array_spline_table_line_to_line(tau_table_growing,
+                                                      pth->tt_size,
+                                                      pth->thermodynamics_table,
+                                                      pth->th_size,
+                                                      pth->index_th_ddkappa,
+                                                      pth->index_th_dddkappa,
+                                                      _SPLINE_EST_DERIV_,
+                                                      pth->error_message),
+                      pth->error_message,
+                      pth->error_message,
+                      free(pvecback);free(tau_table);free(tau_table_growing));
 
     /* compute integrated quantity r_d^2 and store temporarily in column "g" */
-     class_call(array_integrate_spline_table_line_to_line(tau_table_growing,
-                                                          pth->tt_size,
-                                                          pth->thermodynamics_table,
-                                                          pth->th_size,
-                                                          pth->index_th_ddkappa,
-                                                          pth->index_th_dddkappa,
-                                                          pth->index_th_g,
-                                                          pth->error_message),
-                pth->error_message,
-                pth->error_message);
+     class_call_except(array_integrate_spline_table_line_to_line(tau_table_growing,
+                                                                 pth->tt_size,
+                                                                 pth->thermodynamics_table,
+                                                                 pth->th_size,
+                                                                 pth->index_th_ddkappa,
+                                                                 pth->index_th_dddkappa,
+                                                                 pth->index_th_g,
+                                                                 pth->error_message),
+                       pth->error_message,
+                       pth->error_message,
+                       free(pvecback);free(tau_table);free(tau_table_growing));
 
      free(tau_table_growing);
 
@@ -534,68 +546,73 @@ int thermodynamics_init(
   }
 
   /** - --> second derivative with respect to tau of dkappa (in view of spline interpolation) */
-  class_call(array_spline_table_line_to_line(tau_table,
-                                             pth->tt_size,
-                                             pth->thermodynamics_table,
-                                             pth->th_size,
-                                             pth->index_th_dkappa,
-                                             pth->index_th_dddkappa,
-                                             _SPLINE_EST_DERIV_,
-                                             pth->error_message),
-             pth->error_message,
-             pth->error_message);
-
-  /** - --> first derivative with respect to tau of dkappa (using spline interpolation) */
-  class_call(array_derive_spline_table_line_to_line(tau_table,
+  class_call_except(array_spline_table_line_to_line(tau_table,
                                                     pth->tt_size,
                                                     pth->thermodynamics_table,
                                                     pth->th_size,
                                                     pth->index_th_dkappa,
                                                     pth->index_th_dddkappa,
-                                                    pth->index_th_ddkappa,
+                                                    _SPLINE_EST_DERIV_,
                                                     pth->error_message),
-             pth->error_message,
-             pth->error_message);
+                    pth->error_message,
+                    pth->error_message,
+                    free(pvecback);free(tau_table));
+
+  /** - --> first derivative with respect to tau of dkappa (using spline interpolation) */
+  class_call_except(array_derive_spline_table_line_to_line(tau_table,
+                                                           pth->tt_size,
+                                                           pth->thermodynamics_table,
+                                                           pth->th_size,
+                                                           pth->index_th_dkappa,
+                                                           pth->index_th_dddkappa,
+                                                           pth->index_th_ddkappa,
+                                                           pth->error_message),
+                    pth->error_message,
+                    pth->error_message,
+                    free(pvecback);free(tau_table));
 
   /** - --> compute -kappa = [int_{tau_today}^{tau} dtau dkappa/dtau], store temporarily in column "g" */
-  class_call(array_integrate_spline_table_line_to_line(tau_table,
-                                                       pth->tt_size,
-                                                       pth->thermodynamics_table,
-                                                       pth->th_size,
-                                                       pth->index_th_dkappa,
-                                                       pth->index_th_dddkappa,
-                                                       pth->index_th_g,
-                                                       pth->error_message),
-             pth->error_message,
-             pth->error_message);
+  class_call_except(array_integrate_spline_table_line_to_line(tau_table,
+                                                              pth->tt_size,
+                                                              pth->thermodynamics_table,
+                                                              pth->th_size,
+                                                              pth->index_th_dkappa,
+                                                              pth->index_th_dddkappa,
+                                                              pth->index_th_g,
+                                                              pth->error_message),
+                    pth->error_message,
+                    pth->error_message,
+                    free(pvecback);free(tau_table));
 
   /** - --> derivatives of baryon sound speed (only computed if some non-minimal tight-coupling schemes is requested) */
   if (pth->compute_cb2_derivatives == _TRUE_) {
 
     /** - ---> second derivative with respect to tau of cb2 */
-    class_call(array_spline_table_line_to_line(tau_table,
-                                               pth->tt_size,
-                                               pth->thermodynamics_table,
-                                               pth->th_size,
-                                               pth->index_th_cb2,
-                                               pth->index_th_ddcb2,
-                                               _SPLINE_EST_DERIV_,
-                                               pth->error_message),
-               pth->error_message,
-               pth->error_message);
-
-
-    /** - ---> first derivative with respect to tau of cb2 (using spline interpolation) */
-    class_call(array_derive_spline_table_line_to_line(tau_table,
+    class_call_except(array_spline_table_line_to_line(tau_table,
                                                       pth->tt_size,
                                                       pth->thermodynamics_table,
                                                       pth->th_size,
                                                       pth->index_th_cb2,
                                                       pth->index_th_ddcb2,
-                                                      pth->index_th_dcb2,
+                                                      _SPLINE_EST_DERIV_,
                                                       pth->error_message),
-               pth->error_message,
-               pth->error_message);
+                      pth->error_message,
+                      pth->error_message,
+                      free(pvecback);free(tau_table));
+
+
+    /** - ---> first derivative with respect to tau of cb2 (using spline interpolation) */
+    class_call_except(array_derive_spline_table_line_to_line(tau_table,
+                                                             pth->tt_size,
+                                                             pth->thermodynamics_table,
+                                                             pth->th_size,
+                                                             pth->index_th_cb2,
+                                                             pth->index_th_ddcb2,
+                                                             pth->index_th_dcb2,
+                                                             pth->error_message),
+                      pth->error_message,
+                      pth->error_message,
+                      free(pvecback);free(tau_table));
   }
 
   free(tau_table);
@@ -634,9 +651,10 @@ int thermodynamics_init(
     pth->thermodynamics_table[index_tau*pth->th_size+pth->index_th_g] = g;
 
     /** - ---> compute variation rate */
-    class_test(pth->thermodynamics_table[index_tau*pth->th_size+pth->index_th_dkappa] == 0.,
-               pth->error_message,
-               "variation rate diverges");
+    class_test_except(pth->thermodynamics_table[index_tau*pth->th_size+pth->index_th_dkappa] == 0.,
+                      pth->error_message,
+                      free(pvecback),
+                      "variation rate diverges");
 
     pth->thermodynamics_table[index_tau*pth->th_size+pth->index_th_rate] =
       sqrt(pow(pth->thermodynamics_table[index_tau*pth->th_size+pth->index_th_dkappa],2)
@@ -649,26 +667,28 @@ int thermodynamics_init(
 
   /** - smooth the rate (details of smoothing unimportant: only the
       order of magnitude of the rate matters) */
-  class_call(array_smooth(pth->thermodynamics_table,
-                          pth->th_size,
-                          pth->tt_size,
-                          pth->index_th_rate,
-                          ppr->thermo_rate_smoothing_radius,
-                          pth->error_message),
-             pth->error_message,
-             pth->error_message);
+  class_call_except(array_smooth(pth->thermodynamics_table,
+                                 pth->th_size,
+                                 pth->tt_size,
+                                 pth->index_th_rate,
+                                 ppr->thermo_rate_smoothing_radius,
+                                 pth->error_message),
+                    pth->error_message,
+                    pth->error_message,
+                    free(pvecback));
 
   /** - fill tables of second derivatives with respect to z (in view of spline interpolation) */
 
-  class_call(array_spline_table_lines(pth->z_table,
-                                      pth->tt_size,
-                                      pth->thermodynamics_table,
-                                      pth->th_size,
-                                      pth->d2thermodynamics_dz2_table,
-                                      _SPLINE_EST_DERIV_,
-                                      pth->error_message),
-             pth->error_message,
-             pth->error_message);
+  class_call_except(array_spline_table_lines(pth->z_table,
+                                             pth->tt_size,
+                                             pth->thermodynamics_table,
+                                             pth->th_size,
+                                             pth->d2thermodynamics_dz2_table,
+                                             _SPLINE_EST_DERIV_,
+                                             pth->error_message),
+                    pth->error_message,
+                    pth->error_message,
+                    free(pvecback));
 
   /** - find maximum of g */
 
@@ -677,10 +697,11 @@ int thermodynamics_init(
     index_tau--;
   }
 
-  class_test(pth->thermodynamics_table[(index_tau+1)*pth->th_size+pth->index_th_g] >
-             pth->thermodynamics_table[index_tau*pth->th_size+pth->index_th_g],
-             pth->error_message,
-             "found a recombination redshift greater or equal to the maximum value imposed in thermodynamics.h, z_rec_max=%g",_Z_REC_MAX_);
+  class_test_except(pth->thermodynamics_table[(index_tau+1)*pth->th_size+pth->index_th_g] >
+                    pth->thermodynamics_table[index_tau*pth->th_size+pth->index_th_g],
+                    pth->error_message,
+                    free(pvecback),
+                    "found a recombination redshift greater or equal to the maximum value imposed in thermodynamics.h, z_rec_max=%g",_Z_REC_MAX_);
 
   while (pth->thermodynamics_table[(index_tau+1)*pth->th_size+pth->index_th_g] <
          pth->thermodynamics_table[index_tau*pth->th_size+pth->index_th_g]) {
@@ -693,23 +714,27 @@ int thermodynamics_init(
   /* approximation for maximum of g, using cubic interpolation, assuming equally spaced z's */
   pth->z_rec=pth->z_table[index_tau+1]+0.5*(pth->z_table[index_tau+1]-pth->z_table[index_tau])*(pth->thermodynamics_table[(index_tau)*pth->th_size+pth->index_th_g]-pth->thermodynamics_table[(index_tau+2)*pth->th_size+pth->index_th_g])/(pth->thermodynamics_table[(index_tau)*pth->th_size+pth->index_th_g]-2.*pth->thermodynamics_table[(index_tau+1)*pth->th_size+pth->index_th_g]+pth->thermodynamics_table[(index_tau+2)*pth->th_size+pth->index_th_g]);
 
-  class_test(pth->z_rec+ppr->smallest_allowed_variation >= _Z_REC_MAX_,
-             pth->error_message,
-             "found a recombination redshift greater or equal to the maximum value imposed in thermodynamics.h, z_rec_max=%g",_Z_REC_MAX_);
+  class_test_except(pth->z_rec+ppr->smallest_allowed_variation >= _Z_REC_MAX_,
+                    pth->error_message,
+                    free(pvecback),
+                    "found a recombination redshift greater or equal to the maximum value imposed in thermodynamics.h, z_rec_max=%g",_Z_REC_MAX_);
 
-  class_test(pth->z_rec-ppr->smallest_allowed_variation <= _Z_REC_MIN_,
-             pth->error_message,
-             "found a recombination redshift smaller or equal to the maximum value imposed in thermodynamics.h, z_rec_min=%g",_Z_REC_MIN_);
+  class_test_except(pth->z_rec-ppr->smallest_allowed_variation <= _Z_REC_MIN_,
+                   pth->error_message,
+                   free(pvecback),
+                   "found a recombination redshift smaller or equal to the maximum value imposed in thermodynamics.h, z_rec_min=%g",_Z_REC_MIN_);
 
   /** - find conformal recombination time using background_tau_of_z() **/
 
-  class_call(background_tau_of_z(pba,pth->z_rec,&(pth->tau_rec)),
-             pba->error_message,
-             pth->error_message);
+  class_call_except(background_tau_of_z(pba,pth->z_rec,&(pth->tau_rec)),
+                    pba->error_message,
+                    pth->error_message,
+                    free(pvecback));
 
-  class_call(background_at_tau(pba,pth->tau_rec, pba->long_info, pba->inter_normal, &last_index_back, pvecback),
-             pba->error_message,
-             pth->error_message);
+  class_call_except(background_at_tau(pba,pth->tau_rec, pba->long_info, pba->inter_normal, &last_index_back, pvecback),
+                    pba->error_message,
+                    pth->error_message,
+                    free(pvecback));
 
   pth->rs_rec=pvecback[pba->index_bg_rs];
   pth->ds_rec=pth->rs_rec*pba->a_today/(1.+pth->z_rec);
@@ -729,18 +754,20 @@ int thermodynamics_init(
   /** - find time (always after recombination) at which tau_c/tau
       falls below some threshold, defining tau_free_streaming */
 
-  class_call(background_tau_of_z(pba,pth->z_table[index_tau],&tau),
-             pba->error_message,
-             pth->error_message);
+  class_call_except(background_tau_of_z(pba,pth->z_table[index_tau],&tau),
+                    pba->error_message,
+                    pth->error_message,
+                    free(pvecback));
 
   while (1./pth->thermodynamics_table[(index_tau)*pth->th_size+pth->index_th_dkappa]/tau
          < ppr->radiation_streaming_trigger_tau_c_over_tau) {
 
     index_tau--;
 
-    class_call(background_tau_of_z(pba,pth->z_table[index_tau],&tau),
-               pba->error_message,
-               pth->error_message);
+    class_call_except(background_tau_of_z(pba,pth->z_table[index_tau],&tau),
+                      pba->error_message,
+                      pth->error_message,
+                      free(pvecback));
 
   }
 
@@ -758,13 +785,15 @@ int thermodynamics_init(
     /(pth->thermodynamics_table[(index_tau)*pth->th_size+pth->index_th_tau_d]-pth->thermodynamics_table[(index_tau-1)*pth->th_size+pth->index_th_tau_d])
     *(pth->z_table[index_tau]-pth->z_table[index_tau-1]);
 
-  class_call(background_tau_of_z(pba,pth->z_d,&(pth->tau_d)),
-             pba->error_message,
-             pth->error_message);
+  class_call_except(background_tau_of_z(pba,pth->z_d,&(pth->tau_d)),
+                    pba->error_message,
+                    pth->error_message,
+                    free(pvecback));
 
-  class_call(background_at_tau(pba,pth->tau_d, pba->long_info, pba->inter_normal, &last_index_back, pvecback),
-             pba->error_message,
-             pth->error_message);
+  class_call_except(background_at_tau(pba,pth->tau_d, pba->long_info, pba->inter_normal, &last_index_back, pvecback),
+                    pba->error_message,
+                    pth->error_message,
+                    free(pvecback));
 
   pth->rs_d=pvecback[pba->index_bg_rs];
   pth->ds_d=pth->rs_d*pba->a_today/(1.+pth->z_d);
@@ -777,9 +806,10 @@ int thermodynamics_init(
          && (index_tau > 0))
     index_tau--;
 
-  class_call(background_tau_of_z(pba,pth->z_table[index_tau],&(pth->tau_cut)),
-             pba->error_message,
-             pth->error_message);
+  class_call_except(background_tau_of_z(pba,pth->z_table[index_tau],&(pth->tau_cut)),
+                    pba->error_message,
+                    pth->error_message,
+                    free(pvecback));
 
   /** - if verbose flag set to next-to-minimum value, print the main results */
 
@@ -801,9 +831,10 @@ int thermodynamics_init(
         printf(" -> reionization  at z = %f\n",pth->z_reio);
       if (pth->reio_z_or_tau==reio_z)
         printf(" -> reionization with optical depth = %f\n",pth->tau_reio);
-      class_call(background_tau_of_z(pba,pth->z_reio,&tau_reio),
-                 pba->error_message,
-                 pth->error_message);
+      class_call_except(background_tau_of_z(pba,pth->z_reio,&tau_reio),
+                        pba->error_message,
+                        pth->error_message,
+                        free(pvecback));
       printf("    corresponding to conformal time = %f Mpc\n",tau_reio);
     }
     if (pth->reio_parametrization == reio_bins_tanh) {
@@ -838,9 +869,11 @@ int thermodynamics_free(
                         struct thermo * pth
                         ) {
 
-  free(pth->z_table);
-  free(pth->thermodynamics_table);
-  free(pth->d2thermodynamics_dz2_table);
+  if (pth->has_allocated_tables == _TRUE_) {
+    free(pth->z_table);
+    free(pth->thermodynamics_table);
+    free(pth->d2thermodynamics_dz2_table);
+  }
 
   return _SUCCESS_;
 }
@@ -1086,20 +1119,22 @@ int thermodynamics_helium_from_bbn(
   /** - 8.6173e-11 converts from Kelvin to MeV. We randomly choose 0.1 MeV to be the temperature of BBN */
   z_bbn = 0.1/(8.6173e-11*pba->T_cmb)-1.0;
 
-  class_call(background_tau_of_z(pba,
-                                 z_bbn,
-                                 &tau_bbn),
-             pba->error_message,
-             pth->error_message);
+  class_call_except(background_tau_of_z(pba,
+                                        z_bbn,
+                                        &tau_bbn),
+                    pba->error_message,
+                    pth->error_message,
+                    free(pvecback));
 
-  class_call(background_at_tau(pba,
-                               tau_bbn,
-                               pba->long_info,
-                               pba->inter_normal,
-                               &last_index,
-                               pvecback),
-             pba->error_message,
-             pth->error_message);
+  class_call_except(background_at_tau(pba,
+                                      tau_bbn,
+                                      pba->long_info,
+                                      pba->inter_normal,
+                                      &last_index,
+                                      pvecback),
+                    pba->error_message,
+                    pth->error_message,
+                    free(pvecback));
 
   Neff_bbn = (pvecback[pba->index_bg_Omega_r]
 	      *pvecback[pba->index_bg_rho_crit]
@@ -1180,76 +1215,84 @@ int thermodynamics_helium_from_bbn(
   fclose(fA);
 
   /** - spline in one dimension (along deltaN) */
-  class_call(array_spline_table_lines(deltaN,
-                                      num_deltaN,
-                                      YHe,
-                                      num_omegab,
-                                      ddYHe,
-                                      _SPLINE_NATURAL_,
-                                      pth->error_message),
-             pth->error_message,
-             pth->error_message);
+  class_call_except(array_spline_table_lines(deltaN,
+                                             num_deltaN,
+                                             YHe,
+                                             num_omegab,
+                                             ddYHe,
+                                             _SPLINE_NATURAL_,
+                                             pth->error_message),
+                    pth->error_message,
+                    pth->error_message,
+                    free(omegab);free(deltaN);free(YHe);free(ddYHe);free(YHe_at_deltaN);free(ddYHe_at_deltaN));
 
   omega_b=pba->Omega0_b*pba->h*pba->h;
 
-  class_test(omega_b < omegab[0],
-             pth->error_message,
-             "You have asked for an unrealistic small value omega_b = %e. The corresponding value of the primordial helium fraction cannot be found in the interpolation table. If you really want this value, you should fix YHe to a given value rather than to BBN",
-             omega_b);
+  class_test_except(omega_b < omegab[0],
+                    pth->error_message,
+                    free(omegab);free(deltaN);free(YHe);free(ddYHe);free(YHe_at_deltaN);free(ddYHe_at_deltaN),
+                    "You have asked for an unrealistic small value omega_b = %e. The corresponding value of the primordial helium fraction cannot be found in the interpolation table. If you really want this value, you should fix YHe to a given value rather than to BBN",
+                    omega_b);
 
-  class_test(omega_b > omegab[num_omegab-1],
-             pth->error_message,
-             "You have asked for an unrealistic high value omega_b = %e. The corresponding value of the primordial helium fraction cannot be found in the interpolation table. If you really want this value, you should fix YHe to a given value rather than to BBN",
-             omega_b);
+  class_test_except(omega_b > omegab[num_omegab-1],
+                    pth->error_message,
+                    free(omegab);free(deltaN);free(YHe);free(ddYHe);free(YHe_at_deltaN);free(ddYHe_at_deltaN),
+                    "You have asked for an unrealistic high value omega_b = %e. The corresponding value of the primordial helium fraction cannot be found in the interpolation table. If you really want this value, you should fix YHe to a given value rather than to BBN",
+                    omega_b);
 
-  class_test(DeltaNeff < deltaN[0],
-             pth->error_message,
-             "You have asked for an unrealistic small value of Delta N_eff = %e. The corresponding value of the primordial helium fraction cannot be found in the interpolation table. If you really want this value, you should fix YHe to a given value rather than to BBN",
-             DeltaNeff);
+  class_test_except(DeltaNeff < deltaN[0],
+                    pth->error_message,
+                    free(omegab);free(deltaN);free(YHe);free(ddYHe);free(YHe_at_deltaN);free(ddYHe_at_deltaN),
+                    "You have asked for an unrealistic small value of Delta N_eff = %e. The corresponding value of the primordial helium fraction cannot be found in the interpolation table. If you really want this value, you should fix YHe to a given value rather than to BBN",
+                    DeltaNeff);
 
-  class_test(DeltaNeff > deltaN[num_deltaN-1],
-             pth->error_message,
-             "You have asked for an unrealistic high value of Delta N_eff = %e. The corresponding value of the primordial helium fraction cannot be found in the interpolation table. If you really want this value, you should fix YHe to a given value rather than to BBN",
-             DeltaNeff);
+  class_test_except(DeltaNeff > deltaN[num_deltaN-1],
+                    pth->error_message,
+                    free(omegab);free(deltaN);free(YHe);free(ddYHe);free(YHe_at_deltaN);free(ddYHe_at_deltaN),
+                    "You have asked for an unrealistic high value of Delta N_eff = %e. The corresponding value of the primordial helium fraction cannot be found in the interpolation table. If you really want this value, you should fix YHe to a given value rather than to BBN",
+                    DeltaNeff);
 
   /** - interpolate in one dimension (along deltaN) */
-  class_call(array_interpolate_spline(deltaN,
-                                      num_deltaN,
-                                      YHe,
-                                      ddYHe,
-                                      num_omegab,
-                                      DeltaNeff,
-                                      &last_index,
-                                      YHe_at_deltaN,
-                                      num_omegab,
-                                      pth->error_message),
-             pth->error_message,
-             pth->error_message);
+  class_call_except(array_interpolate_spline(deltaN,
+                                             num_deltaN,
+                                             YHe,
+                                             ddYHe,
+                                             num_omegab,
+                                             DeltaNeff,
+                                             &last_index,
+                                             YHe_at_deltaN,
+                                             num_omegab,
+                                             pth->error_message),
+                    pth->error_message,
+                    pth->error_message,
+                    free(omegab);free(deltaN);free(YHe);free(ddYHe);free(YHe_at_deltaN);free(ddYHe_at_deltaN));
 
   /** - spline in remaining dimension (along omegab) */
-  class_call(array_spline_table_lines(omegab,
-                                      num_omegab,
-                                      YHe_at_deltaN,
-                                      1,
-                                      ddYHe_at_deltaN,
-                                      _SPLINE_NATURAL_,
-                                      pth->error_message),
-             pth->error_message,
-             pth->error_message);
+  class_call_except(array_spline_table_lines(omegab,
+                                             num_omegab,
+                                             YHe_at_deltaN,
+                                             1,
+                                             ddYHe_at_deltaN,
+                                             _SPLINE_NATURAL_,
+                                             pth->error_message),
+                    pth->error_message,
+                    pth->error_message,
+                    free(omegab);free(deltaN);free(YHe);free(ddYHe);free(YHe_at_deltaN);free(ddYHe_at_deltaN));
 
   /** - interpolate in remaining dimension (along omegab) */
-  class_call(array_interpolate_spline(omegab,
-                                      num_omegab,
-                                      YHe_at_deltaN,
-                                      ddYHe_at_deltaN,
-                                      1,
-                                      omega_b,
-                                      &last_index,
-                                      &(pth->YHe),
-                                      1,
-                                      pth->error_message),
-             pth->error_message,
-             pth->error_message);
+  class_call_except(array_interpolate_spline(omegab,
+                                             num_omegab,
+                                             YHe_at_deltaN,
+                                             ddYHe_at_deltaN,
+                                             1,
+                                             omega_b,
+                                             &last_index,
+                                             &(pth->YHe),
+                                             1,
+                                             pth->error_message),
+                    pth->error_message,
+                    pth->error_message,
+                    free(omegab);free(deltaN);free(YHe);free(ddYHe);free(YHe_at_deltaN);free(ddYHe_at_deltaN));
 
   /** - deallocate arrays */
   free(omegab);
@@ -2288,9 +2331,10 @@ int thermodynamics_reionization_sample(
   class_alloc(reio_vector,preio->re_size*sizeof(double),pth->error_message);
 
   /** - (b) create a growTable with gt_init() */
-  class_call(gt_init(&gTable),
-             gTable.error_message,
-             pth->error_message);
+  class_call_except(gt_init(&gTable),
+                    gTable.error_message,
+                    pth->error_message,
+                    free(reio_vector));
 
   /** - (c) first line is taken from thermodynamics table, just before reionization starts */
 
@@ -2298,9 +2342,10 @@ int thermodynamics_reionization_sample(
   i=0;
   while (preco->recombination_table[i*preco->re_size+preco->index_re_z] < preio->reionization_parameters[preio->index_reio_start]) {
     i++;
-    class_test(i == ppr->recfast_Nz0,
-               pth->error_message,
-               "reionization_z_start_max = %e > largest redshift in thermodynamics table",ppr->reionization_z_start_max);
+    class_test_except(i == ppr->recfast_Nz0,
+                      pth->error_message,
+                      free(reio_vector);gt_free(&gTable),
+                      "reionization_z_start_max = %e > largest redshift in thermodynamics table",ppr->reionization_z_start_max);
   }
 
   /** - --> get redshift */
@@ -2309,34 +2354,38 @@ int thermodynamics_reionization_sample(
   preio->index_reco_when_reio_start=i;
 
   /** - --> get \f$ X_e \f$ */
-  class_call(thermodynamics_reionization_function(z,pth,preio,&xe),
-             pth->error_message,
-             pth->error_message);
+  class_call_except(thermodynamics_reionization_function(z,pth,preio,&xe),
+                    pth->error_message,
+                    pth->error_message,
+                    free(reio_vector);gt_free(&gTable));
 
   reio_vector[preio->index_re_xe] = xe;
 
   /** -  --> get \f$ d \kappa / d z = (d \kappa / d \tau) * (d \tau / d z) = - (d \kappa / d \tau) / H \f$ */
 
-  class_call(background_tau_of_z(pba,
-                                 z,
-                                 &tau),
-             pba->error_message,
-             pth->error_message);
+  class_call_except(background_tau_of_z(pba,
+                                        z,
+                                        &tau),
+                    pba->error_message,
+                    pth->error_message,
+                    free(reio_vector);gt_free(&gTable));
 
-  class_call(background_at_tau(pba,
-                               tau,
-                               pba->short_info,
-                               pba->inter_normal,
-                               &last_index_back,
-                               pvecback),
-             pba->error_message,
-             pth->error_message);
+  class_call_except(background_at_tau(pba,
+                                      tau,
+                                      pba->short_info,
+                                      pba->inter_normal,
+                                      &last_index_back,
+                                      pvecback),
+                    pba->error_message,
+                    pth->error_message,
+                    free(reio_vector);gt_free(&gTable));
 
   reio_vector[preio->index_re_dkappadtau] = (1.+z) * (1.+z) * pth->n_e * xe * _sigma_ * _Mpc_over_m_;
 
-  class_test(pvecback[pba->index_bg_H] == 0.,
-             pth->error_message,
-             "stop to avoid division by zero");
+  class_test_except(pvecback[pba->index_bg_H] == 0.,
+                    pth->error_message,
+                    free(reio_vector);gt_free(&gTable),
+                    "stop to avoid division by zero");
 
   reio_vector[preio->index_re_dkappadz] = reio_vector[preio->index_re_dkappadtau] / pvecback[pba->index_bg_H];
 
@@ -2354,9 +2403,10 @@ int thermodynamics_reionization_sample(
   reio_vector[preio->index_re_cb2] = 5./3. * _k_B_ / ( _c_ * _c_ * _m_H_ ) * (1. + (1./_not4_ - 1.) * Yp + xe * (1.-Yp)) * Tb;
 
   /** - --> store these values in growing table */
-  class_call(gt_add(&gTable,_GT_END_,(void *) reio_vector,sizeof(double)*(preio->re_size)),
-             gTable.error_message,
-             pth->error_message);
+  class_call_except(gt_add(&gTable,_GT_END_,(void *) reio_vector,sizeof(double)*(preio->re_size)),
+                    gTable.error_message,
+                    pth->error_message,
+                    free(reio_vector);gt_free(&gTable));
 
   number_of_redshifts=1;
 
@@ -2371,44 +2421,50 @@ int thermodynamics_reionization_sample(
 
   while (z > 0.) {
 
-    class_test(dz < ppr->smallest_allowed_variation,
-               pth->error_message,
-               "stuck in the loop for reionization sampling, as if you were trying to impose a discontinuous evolution for xe(z)");
+    class_test_except(dz < ppr->smallest_allowed_variation,
+                      pth->error_message,
+                      free(reio_vector);gt_free(&gTable),
+                      "stuck in the loop for reionization sampling, as if you were trying to impose a discontinuous evolution for xe(z)");
 
     /* - try next step */
     z_next=z-dz;
     if (z_next < 0.) z_next=0.;
 
-    class_call(thermodynamics_reionization_function(z_next,pth,preio,&xe_next),
-               pth->error_message,
-               pth->error_message);
+    class_call_except(thermodynamics_reionization_function(z_next,pth,preio,&xe_next),
+                      pth->error_message,
+                      pth->error_message,
+                      free(reio_vector);gt_free(&gTable));
 
-    class_call(background_tau_of_z(pba,
-                                   z_next,
-                                   &tau),
-               pba->error_message,
-               pth->error_message);
+    class_call_except(background_tau_of_z(pba,
+                                          z_next,
+                                          &tau),
+                      pba->error_message,
+                      pth->error_message,
+                      free(reio_vector);gt_free(&gTable));
 
-    class_call(background_at_tau(pba,
-                                 tau,
-                                 pba->short_info,
-                                 pba->inter_normal,
-                                 &last_index_back,
-                                 pvecback),
-               pba->error_message,
-               pth->error_message);
+    class_call_except(background_at_tau(pba,
+                                        tau,
+                                        pba->short_info,
+                                        pba->inter_normal,
+                                        &last_index_back,
+                                        pvecback),
+                      pba->error_message,
+                      pth->error_message,
+                      free(reio_vector);gt_free(&gTable));
 
-    class_test(pvecback[pba->index_bg_H] == 0.,
-               pth->error_message,
-               "stop to avoid division by zero");
+    class_test_except(pvecback[pba->index_bg_H] == 0.,
+                      pth->error_message,
+                      free(reio_vector);gt_free(&gTable),
+                      "stop to avoid division by zero");
 
     dkappadz_next= (1.+z_next) * (1.+z_next) * pth->n_e * xe_next * _sigma_ * _Mpc_over_m_ / pvecback[pba->index_bg_H];
 
     dkappadtau_next= (1.+z_next) * (1.+z_next) * pth->n_e * xe_next * _sigma_ * _Mpc_over_m_;
 
-    class_test((dkappadz == 0.) || (dkappadtau == 0.),
-               pth->error_message,
-               "stop to avoid division by zero");
+    class_test_except((dkappadz == 0.) || (dkappadtau == 0.),
+                      pth->error_message,
+                      free(reio_vector);gt_free(&gTable),
+                      "stop to avoid division by zero");
 
     relative_variation = fabs((dkappadz_next-dkappadz)/dkappadz) +
       fabs((dkappadtau_next-dkappadtau)/dkappadtau);
@@ -2421,18 +2477,20 @@ int thermodynamics_reionization_sample(
       dkappadz=dkappadz_next;
       dkappadtau= dkappadtau_next;
 
-      class_test((dkappadz == 0.) || (dkappadtau == 0.),
-                 pth->error_message,
-                 "dkappadz=%e, dkappadtau=%e, stop to avoid division by zero",dkappadz,dkappadtau);
+      class_test_except((dkappadz == 0.) || (dkappadtau == 0.),
+                        pth->error_message,
+                        free(reio_vector);gt_free(&gTable),
+                        "dkappadz=%e, dkappadtau=%e, stop to avoid division by zero",dkappadz,dkappadtau);
 
       reio_vector[preio->index_re_z] = z;
       reio_vector[preio->index_re_xe] = xe;
       reio_vector[preio->index_re_dkappadz] = dkappadz;
       reio_vector[preio->index_re_dkappadtau] = dkappadz * pvecback[pba->index_bg_H];
 
-      class_call(gt_add(&gTable,_GT_END_,(void *) reio_vector,sizeof(double)*(preio->re_size)),
-                 gTable.error_message,
-                 pth->error_message);
+      class_call_except(gt_add(&gTable,_GT_END_,(void *) reio_vector,sizeof(double)*(preio->re_size)),
+                        gTable.error_message,
+                        pth->error_message,
+                        free(reio_vector);gt_free(&gTable));
 
       number_of_redshifts++;
 
@@ -2446,28 +2504,34 @@ int thermodynamics_reionization_sample(
   }
 
   /** - (f) allocate reionization_table with correct size */
-  class_alloc(preio->reionization_table,preio->re_size*number_of_redshifts*sizeof(double),pth->error_message);
+  class_alloc_except(preio->reionization_table,
+                     preio->re_size*number_of_redshifts*sizeof(double),
+                     pth->error_message,
+                     free(reio_vector);gt_free(&gTable));
 
   preio->rt_size=number_of_redshifts;
 
   /** - (g) retrieve data stored in the growTable with gt_getPtr() */
-  class_call(gt_getPtr(&gTable,(void**)&pData),
-             gTable.error_message,
-             pth->error_message);
+  class_call_except(gt_getPtr(&gTable,(void**)&pData),
+                    gTable.error_message,
+                    pth->error_message,
+                    free(reio_vector);gt_free(&gTable));
 
   /** - (h) copy growTable to reionization_temporary_table (invert order of lines, so that redshift is growing, like in recombination table) */
   for (i=0; i < preio->rt_size; i++) {
     memcopy_result = memcpy(preio->reionization_table+i*preio->re_size,pData+(preio->rt_size-i-1)*preio->re_size,preio->re_size*sizeof(double));
-    class_test(memcopy_result != preio->reionization_table+i*preio->re_size,
-               pth->error_message,
-               "cannot copy data back to reionization_temporary_table");
+    class_test_except(memcopy_result != preio->reionization_table+i*preio->re_size,
+                      pth->error_message,
+                      free(reio_vector);gt_free(&gTable),
+                      "cannot copy data back to reionization_temporary_table");
 
   }
 
   /** - (i) free the growTable with gt_free() , free vector of reionization variables */
-  class_call(gt_free(&gTable),
-             gTable.error_message,
-             pth->error_message);
+  class_call_except(gt_free(&gTable),
+                    gTable.error_message,
+                    pth->error_message,
+                    free(reio_vector));
 
   free(reio_vector);
 
@@ -2716,20 +2780,20 @@ int thermodynamics_recombination_with_hyrec(
 
   /* read in file */
 
-  class_open(fA,ppr->hyrec_Alpha_inf_file, "r",pth->error_message);
-  class_open(fR,ppr->hyrec_R_inf_file, "r",pth->error_message);
+  class_open_except(fA,ppr->hyrec_Alpha_inf_file, "r",pth->error_message, free(buffer));
+  class_open_except(fR,ppr->hyrec_R_inf_file, "r",pth->error_message, free(buffer));
 
   for (i = 0; i < NTR; i++) {
     for (j = 0; j < NTM; j++) {
       for (l = 0; l <= 1; l++) {
         if (fscanf(fA, "%le", &(rate_table.logAlpha_tab[l][j][i])) != 1)
-          class_stop(pth->error_message,"Error reading hyrec data file %s",ppr->hyrec_Alpha_inf_file);
+          class_stop_except(pth->error_message,free(buffer),"Error reading hyrec data file %s",ppr->hyrec_Alpha_inf_file);
         rate_table.logAlpha_tab[l][j][i] = log(rate_table.logAlpha_tab[l][j][i]);
       }
     }
 
     if (fscanf(fR, "%le", &(rate_table.logR2p2s_tab[i])) !=1)
-      class_stop(pth->error_message,"Error reading hyrec data file %s",ppr->hyrec_R_inf_file);
+      class_stop_except(pth->error_message,free(buffer),"Error reading hyrec data file %s",ppr->hyrec_R_inf_file);
     rate_table.logR2p2s_tab[i] = log(rate_table.logR2p2s_tab[i]);
 
   }
@@ -2738,7 +2802,7 @@ int thermodynamics_recombination_with_hyrec(
 
   /* Read two-photon rate tables */
 
-  class_open(fA,ppr->hyrec_two_photon_tables_file, "r",pth->error_message);
+  class_open_except(fA,ppr->hyrec_two_photon_tables_file, "r",pth->error_message,free(buffer));
 
   for (b = 0; b < NVIRT; b++) {
     if ((fscanf(fA, "%le", &(twog_params.Eb_tab[b])) != 1) ||
@@ -2746,7 +2810,7 @@ int thermodynamics_recombination_with_hyrec(
         (fscanf(fA, "%le", &(twog_params.A2s_tab[b])) != 1) ||
         (fscanf(fA, "%le", &(twog_params.A3s3d_tab[b])) != 1) ||
         (fscanf(fA, "%le", &(twog_params.A4s4d_tab[b])) != 1))
-      class_stop(pth->error_message,"Error reading hyrec data file %s",ppr->hyrec_two_photon_tables_file);
+      class_stop_except(pth->error_message,free(buffer),"Error reading hyrec data file %s",ppr->hyrec_two_photon_tables_file);
   }
 
   fclose(fA);
@@ -2795,7 +2859,7 @@ int thermodynamics_recombination_with_hyrec(
 
   /** - allocate memory for thermodynamics interpolation tables (size known in advance) and fill it */
 
-  class_alloc(preco->recombination_table,preco->re_size*preco->rt_size*sizeof(double),pth->error_message);
+  class_alloc_except(preco->recombination_table,preco->re_size*preco->rt_size*sizeof(double),pth->error_message,free(buffer));
 
   for(i=0; i <Nz; i++) {
 
@@ -2805,44 +2869,49 @@ int thermodynamics_recombination_with_hyrec(
 
     /* get (xe,Tm) by interpolating in pre-computed tables */
 
-    class_call(array_interpolate_cubic_equal(-log(1.+param.zstart),
-                                             param.dlna,
-                                             xe_output,
-                                             param.nz,
-                                             -log(1.+z),
-                                             &xe,
-                                             pth->error_message),
-               pth->error_message,
-               pth->error_message);
+    class_call_except(array_interpolate_cubic_equal(-log(1.+param.zstart),
+                                                    param.dlna,
+                                                    xe_output,
+                                                    param.nz,
+                                                    -log(1.+z),
+                                                    &xe,
+                                                    pth->error_message),
+                      pth->error_message,
+                      pth->error_message,
+                      free(buffer));
 
-    class_call(array_interpolate_cubic_equal(-log(1.+param.zstart),
-                                             param.dlna,
-                                             Tm_output,
-                                             param.nz,
-                                             -log(1.+z),
-                                             &Tm,
-                                             pth->error_message),
-               pth->error_message,
-               pth->error_message);
+    class_call_except(array_interpolate_cubic_equal(-log(1.+param.zstart),
+                                                    param.dlna,
+                                                    Tm_output,
+                                                    param.nz,
+                                                    -log(1.+z),
+                                                    &Tm,
+                                                    pth->error_message),
+                      pth->error_message,
+                      pth->error_message,
+                      free(buffer));
 
-    class_call(background_tau_of_z(pba,
-                                   z,
-                                   &tau),
-               pba->error_message,
-               pth->error_message);
+    class_call_except(background_tau_of_z(pba,
+                                          z,
+                                          &tau),
+                      pba->error_message,
+                      pth->error_message,
+                      free(buffer));
 
-    class_call(background_at_tau(pba,
-                                 tau,
-                                 pba->short_info,
-                                 pba->inter_normal,
-                                 &last_index_back,
-                                 pvecback),
-               pba->error_message,
-               pth->error_message);
+    class_call_except(background_at_tau(pba,
+                                        tau,
+                                        pba->short_info,
+                                        pba->inter_normal,
+                                        &last_index_back,
+                                        pvecback),
+                      pba->error_message,
+                      pth->error_message,
+                      free(buffer));
 
-    /*   class_call(thermodynamics_energy_injection(ppr,pba,preco,z,&energy_rate,pth->error_message),
+    /*   class_call_except(thermodynamics_energy_injection(ppr,pba,preco,z,&energy_rate,pth->error_message),
          pth->error_message,
-         pth->error_message);
+         pth->error_message,
+         free(buffer));
     */
 
     /* Hz is H in inverse seconds (while pvecback returns [H0/c] in inverse Mpcs) */
@@ -3625,6 +3694,8 @@ int thermodynamics_merge_reco_and_reio(
   class_alloc(pth->z_table,pth->tt_size*sizeof(double),pth->error_message);
   class_alloc(pth->thermodynamics_table,pth->th_size*pth->tt_size*sizeof(double),pth->error_message);
   class_alloc(pth->d2thermodynamics_dz2_table,pth->th_size*pth->tt_size*sizeof(double),pth->error_message);
+
+  pth->has_allocated_tables = _TRUE_;
 
   /** - fill these arrays */
 
