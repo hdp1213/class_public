@@ -2202,7 +2202,7 @@ int thermodynamics_reionization(
 
     pth->tau_reio=preio->reionization_optical_depth;
 
-    free(preio->reionization_parameters)
+    free(preio->reionization_parameters);
 
     return _SUCCESS_;
 
@@ -2303,7 +2303,7 @@ int thermodynamics_reionization(
 
     pth->tau_reio=preio->reionization_optical_depth;
 
-    free(preio->reionization_parameters)
+    free(preio->reionization_parameters);
 
     return _SUCCESS_;
 
