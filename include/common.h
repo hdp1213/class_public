@@ -140,6 +140,18 @@ int get_number_of_titles(char * titlestring);
   }                                                                                                              \
 }
 
+/* macro for allocating memory and returning error if it failed */
+#define class_alloc_except(pointer, size, error_message_output, list_of_commands)  {                             \
+  pointer=malloc(size);                                                                                          \
+  if (pointer == NULL) {                                                                                         \
+    int size_int;                                                                                                \
+    size_int = size;                                                                                             \
+    class_alloc_message(error_message_output,#pointer, size_int);                                                \
+    list_of_commands;                                                                                            \
+    return _FAILURE_;                                                                                            \
+  }                                                                                                              \
+}
+
 /* same inside parallel structure */
 #define class_alloc_parallel(pointer, size, error_message_output)  {                                             \
   pointer=NULL;                                                                                                  \
@@ -221,12 +233,33 @@ int get_number_of_titles(char * titlestring);
   return _FAILURE_;                                                                                              \
 }
 
+/* macro for returning error message;
+   args is a variable list of optional arguments, e.g.: args="x=%d",x
+   args cannot be empty, if there is nothing to pass use args="" */
+#define class_stop_except(error_message_output,list_of_commands,args...) {                                       \
+  ErrorMsg Optional_arguments;                                                                                   \
+  class_protect_sprintf(Optional_arguments,args);                                                                \
+  class_build_error_string(error_message_output,"error; %s",Optional_arguments);                                 \
+  list_of_commands;                                                                                              \
+  return _FAILURE_;                                                                                              \
+}
+
 // IO
 /* macro for opening file and returning error if it failed */
 #define class_open(pointer, filename,	mode, error_output) {                                                      \
   pointer=fopen(filename,mode);                                                                                  \
   if (pointer == NULL) {                                                                                         \
     class_build_error_string(error_output,"could not open %s with name %s and mode %s",#pointer,filename,#mode); \
+    return _FAILURE_;                                                                                            \
+  }                                                                                                              \
+}
+
+/* macro for opening file and running commands and returning error if it failed */
+#define class_open_except(pointer, filename, mode, error_output, list_of_commands) {                             \
+  pointer=fopen(filename,mode);                                                                                  \
+  if (pointer == NULL) {                                                                                         \
+    class_build_error_string(error_output,"could not open %s with name %s and mode %s",#pointer,filename,#mode); \
+    list_of_commands;                                                                                            \
     return _FAILURE_;                                                                                            \
   }                                                                                                              \
 }
