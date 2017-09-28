@@ -3292,16 +3292,17 @@ int thermodynamics_recombination_with_recfast(
       rhs = exp(1.5*log(preco->CR*preco->Tnow/(1.+z)) - preco->CB1/(preco->Tnow*(1.+z)))/preco->Nnow;
       x_H0 = 0.5*(sqrt(pow(rhs,2)+4.*rhs) - rhs);
 
-      class_call(generic_integrator(thermodynamics_derivs_with_recfast,
-                                    zstart,
-                                    zend,
-                                    y,
-                                    &tpaw,
-                                    ppr->tol_thermo_integration,
-                                    ppr->smallest_allowed_variation,
-                                    &gi),
-                 gi.error_message,
-                 pth->error_message);
+      class_call_except(generic_integrator(thermodynamics_derivs_with_recfast,
+                                           zstart,
+                                           zend,
+                                           y,
+                                           &tpaw,
+                                           ppr->tol_thermo_integration,
+                                           ppr->smallest_allowed_variation,
+                                           &gi),
+                        gi.error_message,
+                        pth->error_message,
+                        cleanup_generic_integrator(&gi));
 
       y[0] = x_H0;
 
@@ -3334,16 +3335,17 @@ int thermodynamics_recombination_with_recfast(
         x_H0 = 0.5*(sqrt(pow(rhs,2)+4.*rhs) - rhs);
       }
 
-      class_call(generic_integrator(thermodynamics_derivs_with_recfast,
-                                    zstart,
-                                    zend,
-                                    y,
-                                    &tpaw,
-                                    ppr->tol_thermo_integration,
-                                    ppr->smallest_allowed_variation,
-                                    &gi),
-                 gi.error_message,
-                 pth->error_message);
+      class_call_except(generic_integrator(thermodynamics_derivs_with_recfast,
+                                           zstart,
+                                           zend,
+                                           y,
+                                           &tpaw,
+                                           ppr->tol_thermo_integration,
+                                           ppr->smallest_allowed_variation,
+                                           &gi),
+                        gi.error_message,
+                        pth->error_message,
+                        cleanup_generic_integrator(&gi));
 
       /* smoothed transition */
       if (ppr->recfast_x_H0_trigger - y[0] < ppr->recfast_x_H0_trigger_delta) {
