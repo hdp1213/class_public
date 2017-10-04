@@ -17,13 +17,13 @@ vpath .base build
 ########################################################
 
 # your C compiler:
-CC       = gcc
-#CC       = icc
+#CC       = gcc
+CC       = icc
 #CC       = pgcc
 
 # your Fortran compiler:
-FC       = gfortran
-#FC       = ifort #-nofor_main
+#FC       = gfortran
+FC       = ifort #-nofor_main
 
 # your tool for creating static libraries:
 AR        = ar rv
@@ -40,9 +40,10 @@ LD        = ld -shared
 PYTHON ?= python
 
 # your optimization flag
-OPTFLAG = -O4 -ffast-math #-march=native
+#OPTFLAG = -O4 -ffast-math #-march=native
 #OPTFLAG = -Ofast -ffast-math #-march=native
 #OPTFLAG = -fast
+OPTFLAG = -O3 -march=native
 
 # your openmp flag (comment for compiling without openmp)
 OMPFLAG   = -fopenmp
@@ -50,13 +51,13 @@ OMPFLAG   = -fopenmp
 #OMPFLAG   = -openmp
 
 # all other compilation flags
-CCFLAG = -fPIC #-g
-FCFLAG = -fPIC #-g
-LDFLAG = -fPIC #-g
+CCFLAG = -fPIC -g
+FCFLAG = -fPIC -g
+LDFLAG = -fPIC -g
 
 # leave blank to compile without HyRec, or put path to HyRec directory
 # (with no slash at the end: e.g. hyrec or ../hyrec)
-HYREC = 
+HYREC =
 
 ########################################################
 ###### IN PRINCIPLE THE REST SHOULD BE LEFT UNCHANGED ##
@@ -155,7 +156,6 @@ PRE_ALL = cl_ref.pre clt_permille.pre
 INI_ALL = explanatory.ini lcdm.ini
 MISC_FILES = Makefile CPU psd_FD_single.dat myselection.dat myevolution.dat README bbn/sBBN.dat external_Pk/* cpp
 PYTHON_FILES = python/classy.pyx python/setup.py python/cclassy.pxd python/test_class.py
-
 
 all: class libclass.so classy
 
