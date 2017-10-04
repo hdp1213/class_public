@@ -214,6 +214,7 @@ struct thermo
   //@{
 
   double * d2thermodynamics_dz2_table; /**< table d2thermodynamics_dz2_table[index_z*pth->tt_size+pba->index_th] with values of \f$ d^2 t_i / dz^2 \f$ (array of size th_size*tt_size) */
+  short has_allocated_tables; /**< flag determining whether memory has been allocated to the above tables or not */
 
   //@}
 
