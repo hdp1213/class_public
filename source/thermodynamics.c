@@ -2773,11 +2773,6 @@ int thermodynamics_reionization_sample(
                pth->error_message,
                "stuck in the loop for reionization sampling, as if you were trying to impose a discontinuous evolution for xe(z)");
 
-    // check if xe_next is nan
-    class_test(xe_next != xe_next,
-               pth->error_message,
-               "xe_next=%f is nan and hence cannot be used", xe_next);
-
     /* - try next step */
     z_next=z-dz;
     if (z_next < 0.) z_next=0.;
@@ -4085,6 +4080,10 @@ int thermodynamics_derivs_with_recfast(
     dy[2]= preco->CT * pow(Trad,4) * x_e / (1.+x_e+preco->fHe) * (Tmat-Trad) / (Hz*(1.+z)) + 2.*Tmat/(1.+z)
       -2./(3.*_k_B_)*(energy_rate*chi_heat+pbh_heat_rate)/n_H/(1.+preco->fHe+x_e)/(Hz*(1.+z)); /* energy injection from WIMP + PBH DM */
   }
+
+  class_test(dy[2] != dy[2],
+             error_message,
+             "dTb/dz=%f is nan and cannot be used", dy[2]);
 
   return _SUCCESS_;
 }
