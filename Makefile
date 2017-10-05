@@ -9,6 +9,7 @@ WRKDIR = $(MDIR)/build
 	touch build/.base
 
 vpath %.c source:tools:main:test
+vpath %.cc cpp:test
 vpath %.o build
 vpath .base build
 
@@ -20,6 +21,10 @@ vpath .base build
 CC       = gcc
 #CC       = icc
 #CC       = pgcc
+
+# your C++ compiler:
+CXXC       = g++
+#CXXC       = icpc
 
 # your tool for creating static libraries:
 AR        = ar rv
@@ -59,6 +64,7 @@ CCFLAG += -D__CLASSDIR__='"$(MDIR)"'
 
 # where to find include files *.h
 INCLUDES = -I../include
+CPP_INCLUDES = -I../cpp
 
 # automatically add external programs if needed. First, initialize to blank.
 EXTERNAL =
@@ -74,6 +80,9 @@ endif
 
 %.o:  %.c .base
 	cd $(WRKDIR);$(CC) $(OPTFLAG) $(OMPFLAG) $(CCFLAG) $(INCLUDES) -c ../$< -o $*.o
+
+%.o: %.cc .base
+	cd $(WRKDIR);$(CXXC) $(OPTFLAG) $(OMPFLAG) $(CCFLAG) $(INCLUDES) $(CPP_INCLUDES) -c ../$< -o $*.o
 
 TOOLS = growTable.o dei_rkck.o sparse.o evolver_rkck.o  evolver_ndf15.o arrays.o parser.o quadrature.o hyperspherical.o common.o
 
@@ -103,6 +112,8 @@ OUTPUT = output.o
 
 CLASS = class.o
 
+CLASS_CPP = Engine.o ClassEngine.o
+
 TEST_LOOPS = test_loops.o
 
 TEST_LOOPS_OMP = test_loops_omp.o
@@ -125,6 +136,8 @@ TEST_HYPERSPHERICAL = test_hyperspherical.o
 
 TEST_STEPHANE = test_stephane.o
 
+TEST_CLASS_CPP = test_class_cpp.o
+
 C_TOOLS =  $(addprefix tools/, $(addsuffix .c,$(basename $(TOOLS))))
 C_SOURCE = $(addprefix source/, $(addsuffix .c,$(basename $(SOURCE) $(OUTPUT))))
 C_TEST = $(addprefix test/, $(addsuffix .c,$(basename $(TEST_DEGENERACY) $(TEST_LOOPS) $(TEST_TRANSFER) $(TEST_NONLINEAR) $(TEST_PERTURBATIONS) $(TEST_THERMODYNAMICS))))
@@ -138,8 +151,11 @@ PYTHON_FILES = python/classy.pyx python/setup.py python/cclassy.pxd python/test_
 
 all: class libclass.a classy
 
-libclass.a: $(TOOLS) $(SOURCE) $(EXTERNAL)
-	$(AR)  $@ $(addprefix build/, $(TOOLS) $(SOURCE) $(EXTERNAL))
+libclass.a: $(TOOLS) $(SOURCE) $(EXTERNAL) $(OUTPUT)
+	$(AR) $@ $(addprefix build/, $(TOOLS) $(SOURCE) $(EXTERNAL) $(OUTPUT))
+
+libclass.so: $(TOOLS) $(SOURCE) $(EXTERNAL) $(OUTPUT)
+	$(CC) -shared -o $@ $(addprefix build/, $(TOOLS) $(SOURCE) $(EXTERNAL) $(OUTPUT))
 
 class: $(TOOLS) $(SOURCE) $(EXTERNAL) $(OUTPUT) $(CLASS)
 	$(CC) $(OPTFLAG) $(OMPFLAG) $(LDFLAG) -o class $(addprefix build/,$(notdir $^)) -lm
@@ -177,6 +193,9 @@ test_background: $(TOOLS) $(SOURCE) $(EXTERNAL) $(TEST_BACKGROUND)
 test_hyperspherical: $(TOOLS) $(TEST_HYPERSPHERICAL)
 	$(CC) $(OPTFLAG) $(OMPFLAG) $(LDFLAG) -o test_hyperspherical $(addprefix build/,$(notdir $^)) -lm
 
+test_class_cpp: $(CLASS_CPP) $(TEST_CLASS_CPP)
+	$(CXXC) $(OPTFLAG) $(OMPFLAG) $(LDFLAG) -o $@ $(addprefix build/,$(notdir $^)) -lm -L. -lclass
+
 
 tar: $(C_ALL) $(C_TEST) $(H_ALL) $(PRE_ALL) $(INI_ALL) $(MISC_FILES) $(HYREC) $(PYTHON_FILES)
 	tar czvf class.tar.gz $(C_ALL) $(H_ALL) $(PRE_ALL) $(INI_ALL) $(MISC_FILES) $(HYREC) $(PYTHON_FILES)
@@ -192,6 +211,6 @@ endif
 
 clean: .base
 	rm -rf $(WRKDIR);
-	rm -f libclass.a
+	rm -f libclass.*
 	rm -f $(MDIR)/python/classy.c
 	rm -rf $(MDIR)/python/build
