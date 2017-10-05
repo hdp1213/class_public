@@ -92,6 +92,9 @@ ClassEngine::ClassEngine(const ClassParams& pars): cl(0),dofree(true){
   if (input_init(&fc,&pr,&ba,&th,&pt,&tr,&pm,&sp,&nl,&le,&op,_errmsg) == _FAILURE_) 
     throw invalid_argument(_errmsg);
 
+  //free ncdm structs
+  background_free_input(&ba);
+
   //proetction parametres mal defini
   for (size_t i=0;i<pars.size();i++){
     if (fc.read[i] !=_TRUE_) throw invalid_argument(string("invalid CLASS parameter: ")+fc.name[i]);
@@ -147,6 +150,9 @@ ClassEngine::ClassEngine(const ClassParams& pars,const string & precision_file):
   //input
   if (input_init(&fc,&pr,&ba,&th,&pt,&tr,&pm,&sp,&nl,&le,&op,_errmsg) == _FAILURE_) 
     throw invalid_argument(_errmsg);
+
+  //free ncdm structs
+  background_free_input(&ba);
 
   //proetction parametres mal defini
   for (size_t i=0;i<pars.size();i++){
