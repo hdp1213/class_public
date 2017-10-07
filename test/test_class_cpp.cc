@@ -55,23 +55,37 @@ int main(int argc, char** argv) {
     cerr << "[test_class_cpp] CLASS engine initialisation failed:\n" << e.what() << endl;
   }
 
-  cout << "[test_class_cpp] Updating CLASS engine..." << endl;
+  cout << "[test_class_cpp] Updating CLASS engine in a loop..." << endl;
 
-  std::vector<double> new_pars;
+  std::vector<double> annihilation_vals;
+  annihilation_vals.push_back(1e-5);
+  annihilation_vals.push_back(1e-3);
 
-  new_pars.push_back(0.022252);
-  new_pars.push_back(0.11987);
-  new_pars.push_back(1.040778);
-  new_pars.push_back(0.0789);
-  new_pars.push_back(3.0929);
-  new_pars.push_back(0.96475);
-  new_pars.push_back(1e-3);
+  for (std::size_t i = 0; i < annihilation_vals.size(); ++i) {
+    double annihilation = annihilation_vals.at(i);
+    double z = 50.;
+    double f, sigma8, Hz;
 
-  if (class_engine->updateParValues(new_pars)) {
-    cout << "[test_class_cpp] CLASS engine update succeeded" << endl;
-  }
-  else {
-    cerr << "[test_class_cpp] CLASS engine update failed" << endl;
+    std::vector<double> new_pars;
+
+    new_pars.push_back(0.022252);
+    new_pars.push_back(0.11987);
+    new_pars.push_back(1.040778);
+    new_pars.push_back(0.0789);
+    new_pars.push_back(3.0929);
+    new_pars.push_back(0.96475);
+    new_pars.push_back(annihilation);
+
+    if (class_engine->updateParValues(new_pars)) {
+      cout << "[test_class_cpp] CLASS engine update succeeded" << endl;
+    }
+    else {
+      cerr << "[test_class_cpp] CLASS engine update failed" << endl;
+    }
+
+    f = class_engine->get_f(z);
+    sigma8 = class_engine->get_sigma8(z);
+    Hz = class_engine->get_Hz(z);
   }
 
   cout << "[test_class_cpp] Deleting CLASS engine" << endl;
