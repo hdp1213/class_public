@@ -181,6 +181,8 @@ ClassEngine::~ClassEngine()
   //printFC();
   dofree && freeStructs();
 
+  parser_free(&fc);
+
   delete [] cl;
 
 }
@@ -236,12 +238,14 @@ int ClassEngine::class_main(
 
   if (background_init(ppr,pba) == _FAILURE_) {
     printf("\n\nError running background_init \n=>%s\n",pba->error_message);
+    background_free_input(&ba);
     dofree=false;
     return _FAILURE_;
   }
 
   if (thermodynamics_init(ppr,pba,pth) == _FAILURE_) {
     printf("\n\nError in thermodynamics_init \n=>%s\n",pth->error_message);
+    thermodynamics_free(&th);
     background_free(&ba);
     dofree=false;
     return _FAILURE_;
@@ -249,6 +253,7 @@ int ClassEngine::class_main(
 
   if (perturb_init(ppr,pba,pth,ppt) == _FAILURE_) {
     printf("\n\nError in perturb_init \n=>%s\n",ppt->error_message);
+    perturb_free(&pt);
     thermodynamics_free(&th);
     background_free(&ba);
     dofree=false;
@@ -257,6 +262,7 @@ int ClassEngine::class_main(
 
   if (primordial_init(ppr,ppt,ppm) == _FAILURE_) {
     printf("\n\nError in primordial_init \n=>%s\n",ppm->error_message);
+    primordial_free(&pm);
     perturb_free(&pt);
     thermodynamics_free(&th);
     background_free(&ba);
@@ -266,6 +272,7 @@ int ClassEngine::class_main(
 
   if (nonlinear_init(ppr,pba,pth,ppt,ppm,pnl) == _FAILURE_)  {
     printf("\n\nError in nonlinear_init \n=>%s\n",pnl->error_message);
+    nonlinear_free(&nl);
     primordial_free(&pm);
     perturb_free(&pt);
     thermodynamics_free(&th);
@@ -276,6 +283,7 @@ int ClassEngine::class_main(
 
   if (transfer_init(ppr,pba,pth,ppt,pnl,ptr) == _FAILURE_) {
     printf("\n\nError in transfer_init \n=>%s\n",ptr->error_message);
+    transfer_free(&tr);
     nonlinear_free(&nl);
     primordial_free(&pm);
     perturb_free(&pt);
@@ -287,6 +295,7 @@ int ClassEngine::class_main(
 
   if (spectra_init(ppr,pba,ppt,ppm,pnl,ptr,psp) == _FAILURE_) {
     printf("\n\nError in spectra_init \n=>%s\n",psp->error_message);
+    spectra_free(&sp);
     transfer_free(&tr);
     nonlinear_free(&nl);
     primordial_free(&pm);
@@ -299,6 +308,7 @@ int ClassEngine::class_main(
 
   if (lensing_init(ppr,ppt,psp,pnl,ple) == _FAILURE_) {
     printf("\n\nError in lensing_init \n=>%s\n",ple->error_message);
+    lensing_free(&le);
     spectra_free(&sp);
     transfer_free(&tr);
     nonlinear_free(&nl);
@@ -479,18 +489,19 @@ double ClassEngine::get_f(double z)
   double tau;
   int index;
   double *pvecback;
+
   //transform redshift in conformal time
   background_tau_of_z(&ba,z,&tau);
 
   //pvecback must be allocated 
-  pvecback=(double *)malloc(ba.bg_size*sizeof(double));
+  pvecback = new double[ba.bg_size];
 
   //call to fill pvecback
   background_at_tau(&ba,tau,ba.long_info,ba.inter_normal, &index, pvecback);
 
-
-
   double f_z=pvecback[ba.index_bg_f];
+  delete[] pvecback;
+
 #ifdef DBUG
   cout << "f_of_z= "<< f_z <<endl;
 #endif
@@ -504,16 +515,19 @@ double ClassEngine::get_sigma8(double z)
   int index;
   double *pvecback;
   double sigma8 = 0.;
+
   //transform redshift in conformal time
   background_tau_of_z(&ba,z,&tau);
 
   //pvecback must be allocated 
-  pvecback=(double *)malloc(ba.bg_size*sizeof(double));
+  pvecback = new double[ba.bg_size];
 
   //call to fill pvecback
   background_at_tau(&ba,tau,ba.long_info,ba.inter_normal, &index, pvecback);
   //background_at_tau(pba,tau,pba->long_info,pba->inter_normal,&last_index,pvecback);
   spectra_sigma(&ba,&pm,&sp,8./ba.h,z,&sigma8);
+
+  delete[] pvecback;
 
 #ifdef DBUG
   cout << "sigma_8= "<< sigma8 <<endl;
@@ -540,14 +554,15 @@ double ClassEngine::get_Dv(double z)
   background_tau_of_z(&ba,z,&tau);
 
   //pvecback must be allocated 
-  pvecback=(double *)malloc(ba.bg_size*sizeof(double));
+  pvecback = new double[ba.bg_size];
 
   //call to fill pvecback
   background_at_tau(&ba,tau,ba.long_info,ba.inter_normal, &index, pvecback);
 
-
   double H_z=pvecback[ba.index_bg_H];
   double D_ang=pvecback[ba.index_bg_ang_distance];
+  delete[] pvecback;
+
 #ifdef DBUG
   cout << "H_z= "<< H_z <<endl;
   cout << "D_ang= "<< D_ang <<endl;
@@ -571,14 +586,15 @@ double ClassEngine::get_Fz(double z)
   background_tau_of_z(&ba,z,&tau);
 
   //pvecback must be allocated 
-  pvecback=(double *)malloc(ba.bg_size*sizeof(double));
+  pvecback = new double[ba.bg_size];
 
   //call to fill pvecback
   background_at_tau(&ba,tau,ba.long_info,ba.inter_normal, &index, pvecback);
 
-
   double H_z=pvecback[ba.index_bg_H];
   double D_ang=pvecback[ba.index_bg_ang_distance];
+  delete[] pvecback;
+
 #ifdef DBUG
   cout << "H_z= "<< H_z <<endl;
   cout << "D_ang= "<< D_ang <<endl;
@@ -596,13 +612,15 @@ double ClassEngine::get_Hz(double z)
   background_tau_of_z(&ba,z,&tau);
 
   //pvecback must be allocated 
-  pvecback=(double *)malloc(ba.bg_size*sizeof(double));
+  pvecback = new double[ba.bg_size];
 
   //call to fill pvecback
   background_at_tau(&ba,tau,ba.long_info,ba.inter_normal, &index, pvecback);
 
 
   double H_z=pvecback[ba.index_bg_H];
+
+  delete[] pvecback;
 
   return(H_z);
 
