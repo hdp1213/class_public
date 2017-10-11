@@ -24,6 +24,8 @@
 #include "hyrectools.h"
 #include "hydrogen.h"
 
+#include "hyrec_class.h"
+
 
 /**************************************************************************************************
 Case-B recombination coefficient, fit of Pequignot et al 1991, in cm^3 s^{-1}
@@ -50,14 +52,10 @@ double rec_HPeebles_dxedlna(double xe, double nH, double H, double TM, double TR
 
   C = (3.*RLya + L2s1s)/(3.*RLya + L2s1s + four_betaB);
 
-  // chi_ion_H = (1.-xe)/3.; // old approximation from Chen and Kamionkowski
-  if (xe < 1.)
-    chi_ion_H = 0.369202*pow(1.-pow(xe,0.463929),1.70237); // coefficient as revised by Galli et al. 2013 (in fact it is a fit by Vivian Poulin of columns 1 and 4 in Table V of Galli et al. 2013)
-  else
-    chi_ion_H = 0.;
+  chi_ion_H = ion_channel(xe);
 
   return (-nH*xe*xe*alphaB + four_betaB*(1.-xe)*exp(-E21/TR))*C/H
-    +chi_ion_H/nH*energy_rate*(1./EI+(1.-C)/E21)/H;
+         +chi_ion_H/nH*energy_rate*(1./EI+(1.-C)/E21)/H;
 
 }
 
@@ -77,14 +75,10 @@ double rec_HRecFast_dxedlna(double xe, double nH, double H, double TM, double TR
 
   C = (3.*RLya + L2s1s)/(3.*RLya + L2s1s + four_betaB);
 
-  //chi_ion_H = (1.-xe)/3.; // old approximation from Chen and Kamionkowski
-  if (xe < 1.)
-    chi_ion_H = 0.369202*pow(1.-pow(xe,0.463929),1.70237); // coefficient as revised by Galli et al. 2013 (in fact it is a fit by Vivian Poulin of columns 1 and 4 in Table V of Galli et al. 2013)
-  else
-    chi_ion_H = 0.;
+  chi_ion_H = ion_channel(xe);
 
   return (-nH*xe*xe*alphaB + four_betaB*(1.-xe)*exp(-E21/TR))*C/H
-    +chi_ion_H/nH*energy_rate*(1./EI+(1.-C)/E21)/H;
+         +chi_ion_H/nH*energy_rate*(1./EI+(1.-C)/E21)/H;
 
 }
 
@@ -217,7 +211,7 @@ double rec_HMLA_dxedlna(double xe, double nH, double Hubble, double TM, double T
    double det, RLya;
    double x2[2];
    double x1s_db;
-   double C_2p;
+   double C2p;
    double chi_ion_H;
 
    interpolate_rates(Alpha, Beta, &R2p2s, TR, TM / TR, rate_table);
@@ -241,16 +235,12 @@ double rec_HMLA_dxedlna(double xe, double nH, double Hubble, double TM, double T
    x2[0] = (matrix[1][1] * RHS[0] - matrix[0][1] * RHS[1])/det;
    x2[1] = (matrix[0][0] * RHS[1] - matrix[1][0] * RHS[0])/det;
 
-   C_2p=(RLya+R2p2s*L2s1s/matrix[0][0])/(matrix[1][1]-R2p2s*3.*R2p2s/matrix[0][0]);
+   C2p=(RLya+R2p2s*L2s1s/matrix[0][0])/(matrix[1][1]-R2p2s*3.*R2p2s/matrix[0][0]);
 
-   //chi_ion_H = (1.-xe)/3.; // old approximation from Chen and Kamionkowski
-    if (xe < 1.)
-      chi_ion_H = 0.369202*pow(1.-pow(xe,463929),1.70237); // coefficient as revised by Galli et al. 2013 (in fact it is a fit by Vivian Poulin of columns 1 and 4 in Table V of Galli et al. 2013)
-    else
-      chi_ion_H = 0.;
+   chi_ion_H = ion_channel(xe);
 
    return  (x1s_db*(L2s1s + 3.*RLya) -x2[0]*L2s1s -x2[1]*RLya)/Hubble
-     +chi_ion_H/nH*energy_rate*(1./EI+(1.-C_2p)/E21)/Hubble;
+     +chi_ion_H/nH*energy_rate*(1./EI+(1.-C2p)/E21)/Hubble;
 
 }
 
@@ -672,7 +662,7 @@ double rec_HMLA_2photon_dxedlna(double xe, double nH, double H, double TM, doubl
 
    double RLya;
    double R2p2s;
-   double C_2p;
+   double C2p;
 
    double chi_ion_H;
 
@@ -702,20 +692,16 @@ double rec_HMLA_2photon_dxedlna(double xe, double nH, double H, double TM, doubl
    matrix[0][0] = Beta[0] + 3.*R2p2s + L2s1s;
    matrix[1][1] = Beta[1] + R2p2s + RLya;
 
-   C_2p=(RLya+R2p2s*L2s1s/matrix[0][0])/(matrix[1][1]-R2p2s*3.*R2p2s/matrix[0][0]);
+   C2p=(RLya+R2p2s*L2s1s/matrix[0][0])/(matrix[1][1]-R2p2s*3.*R2p2s/matrix[0][0]);
 
 
    /*************************************************************/
 
-   //chi_ion_H = (1.-xe)/3.; // old approximation from Chen and Kamionkowski
-   if (xe < 1.)
-     chi_ion_H = 0.369202*pow(1.-pow(xe,0.463929),1.70237); // coefficient as revised by Galli et al. 2013 (in fact it is a fit by Vivian Poulin of columns 1 and 4 in Table V of Galli et al. 2013)
-   else
-     chi_ion_H = 0.;
+   chi_ion_H = ion_channel(xe);
 
    /* Obtain xe_dot */
    xedot = -nH*xe*xe*(Alpha[0]+Alpha[1]) + xr[0]*Beta[0] + xr[1]*Beta[1]
-	+chi_ion_H/nH*energy_rate*(1./EI+(1.-C_2p)/E21);
+	         +chi_ion_H/nH*energy_rate*(1./EI+(1.-C2p)/E21);
 
 
    /* Update fminuses */

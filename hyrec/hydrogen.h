@@ -107,10 +107,10 @@ void fplus_from_fminus(double fplus[NVIRT], double fplus_Ly[], double **logfminu
 double rec_HMLA_2photon_dxedlna(double xe, double nH, double H, double TM, double TR,
                                 HRATEEFF *rate_table, TWO_PHOTON_PARAMS *twog,
                                 double zstart, double dlna, double **logfminus_hist, double *logfminus_Ly_hist[], unsigned iz, double z,
-								double energy_rate);
+                                double energy_rate);
 double xe_PostSahaH(double nH, double H, double T, HRATEEFF *rate_table, TWO_PHOTON_PARAMS *twog,
                     double zstart, double dlna, double **logfminus_hist, double *logfminus_Ly_hist[],
                     unsigned iz, double z, double *Dxe, int model, double energy_rate);
 void update_fminus_Saha(double **logfminus_hist, double *logfminus_Ly_hist[],
                         double xe, double TR, double nH, TWO_PHOTON_PARAMS *twog,
-			double zstart, double dlna, unsigned iz, double z, int func_select);
+                        double zstart, double dlna, unsigned iz, double z, int func_select);
