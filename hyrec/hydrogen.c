@@ -24,8 +24,19 @@
 #include "hyrectools.h"
 #include "hydrogen.h"
 
-#include "hyrec_class.h"
+/**************************************************************************************************
+Fraction of non-standard energy injected into ionisation channel. Used by CLASS
+***************************************************************************************************/
 
+double ion_channel(double xe) {
+  // return (1.-xe)/3.; // old approximation from Chen and Kamionkowski
+
+  // coefficient as revised by Galli et al. 2013 (in fact it is a fit by Vivian Poulin of columns 1 and 4 in Table V of Galli et al. 2013)
+  if (xe < 1.)
+    return 0.369202*pow(1. - pow(xe, 0.463929), 1.70237);
+  else
+    return 0.;
+}
 
 /**************************************************************************************************
 Case-B recombination coefficient, fit of Pequignot et al 1991, in cm^3 s^{-1}

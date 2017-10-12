@@ -30,6 +30,8 @@
 double square(double x);
 double cube(double x);
 
+double ion_channel(double xe);
+
 
 /*********** PEEBLES + POST-SAHA + RECFAST ***************/ 
 

@@ -96,3 +96,4 @@ void rec_build_history(REC_COSMOPARAMS *param, HRATEEFF *rate_table, TWO_PHOTON_
                        double *xe_output, double *Tm_output);
 
 double energy_injection_rate(REC_COSMOPARAMS *param, double z);
+double heat_channel(double xe);

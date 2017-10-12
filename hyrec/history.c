@@ -21,8 +21,6 @@
 #include "hydrogen.h"
 #include "history.h"
 
-#include "hyrec_class.h"
-
 /*************************************************************************************************
 Cosmological parameters Input/Output
 *************************************************************************************************/
@@ -456,4 +454,21 @@ double energy_injection_rate(REC_COSMOPARAMS *param, double z) {
     return 0.;
   }
 
+}
+
+/**************************************************************************************************
+Fraction of non-standard energy injected into heating channel. Used by CLASS
+***************************************************************************************************/
+
+double heat_channel(double xe) {
+  double chi_heat;
+  //return (1.+2.*xe)/3.; // old approximation from Chen and Kamionkowski
+
+  // coefficient as revised by Galli et al. 2013 (in fact it is a fit by Vivian Poulin of columns 1 and 2 in Table V of Galli et al. 2013)
+  if (xe < 1.) {
+    chi_heat = 0.996857*(1. - pow(1. - pow(xe, 0.300134), 1.51035));
+    return (chi_heat > 1.) ? 1. : chi_heat;
+  }
+  else
+    return 1.;
 }
