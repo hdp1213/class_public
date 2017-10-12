@@ -52,27 +52,27 @@ typedef struct {
    double decay; /** parameter descibing CDM decay (f/tau, see e.g. 1109.6322)*/
 
    double annihilation_variation; /** if this parameter is non-zero,
-             the function F(z)=(f <sigma*v> /
-             m_cdm)(z) will be a parabola in
-             log-log scale between zmin and
-             zmax, with a curvature given by
-             annihlation_variation (must ne
-             negative), and with a maximum in
-             zmax; it will be constant outside
-             this range */
+                                    the function F(z)=(f <sigma*v> /
+                                    m_cdm)(z) will be a parabola in
+                                    log-log scale between zmin and
+                                    zmax, with a curvature given by
+                                    annihlation_variation (must ne
+                                    negative), and with a maximum in
+                                    zmax; it will be constant outside
+                                    this range */
 
    double annihilation_z; /** if annihilation_variation is non-zero,
-           this is the value of z at which the
-           parameter annihilation is defined, i.e.
-           F(annihilation_z)=annihilation */
+                            this is the value of z at which the
+                            parameter annihilation is defined, i.e.
+                            F(annihilation_z)=annihilation */
   
    double annihilation_zmax; /** if annihilation_variation is non-zero,
-        redhsift above which annihilation rate
-        is maximal */
+                               redhsift above which annihilation rate
+                               is maximal */
 
    double annihilation_zmin; /** if annihilation_variation is non-zero,
-        redhsift below which annihilation rate
-        is constant */
+                               redhsift below which annihilation rate
+                               is constant */
 
    double annihilation_f_halo; /* takes the contribution of DM annihilation in halos into account*/
    double annihilation_z_halo; /*characteristic redshift for DM annihilation in halos*/
