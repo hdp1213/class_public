@@ -1767,6 +1767,8 @@ int thermodynamics_pbh_effective_energy_injection(
              error_message,
              error_message);
 
+  // printf("%15.13le\t%15.13le\t%15.13le\t%15.13le\t%15.13le\n", z, energy_rate, hion_eff, excite_eff, heat_eff);
+
   *energy_rate_hion = hion_eff * energy_rate;
   *energy_rate_excite = excite_eff * energy_rate;
   *energy_rate_heat = heat_eff * energy_rate;
@@ -3944,7 +3946,7 @@ int thermodynamics_derivs_with_recfast(
     pbh_heat_rate = 0.;
   }
   //*
-  else if ((1.+z) < 6.) {
+  else if ((1.+z) < 0.) {
     // TODO(harry): implement smoothing function to prevent sudden cutoff of injection rates at 1+z < 6
     pbh_hion_rate = 0.;
     pbh_excite_rate = 0.;
