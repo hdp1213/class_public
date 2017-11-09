@@ -1,76 +1,102 @@
-/*************************************************************************************************/
-/*                 HYREC: Hydrogen and Helium Recombination Code                                 */
-/*         Written by Yacine Ali-Haimoud and Chris Hirata (Caltech)                              */
-/*                                                                                               */
-/*         hyrec.c: main module                                                                  */
-/*                                                                                               */
-/*         Version: November 2011                                                                 */
-/*         Revision history:                                                                     */
-/*            - written November 2010                                                            */
-/*            - January 2011: changed various switches (notably for post-Saha expansions)        */
-/*                             so that they remain valid for arbitrary cosmologies               */
-/*            - November 2011: extended integration down to z = 0 with Peeble's model for z < 20   */
-/*                             changed dTm/dlna so it can be used at all times                     */
-/*************************************************************************************************/ 
- 
+/*************************************************************************/
+/*                    HYREC MAIN FUNCTION                                */
+/*************************************************************************/
 #include <stdlib.h>
 #include <stdio.h>
-#include <math.h>
-#include <time.h>
+#include "include/hyrec.h"
 
-#include "hyrec.h"
 
 int main(void) {
-
-   REC_COSMOPARAMS param;
-   HRATEEFF rate_table;
-   TWO_PHOTON_PARAMS twog_params;
-   double *xe_output, *Tm_output;
-   long iz;
-
-   double dz = -1;
-   unsigned nz = 8001;
-   double z, xe, Tm;
-
-      
-    /* Build effective rate table */
-   rate_table.logTR_tab = create_1D_array(NTR);
-   rate_table.TM_TR_tab = create_1D_array(NTM);
-   rate_table.logAlpha_tab[0] = create_2D_array(NTM, NTR);
-   rate_table.logAlpha_tab[1] = create_2D_array(NTM, NTR);
-   rate_table.logR2p2s_tab = create_1D_array(NTR);
-   read_rates(&rate_table);
+  HYREC_DATA rec_data, rec_data0, rec_data1, rec_data2, rec_data3;
+  double zmax = 8000.;
+  double zmin = 0.;
   
-   /* Read two-photon rate tables */
-   read_twog_params(&twog_params);
+  hyrec_allocate(&rec_data, zmax, zmin);
+  // hyrec_allocate(&rec_data0, zmax, zmin);
+  // hyrec_allocate(&rec_data1, zmax, zmin);
+  // hyrec_allocate(&rec_data2, zmax, zmin);
+  // hyrec_allocate(&rec_data3, zmax, zmin);
 
 
-   /* Get cosmological parameters */
-   rec_get_cosmoparam(stdin, stderr, &param);
+  const double pann_SI_to_cgs = 1.7826673e-21;
+  rec_data.cosmo->inj_params->on_the_spot = 1;
 
-   /* Compute the recombination history */
-   xe_output = (double*)malloc((size_t)(param.nz*sizeof(double)));
-   Tm_output = (double*)malloc((size_t)(param.nz*sizeof(double)));
+
+  double h       = 0.6725;
+  double T0      = 2.7255;
+  double Omega_b = 0.022252/h/h;
+  double Omega_m = 0.14276/h/h;
+  double Omega_k = 0.;
+  double YHe     = 0.246667;
+  double Nnueff  = 3.046;
+
+  double alphaR     = 1.;
+  double meR        = 1.;
+  double pann       = 1.e-5*pann_SI_to_cgs;
+  double pann_halo  = 0.;
+  double ann_z      = 0.;
+  double ann_zmax   = 0.;
+  double ann_zmin   = 0.;
+  double ann_var    = 0.;
+  double ann_z_halo = 0.;
+  double Mpbh       = 0.;
+  double fpbh       = 0.;
+
+
+  hyrec_compute(&rec_data, FULL,
+		h, T0, Omega_b, Omega_m, Omega_k, YHe, Nnueff,
+		  alphaR, meR, pann, pann_halo, ann_z, ann_zmax,
+		  ann_zmin, ann_var, ann_z_halo, Mpbh, fpbh);
+
+#ifdef PBH_DEBUG
+  hyrec_free(&rec_data);
+  return 0;
+#endif
+
+  /*
+  hyrec_compute(&rec_data0, FULL,
+		h, T0, Omega_b, Omega_m, Omega_k, YHe, Nnueff,
+		alphaR, meR, pann, pann_halo, ann_z, ann_zmax,
+		ann_zmin, ann_var, ann_z_halo, 1, 1.);
+
+  hyrec_compute(&rec_data1, FULL,
+		h, T0, Omega_b, Omega_m, Omega_k, YHe, Nnueff,
+		alphaR, meR, pann, pann_halo, ann_z, ann_zmax,
+		ann_zmin, ann_var, ann_z_halo, 10., 1.);
+
+  hyrec_compute(&rec_data2, FULL,
+		h, T0, Omega_b, Omega_m, Omega_k, YHe, Nnueff,
+		alphaR, meR, pann, pann_halo, ann_z, ann_zmax,
+		ann_zmin, ann_var, ann_z_halo, 100., 1.);
+
+  hyrec_compute(&rec_data3, FULL,
+		h, T0, Omega_b, Omega_m, Omega_k, YHe, Nnueff,
+		alphaR, meR, pann, pann_halo, ann_z, ann_zmax,
+		ann_zmin, ann_var, ann_z_halo, 1000., 1.);
+  */
+
+  /* "FULL" refers to the default, most accurate recombination model
+      Other options are (not to use for any precision cosmology):
+      EMLA2p2s: effective 4-level atom accounting exactly for a virtually infinite tower of excited states,
+                but with a simple analytic treatment of radiative transfer
+      RECFAST: Peebles' effective 3-level atom model with a fudge factor of 1.14
+      PEEBLES: Peebles' effective 3-level atom model */
   
-   rec_build_history(&param, &rate_table, &twog_params, xe_output, Tm_output);
+  double z = zmax;
 
-   /* Interpolate at the desired output redshifts */
-   for(iz=0; iz<nz; iz++) {
-       z = param.zstart + dz * iz;    /* print output every dz */
-       xe = rec_interp1d(-log(1.+param.zstart), param.dlna, xe_output, param.nz, -log(1.+z));
-       Tm = rec_interp1d(-log(1.+param.zstart), param.dlna, Tm_output, param.nz, -log(1.+z));
-       printf("%7.2lf %15.13lf %15.13lf\n", z, xe, Tm/param.T0/(1.+z));
-   }
+  while (z > zmin){
+    // printf("%f %1.10E %1.10E %1.10E %1.10E %1.10E\n", z, hyrec_xe(z, &rec_data), hyrec_xe(z, &rec_data0),
+	   // hyrec_xe(z, &rec_data1), hyrec_xe(z, &rec_data2), hyrec_xe(z, &rec_data3));
+    printf("%7.2lf %17.15lf %15.13lf %15.13lf\n", z, hyrec_xe(z, &rec_data), hyrec_Tm(z, &rec_data), rec_data.cosmo->T0*(1.+z));
+    z -= 1.;
+  }
    
- 
-    /* Cleanup */
-    free((char*)xe_output);
-    free((char*)Tm_output);
-    free(rate_table.logTR_tab);
-    free(rate_table.TM_TR_tab);
-    free_2D_array(rate_table.logAlpha_tab[0], NTM);
-    free_2D_array(rate_table.logAlpha_tab[1], NTM);
-    free(rate_table.logR2p2s_tab);
+  hyrec_free(&rec_data);
+  // hyrec_free(&rec_data0);
+  // hyrec_free(&rec_data1);
+  // hyrec_free(&rec_data2);
+  // hyrec_free(&rec_data3);
 
-  return(0);
+  return 0;
+
 }

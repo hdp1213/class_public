@@ -6,6 +6,7 @@
 #define __ARRAYS__
 
 #include "common.h"
+#include "common_pbh.h"
 
 #define _SPLINE_NATURAL_ 0 /**< natural spline: ddy0=ddyn=0 */
 #define _SPLINE_EST_DERIV_ 1 /**< spline with estimation of first derivative on both edges */
@@ -435,7 +436,7 @@ int array_integrate_all_trapzd_or_spline(
                                     ErrorMsg errmsg);
 
   // Prototype for fortran function
-  void bispev_(double*, int*, double*, int*, double*, int*, int*, double*, int*, double*, int*, double*, double*, int*, int*, int*, int*);
+  extern void bispev_(double*, int*, double*, int*, double*, int*, int*, double*, int*, double*, int*, double*, double*, int*, int*, int*, int*);
 
   int array_eval_bicubic_bspline(struct bspline_2d * pbsp,
                                  double * __restrict__ x,
