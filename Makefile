@@ -83,7 +83,7 @@ vpath %.c $(HYREC)
 CCFLAG += -DHYREC
 #LDFLAGS += -DHYREC
 INCLUDES += -I../$(HYREC)/include 
-EXTERNAL += hyrectools.o helium.o hydrogen.o history.o energy_injection.o hyrec_21cm.o pbh.o
+EXTERNAL += hyrectools.o helium.o hydrogen.o history.o energy_injection.o hyrec_21cm.o
 endif
 
 vpath %.f dierckx

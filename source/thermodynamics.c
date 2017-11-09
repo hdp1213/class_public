@@ -73,6 +73,7 @@
  */
 
 #include "thermodynamics.h"
+#include "common_pbh.h"
 
 #ifdef HYREC
 #include "hyrec.h"
@@ -3160,6 +3161,21 @@ int thermodynamics_recombination_with_hyrec(
 
   HYREC_DATA hyrec_data;
   hyrec_allocate(&hyrec_data, ppr->recfast_z_initial, 0.);
+
+  /* Although memory has been allocated to the hyrec_data.pbh pointer, the actual fields still
+     need to be initialised! */
+  hyrec_data.pbh->hion = preco->pbsp_pbh_hion;
+  hyrec_data.pbh->excite = preco->pbsp_pbh_excite;
+  hyrec_data.pbh->heat = preco->pbsp_pbh_heat;
+
+  hyrec_data.pbh->masses = preco->pbh_masses;
+  hyrec_data.pbh->masses_size = preco->pm_size;
+
+  hyrec_data.pbh->z_deps = preco->pbh_z_deps;
+  hyrec_data.pbh->z_deps_size = preco->pz_size;
+
+  /* As we already have allocated memory to the axes and b-splines, only need to deallocate
+     memory give to hyrec_data.pbh in hyrec_allocate(). This is done in hyrec_free(). */
 
   double Omega_m = pba->Omega0_b + pba->Omega0_cdm + pba->Omega0_ncdm_tot;
   

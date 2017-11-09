@@ -12,7 +12,7 @@
 #include "hydrogen.h"
 #include "helium.h"
 #include "energy_injection.h"
-#include "pbh.h"
+#include "common_pbh.h"
 
 /* Structure for HyRec internal parameters */ 
 

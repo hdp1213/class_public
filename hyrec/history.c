@@ -623,11 +623,9 @@ void hyrec_allocate(HYREC_DATA *data, double zmax, double zmin) {
 
   // PBH memory allocation
   data->pbh = (PBH *) malloc(sizeof(PBH));
-
-  // And value allocation
-  allocate_and_read_pbh(data->pbh);
 }
 
+/* All PBH b-splines, etc get freed by CLASS, so don't do it here! */
 void hyrec_free(HYREC_DATA *data) {
   free_atomic(data->atomic);
   free(data->cosmo->inj_params);
@@ -636,7 +634,6 @@ void hyrec_free(HYREC_DATA *data) {
   free(data->Tm_output);
   free_radiation(data->rad);
   free(data->rad);
-  free_pbh(data->pbh);
   free(data->pbh);
 }
 

@@ -26,6 +26,34 @@ struct bspline_2d {
 typedef struct bspline_2d BSPLINE;
 
 /**
+ * Structure containing externally-read b-splines and axes needed for PBH energy injection computation
+ *
+ * Should only be used by an external CLASS engine
+ */
+
+struct pbh_external {
+
+  /** @name - parameters to initialise PBH externally */
+
+  //@{
+
+  /* structures containing b-spline information */
+  struct bspline_2d * hion; /**< hydrogen ionisation 2d b-spline */
+  struct bspline_2d * excite; /**< hydrogen excitation 2d b-spline */
+  struct bspline_2d * heat; /**< plasma heating 2d b-spline */
+
+  /* axes arrays and their sizes */
+  double * masses; /**< pbh masses given in units of \f$ 10^{10} \f$ g in log10 space. must be monotonically decreasing */
+  double * z_deps; /**< deposition redshifts for pbh energy injections */
+  int masses_size; /**< size of masses array */
+  int z_deps_size; /**< size of z_deps array */
+
+  //@}
+};
+
+typedef struct pbh_external PBH;
+
+/**
  * Boilerplate for C++
  */
 #ifdef __cplusplus
