@@ -113,15 +113,31 @@ double rec_TLA_dxHIIdlna(double xe, double xHII, double nH, double H, double TM,
 }
 
 /**********************************************************************************************
-Allocates memory for the structure HYREC_ATOMIC, and reads and stores
-effective-few-level rates and two-photon rates.
+Allocates memory for the structure HYREC_ATOMIC
 This function is a merger of two previous functions for effective rates and two-photon rates.
 **********************************************************************************************/
 
-void allocate_and_read_atomic(HYREC_ATOMIC *atomic){
+void allocate_atomic(HYREC_ATOMIC *atomic){
 
   /*********** Effective rates *************/
+  unsigned i, j, l;
 
+  /* Allocate memory */
+  atomic->logAlpha_tab[0] = create_2D_array(NTM, NTR);
+  atomic->logAlpha_tab[1] = create_2D_array(NTM, NTR);
+
+  maketab(log(TR_MIN), log(TR_MAX), NTR, atomic->logTR_tab);
+  maketab(TM_TR_MIN, TM_TR_MAX, NTM, atomic->TM_TR_tab);
+  atomic->DlogTR = atomic->logTR_tab[1] - atomic->logTR_tab[0];
+  atomic->DTM_TR = atomic->TM_TR_tab[1] - atomic->TM_TR_tab[0];
+}
+
+/**********************************************************************************************
+Reads and stores effective-few-level rates and two-photon rates.
+This function is a merger of two previous functions for effective rates and two-photon rates.
+**********************************************************************************************/
+
+void read_atomic(HYREC_ATOMIC *atomic) {
   FILE *fA = fopen(ALPHA_FILE, "r");
   if (fA == NULL) {
     fprintf(stderr, "\033[1m\033[31m error\033[22;30m in allocate_and_read_atomic: could not open file ");
@@ -136,22 +152,12 @@ void allocate_and_read_atomic(HYREC_ATOMIC *atomic){
     fprintf(stderr, "\n");
     exit(1);
   }
-  unsigned i, j, l;
-
-  /* Allocate memory */
-  atomic->logAlpha_tab[0] = create_2D_array(NTM, NTR);
-  atomic->logAlpha_tab[1] = create_2D_array(NTM, NTR);
-
-  maketab(log(TR_MIN), log(TR_MAX), NTR, atomic->logTR_tab);
-  maketab(TM_TR_MIN, TM_TR_MAX, NTM, atomic->TM_TR_tab);
-  atomic->DlogTR = atomic->logTR_tab[1] - atomic->logTR_tab[0];
-  atomic->DTM_TR = atomic->TM_TR_tab[1] - atomic->TM_TR_tab[0];
 
   for (i = 0; i < NTR; i++) {
     for (j = 0; j < NTM; j++) for (l = 0; l <= 1; l++) {
-	fscanf(fA, "%le", &(atomic->logAlpha_tab[l][j][i]));
-	atomic->logAlpha_tab[l][j][i] = log(atomic->logAlpha_tab[l][j][i]);
-      }
+      fscanf(fA, "%le", &(atomic->logAlpha_tab[l][j][i]));
+      atomic->logAlpha_tab[l][j][i] = log(atomic->logAlpha_tab[l][j][i]);
+    }
     fscanf(fR, "%le", &(atomic->logR2p2s_tab[i]));
     atomic->logR2p2s_tab[i] = log(atomic->logR2p2s_tab[i]);
   }
@@ -160,10 +166,10 @@ void allocate_and_read_atomic(HYREC_ATOMIC *atomic){
 
   /************ Two-photon rates ************/
 
-  FILE *f2g;
   unsigned b;
   double L2s1s_current, max_DLNA, DlnE;
 
+  FILE *f2g;
   f2g = fopen(TWOG_FILE, "r");
   if (f2g == NULL) {
     fprintf(stderr, "\033[1m\033[31m error\033[22;30m in allocate_and_read_atomic: could not open file ");
@@ -180,8 +186,10 @@ void allocate_and_read_atomic(HYREC_ATOMIC *atomic){
     fscanf(f2g, "%le", &(atomic->A4s4d_tab[b]));
   }
   fclose(f2g);
+}
 
-  /* Normalize 2s--1s differential decay rate to L2s1s (can be set by user in hydrogen.h) */
+void normalise_atomic(HYREC_ATOMIC *atomic) {
+    /* Normalize 2s--1s differential decay rate to L2s1s (can be set by user in hydrogen.h) */
   L2s1s_current = 0.;
   for (b = 0; b < NSUBLYA; b++) L2s1s_current += atomic->A2s_tab[b];
   for (b = 0; b < NSUBLYA; b++) atomic->A2s_tab[b] *= L2s1s/L2s1s_current;
@@ -212,6 +220,11 @@ void allocate_and_read_atomic(HYREC_ATOMIC *atomic){
 
 }
 
+void allocate_and_read_atomic(HYREC_ATOMIC *atomic) {
+  allocate_atomic(atomic);
+  read_atomic(atomic);
+  normalise_atomic(atomic);
+}
 
 /***********************************************************************************************
 Free the memory for rate tables.

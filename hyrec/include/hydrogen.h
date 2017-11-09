@@ -127,7 +127,10 @@ void allocate_radiation(RADIATION *rad, long int Nz);
 void free_radiation(RADIATION *rad);
 
 
+void allocate_atomic(HYREC_ATOMIC *atomic);
+void normalise_atomic(HYREC_ATOMIC *atomic);
 void allocate_and_read_atomic(HYREC_ATOMIC *atomic);
+
 void free_atomic(HYREC_ATOMIC *atomic);
 void interpolate_rates(double Alpha[2], double DAlpha[2], double Beta[2], double *R2p2s, double TR, double TM_TR,
                        HYREC_ATOMIC *atomic, double fsR, double meR, int *error);
