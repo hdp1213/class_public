@@ -307,6 +307,10 @@ int thermodynamics_init(
     preco->pbsp_pbh_heat = &bsp_pbh_heat;
   }
   else {
+    class_test(ext_objs == NULL,
+               pth->error_message,
+               "'read pbh splines' set to false, yet no external object was passed to thermodynamics_init()");
+
     pbh_info = (struct pbh_external*) ext_objs;
 
     preco->pbh_z_deps = pbh_info->z_deps;

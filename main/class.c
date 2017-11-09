@@ -18,7 +18,7 @@ int main(int argc, char **argv) {
   struct output op;           /* for output files */
   ErrorMsg errmsg;            /* for error messages */
 
-  void *context = 0;          /* for thermodynamics_init */
+  void *context = NULL;          /* for thermodynamics_init */
 
   // the call to input_init_from_arguments implicitly requires PBH splines to be read from file during program execution
   if (input_init_from_arguments(argc, argv,&pr,&ba,&th,&pt,&tr,&pm,&sp,&nl,&le,&op,errmsg) == _FAILURE_) {
