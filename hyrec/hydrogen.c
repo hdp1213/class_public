@@ -120,7 +120,6 @@ This function is a merger of two previous functions for effective rates and two-
 void allocate_atomic(HYREC_ATOMIC *atomic){
 
   /*********** Effective rates *************/
-  unsigned i, j, l;
 
   /* Allocate memory */
   atomic->logAlpha_tab[0] = create_2D_array(NTM, NTR);
@@ -138,6 +137,8 @@ This function is a merger of two previous functions for effective rates and two-
 **********************************************************************************************/
 
 void read_atomic(HYREC_ATOMIC *atomic) {
+  unsigned i, j, l;
+
   FILE *fA = fopen(ALPHA_FILE, "r");
   if (fA == NULL) {
     fprintf(stderr, "\033[1m\033[31m error\033[22;30m in allocate_and_read_atomic: could not open file ");
@@ -167,7 +168,6 @@ void read_atomic(HYREC_ATOMIC *atomic) {
   /************ Two-photon rates ************/
 
   unsigned b;
-  double L2s1s_current, max_DLNA, DlnE;
 
   FILE *f2g;
   f2g = fopen(TWOG_FILE, "r");
@@ -189,7 +189,10 @@ void read_atomic(HYREC_ATOMIC *atomic) {
 }
 
 void normalise_atomic(HYREC_ATOMIC *atomic) {
-    /* Normalize 2s--1s differential decay rate to L2s1s (can be set by user in hydrogen.h) */
+  unsigned b;
+  double L2s1s_current;
+
+  /* Normalize 2s--1s differential decay rate to L2s1s (can be set by user in hydrogen.h) */
   L2s1s_current = 0.;
   for (b = 0; b < NSUBLYA; b++) L2s1s_current += atomic->A2s_tab[b];
   for (b = 0; b < NSUBLYA; b++) atomic->A2s_tab[b] *= L2s1s/L2s1s_current;
@@ -217,7 +220,6 @@ void normalise_atomic(HYREC_ATOMIC *atomic) {
    #if (DIFFUSION == 0)
       for (b = 0; b < NVIRT; b++) atomic->A1s_tab[b] = 0;
    #endif
-
 }
 
 void allocate_and_read_atomic(HYREC_ATOMIC *atomic) {
