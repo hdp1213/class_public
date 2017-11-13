@@ -170,7 +170,7 @@ struct thermo
 
   double pbh_mass_width; /**< PBH mass dispersion/width in \f$ 10^{10} \f$ g */
 
-  short read_pbh_splines; /**< flag for reading in external PBH energy deposition splines */
+  short read_external_files; /**< flag for reading in external files */
 
   char * pbh_spline_files_root; /**< root filename for PBH energy deposition splines */
 
@@ -399,6 +399,12 @@ struct recombination {
 
   struct bspline_2d * pbsp_pbh_heat; /**< PBH energy deposition efficiencies for plasma heating */
 
+  /* External HyRec bit */
+
+#ifdef HYREC
+  struct hyrec * external_hyrec;
+#endif
+
   //@}
 
 };
@@ -503,6 +509,23 @@ struct thermodynamics_parameters_and_workspace {
   /* workspace */
   double * pvecback;
 
+};
+
+/**
+ * Struct used to comtain pointers to HyRec tables that have already been read externally
+ */
+
+struct hyrec {
+  /* Tables of effective rates */
+  double ***logAlpha_tab;
+  double *logR2p2s_tab;
+
+  /* Tables of 2-photon rates */
+  double *Eb_tab;       /* Energies of the virtual levels in eV */
+  double *A1s_tab;      /* 3*A2p1s*phi(E)*DE */ 
+  double *A2s_tab;      /* dLambda_2s/dE * DeltaE if E < Elya dK2s/dE * Delta E if E > Elya */
+  double *A3s3d_tab;    /* (dLambda_3s/dE + 5*dLambda_3d/dE) * Delta E for E < ELyb, Raman scattering rate for E > ELyb */
+  double *A4s4d_tab;    /* (dLambda_4s/dE + 5*dLambda_4d/dE) * Delta E */
 };
 
 /**************************************************************/

@@ -113,6 +113,15 @@ int main(int argc, char **argv) {
     return _FAILURE_;
   }
 
+  lensing_free(&le);
+  spectra_free(&sp);
+  transfer_free(&tr);
+  nonlinear_free(&nl);
+  primordial_free(&pm);
+  perturb_free(&pt);
+  thermodynamics_free(&th);
+  background_free(&ba);
+
   return _SUCCESS_;
 
 }

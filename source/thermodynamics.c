@@ -289,7 +289,7 @@ int thermodynamics_init(
   double g_max;
   int index_tau_max;
 
-  struct pbh_external * pbh_info;
+  struct external_info * info;
 
   struct bspline_2d bsp_pbh_hion;
   struct bspline_2d bsp_pbh_excite;
@@ -302,29 +302,48 @@ int thermodynamics_init(
 
   /** - initialise b-spline pointers either from file or externally */
 
-  if (pth->read_pbh_splines == _TRUE_) {
+  if (pth->read_external_files == _TRUE_) {
     preco->pbsp_pbh_hion = &bsp_pbh_hion;
     preco->pbsp_pbh_excite = &bsp_pbh_excite;
     preco->pbsp_pbh_heat = &bsp_pbh_heat;
+
+#ifdef HYREC
+    preco->external_hyrec = NULL;
+#endif
   }
   else {
     class_test(ext_objs == NULL,
                pth->error_message,
-               "'read pbh splines' set to false, yet no external object was passed to thermodynamics_init()");
+               "'read external files' set to false, yet no external object was passed to thermodynamics_init()");
 
-    pbh_info = (struct pbh_external*) ext_objs;
+    info = (struct external_info*) ext_objs;
 
-    preco->pbh_z_deps = pbh_info->z_deps;
-    preco->pz_size = pbh_info->z_deps_size;
-    preco->pbh_masses = pbh_info->masses;
-    preco->pm_size = pbh_info->masses_size;
+    preco->pbh_z_deps = info->z_deps;
+    preco->pz_size = info->z_deps_size;
+    preco->pbh_masses = info->masses;
+    preco->pm_size = info->masses_size;
 
     preco->pbh_z_min = preco->pbh_z_deps[preco->pz_size-1];
     preco->pbh_z_max = preco->pbh_z_deps[0];
 
-    preco->pbsp_pbh_hion = pbh_info->hion;
-    preco->pbsp_pbh_excite = pbh_info->excite;
-    preco->pbsp_pbh_heat = pbh_info->heat;
+    preco->pbsp_pbh_hion = info->hion;
+    preco->pbsp_pbh_excite = info->excite;
+    preco->pbsp_pbh_heat = info->heat;
+
+    /* HyRec setting */
+#ifdef HYREC
+    /* Make sure both tables match up to correct memory entries */
+    preco->external_hyrec->logAlpha_tab[0] = info->logAlpha_tab[0];
+    preco->external_hyrec->logAlpha_tab[1] = info->logAlpha_tab[1];
+
+    preco->external_hyrec->logR2p2s_tab = info->logR2p2s_tab;
+
+    preco->external_hyrec->Eb_tab = info->Eb_tab;
+    preco->external_hyrec->A1s_tab = info->A1s_tab;
+    preco->external_hyrec->A2s_tab = info->A2s_tab;
+    preco->external_hyrec->A3s3d_tab = info->A3s3d_tab;
+    preco->external_hyrec->A4s4d_tab = info->A4s4d_tab;
+#endif
   }
 
   if (pth->thermodynamics_verbose > 0)
@@ -442,7 +461,7 @@ int thermodynamics_init(
 
   /** - initialise PBH quantities in recombination structure */
 
-  if (pth->read_pbh_splines == _TRUE_) {
+  if (pth->read_external_files == _TRUE_) {
     class_call(thermodynamics_pbh_init(ppr,pba,pth,preco),
                pth->error_message,
                pth->error_message);
@@ -461,7 +480,7 @@ int thermodynamics_init(
 
   /** - free PBH quantities from recombination structure */
 
-  if (pth->read_pbh_splines == _TRUE_) {
+  if (pth->read_external_files == _TRUE_) {
     class_call(thermodynamics_pbh_free(preco),
                pth->error_message,
                pth->error_message);
@@ -1164,7 +1183,7 @@ int thermodynamics_indices(
 /**
  * Initialize PBH quantities in the recombination structure, and in
  * particular the precomputed energy depositions. Only called if
- * read_pbh_splines is set to _TRUE_.
+ * read_external_files is set to _TRUE_.
  *
  * Must set: preco->pbh_z_deps and preco->pz_size,
  *           preco->pbh_masses and preco->pm_size,
@@ -1263,7 +1282,7 @@ int thermodynamics_pbh_init(
 
 /**
  * Free all memory space allocated by thermodynamics_pbh_init().  Only
- * called if read_pbh_splines is set to _TRUE_.
+ * called if read_external_files is set to _TRUE_.
  *
  *
  * @param preco Input/Output: pointer to recombination structure (to be freed)
@@ -3160,7 +3179,25 @@ int thermodynamics_recombination_with_hyrec(
 #ifdef HYREC
 
   HYREC_DATA hyrec_data;
-  hyrec_allocate(&hyrec_data, ppr->recfast_z_initial, 0.);
+  hyrec_allocate(&hyrec_data, ppr->recfast_z_initial, 0., pth->read_external_files);
+
+  if (pth->read_external_files == _FALSE_) {
+    class_test(preco->external_hyrec == NULL,
+               pth->error_message,
+               "preco->external_hyrec has not been set");
+
+    /* Although memory has been allocated to the hyrec_data.atomic pointer, still need to populate
+       fields! */
+    hyrec_data.atomic->logAlpha_tab[0] = preco->external_hyrec->logAlpha_tab[0];
+    hyrec_data.atomic->logAlpha_tab[1] = preco->external_hyrec->logAlpha_tab[1];
+    hyrec_data.atomic->logR2p2s_tab = preco->external_hyrec->logR2p2s_tab;
+
+    hyrec_data.atomic->Eb_tab = preco->external_hyrec->Eb_tab;
+    hyrec_data.atomic->A1s_tab = preco->external_hyrec->A1s_tab;
+    hyrec_data.atomic->A2s_tab = preco->external_hyrec->A2s_tab;
+    hyrec_data.atomic->A3s3d_tab = preco->external_hyrec->A3s3d_tab;
+    hyrec_data.atomic->A4s4d_tab = preco->external_hyrec->A4s4d_tab;
+  }
 
   /* Although memory has been allocated to the hyrec_data.pbh pointer, the actual fields still
      need to be initialised! */
@@ -3173,6 +3210,9 @@ int thermodynamics_recombination_with_hyrec(
 
   hyrec_data.pbh->z_deps = preco->pbh_z_deps;
   hyrec_data.pbh->z_deps_size = preco->pz_size;
+
+  /* Also need to set this field which wasn't already set for some reason */
+  hyrec_data.cosmo->inj_params->on_the_spot = (int) pth->has_on_the_spot;
 
   /* As we already have allocated memory to the axes and b-splines, only need to deallocate
      memory give to hyrec_data.pbh in hyrec_allocate(). This is done in hyrec_free(). */
@@ -3288,7 +3328,7 @@ int thermodynamics_recombination_with_hyrec(
 
   /* Cleanup */
 
-  hyrec_free(&hyrec_data);
+  hyrec_free(&hyrec_data, pth->read_external_files);
 
 #else
 

@@ -3,7 +3,13 @@
 #ifndef __PBH__
 #define __PBH__
 
+/* Needed for ErrorMsg definition */
 #include "common.h"
+
+/* Include macros for array sizes needed for external HyRec functionality */
+#ifdef HYREC
+#include "io_params.h"
+#endif
 
 /**
  * structure containing knot points and coefficients for a 2d b-spline
@@ -23,6 +29,7 @@ struct bspline_2d {
 
 };
 
+/* Maintain cross-compatibility with HyRec */
 typedef struct bspline_2d BSPLINE;
 
 /**
@@ -31,11 +38,13 @@ typedef struct bspline_2d BSPLINE;
  * Should only be used by an external CLASS engine
  */
 
-struct pbh_external {
+struct external_info {
 
-  /** @name - parameters to initialise PBH externally */
+  /** @name - parameters to initialise PBH and HyRec externally */
 
   //@{
+
+  /**** PBH physics ****/
 
   /* structures containing b-spline information */
   struct bspline_2d * hion; /**< hydrogen ionisation 2d b-spline */
@@ -48,10 +57,23 @@ struct pbh_external {
   int masses_size; /**< size of masses array */
   int z_deps_size; /**< size of z_deps array */
 
+  /**** HyRec arrays ****/
+
+#ifdef HYREC
+  /* Tables of effective rates */
+  double **logAlpha_tab[2];
+  double logR2p2s_tab[NTR];
+
+  /* Tables of 2-photon rates */
+  double Eb_tab[NVIRT];       /* Energies of the virtual levels in eV */
+  double A1s_tab[NVIRT];      /* 3*A2p1s*phi(E)*DE */ 
+  double A2s_tab[NVIRT];      /* dLambda_2s/dE * DeltaE if E < Elya dK2s/dE * Delta E if E > Elya */
+  double A3s3d_tab[NVIRT];    /* (dLambda_3s/dE + 5*dLambda_3d/dE) * Delta E for E < ELyb, Raman scattering rate for E > ELyb */
+  double A4s4d_tab[NVIRT];    /* (dLambda_4s/dE + 5*dLambda_4d/dE) * Delta E */
+#endif
+
   //@}
 };
-
-typedef struct pbh_external PBH;
 
 /**
  * Boilerplate for C++

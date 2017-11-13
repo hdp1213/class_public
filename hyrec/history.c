@@ -601,13 +601,15 @@ void rec_build_history(int model, double zstart, double zend,
 Function to allocate and initialize HyRec internal tables
 ***********************************************************/
 
-void hyrec_allocate(HYREC_DATA *data, double zmax, double zmin) {
+void hyrec_allocate(HYREC_DATA *data, double zmax, double zmin, short read_atomic_files) {
 
   data->zmax = (zmax > 3000.? zmax : 3000.);
   data->zmin = zmin;
 
   data->atomic = (HYREC_ATOMIC *) malloc(sizeof(HYREC_ATOMIC));
-  allocate_and_read_atomic(data->atomic);
+  if (read_atomic_files == _TRUE_) {
+    allocate_and_read_atomic(data->atomic);
+  }
   data->cosmo  = (REC_COSMOPARAMS *) malloc(sizeof(REC_COSMOPARAMS));
   data->cosmo->inj_params = (INJ_PARAMS *)  malloc(sizeof(INJ_PARAMS));
 
@@ -626,8 +628,11 @@ void hyrec_allocate(HYREC_DATA *data, double zmax, double zmin) {
 }
 
 /* All PBH b-splines, etc get freed by CLASS, so don't do it here! */
-void hyrec_free(HYREC_DATA *data) {
-  free_atomic(data->atomic);
+void hyrec_free(HYREC_DATA *data, short read_atomic_files) {
+  if (read_atomic_files == _TRUE_) {
+    free_atomic(data->atomic);
+  }
+  free(data->atomic);
   free(data->cosmo->inj_params);
   free(data->cosmo);
   free(data->xe_output);

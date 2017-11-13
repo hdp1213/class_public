@@ -2,6 +2,7 @@
 #define ENERGY_INJECTION_H
 
 #include "hyrectools.h"
+/* CLASS common_pbh.h for BSPLINE definition */
 #include "common_pbh.h"
 
 /* Structure with all energy injection parameters */

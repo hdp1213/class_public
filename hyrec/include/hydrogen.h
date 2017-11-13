@@ -20,6 +20,8 @@
 /*            - December 2014: - Accounts for additional energy injection                               */                 
 /********************************************************************************************************/ 
 
+#include "io_params.h"
+
 /* Definition of different recombination models  */
 
 #define PEEBLES   0    /* Peebles's effective three-level atom */
@@ -63,34 +65,7 @@ double rec_TLA_dxHIIdlna(double xe, double xHII, double nH, double H, double TM,
 
 /************* EFFECTIVE MULTI LEVEL ATOM *******************/
 
-/*** Effective rate tables and associated parameters ***/
-
-#define ALPHA_FILE  "hyrec/data/Alpha_inf.dat"     /* Effective recombination coefficients to 2s and 2p */
-#define RR_FILE     "hyrec/data/R_inf.dat"         /* Effective transfer rate R_{2p,2s} */
-#define TR_MIN 0.004                         /* Minimum Tr in eV */
-#define TR_MAX 0.4                           /* Maximum Tr in eV */
-#define NTR    100                           /* Number of Tr values */
-#define TM_TR_MIN 0.1                        /* Same thing for ratio Tm/Tr*/
-#define TM_TR_MAX 1.0
-#define NTM 40             
-
-/*** Tables and parameters for radiative transfer calculation ***/
-
-#define TWOG_FILE "hyrec/data/two_photon_tables.dat" 
-#define NSUBLYA  140
-#define NSUBLYB  271
-#define NVIRT    311
-#define NDIFF    80
-
 #define DLNA     8.49e-5    /* Timestep. Maximum compatible with these tables is 8.49e-5 */
-
-/* Higher-resolution tables  */
-/* #define TWOG_FILE "data/two_photon_tables_hires.dat" 
-/* #define NSUBLYA  408 */
-/* #define NSUBLYB  1323 */
-/* #define NVIRT    1493 */
-/* #define NDIFF    300 */
-/* #define DLNA    8.47e-5 */
 
 /**** Structure containing all atomic data for hydrogen ****/
 
@@ -98,16 +73,16 @@ typedef struct {
   /* Tables of effective rates */
   double logTR_tab[NTR];
   double TM_TR_tab[NTM];
-  double **logAlpha_tab[2];
-  double logR2p2s_tab[NTR];
+  double ***logAlpha_tab;
+  double *logR2p2s_tab;
   double DlogTR, DTM_TR;
 
   /* Tables of 2-photon rates */
-  double Eb_tab[NVIRT];       /* Energies of the virtual levels in eV */
-  double A1s_tab[NVIRT];      /* 3*A2p1s*phi(E)*DE */ 
-  double A2s_tab[NVIRT];      /* dLambda_2s/dE * DeltaE if E < Elya dK2s/dE * Delta E if E > Elya */
-  double A3s3d_tab[NVIRT];    /* (dLambda_3s/dE + 5*dLambda_3d/dE) * Delta E for E < ELyb, Raman scattering rate for E > ELyb */
-  double A4s4d_tab[NVIRT];    /* (dLambda_4s/dE + 5*dLambda_4d/dE) * Delta E */
+  double *Eb_tab;       /* Energies of the virtual levels in eV */
+  double *A1s_tab;      /* 3*A2p1s*phi(E)*DE */ 
+  double *A2s_tab;      /* dLambda_2s/dE * DeltaE if E < Elya dK2s/dE * Delta E if E > Elya */
+  double *A3s3d_tab;    /* (dLambda_3s/dE + 5*dLambda_3d/dE) * Delta E for E < ELyb, Raman scattering rate for E > ELyb */
+  double *A4s4d_tab;    /* (dLambda_4s/dE + 5*dLambda_4d/dE) * Delta E */
   
 } HYREC_ATOMIC;
 

@@ -6,9 +6,9 @@
 #include "history.h"
 
 
-void hyrec_allocate(HYREC_DATA *data, double zmax, double zmin);
+void hyrec_allocate(HYREC_DATA *data, double zmax, double zmin, short read_atomic_files);
 
-void hyrec_free(HYREC_DATA *data);
+void hyrec_free(HYREC_DATA *data, short read_atomic_files);
 
 void hyrec_compute(HYREC_DATA *data, int model,
                    double h, double T0, double Omega_b, double Omega_m, double Omega_k, double YHe, double Nnueff,

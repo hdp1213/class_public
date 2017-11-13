@@ -65,7 +65,7 @@ template string str(const unsigned long long &x);
 //---------------
 // Constructors --
 //----------------
-ClassEngine::ClassEngine(const ClassParams& pars): cl(0),dofree(true),m_pbh_info(0){
+ClassEngine::ClassEngine(const ClassParams& pars): cl(0),dofree(true),m_info(NULL){
 
   //prepare fp structure
   size_t n=pars.size();
@@ -89,7 +89,7 @@ ClassEngine::ClassEngine(const ClassParams& pars): cl(0),dofree(true),m_pbh_info
   assert(_lmax>0);
 
     //input
-  if (input_init(&fc,&pr,&ba,&th,&pt,&tr,&pm,&sp,&nl,&le,&op,m_pbh_info,_errmsg) == _FAILURE_)
+  if (input_init(&fc,&pr,&ba,&th,&pt,&tr,&pm,&sp,&nl,&le,&op,m_info,_errmsg) == _FAILURE_)
     throw invalid_argument(_errmsg);
 
   //proetction parametres mal defini
@@ -108,7 +108,7 @@ ClassEngine::ClassEngine(const ClassParams& pars): cl(0),dofree(true),m_pbh_info
 }
 
 
-ClassEngine::ClassEngine(const ClassParams& pars,const string & precision_file): cl(0),dofree(true),m_pbh_info(0){
+ClassEngine::ClassEngine(const ClassParams& pars,const string & precision_file): cl(0),dofree(true),m_info(NULL){
 
   struct file_content fc_precision;
   fc_precision.size = 0;
@@ -145,7 +145,7 @@ ClassEngine::ClassEngine(const ClassParams& pars,const string & precision_file):
   parser_free(&fc_precision);
   
   //input
-  if (input_init(&fc,&pr,&ba,&th,&pt,&tr,&pm,&sp,&nl,&le,&op,m_pbh_info,_errmsg) == _FAILURE_)
+  if (input_init(&fc,&pr,&ba,&th,&pt,&tr,&pm,&sp,&nl,&le,&op,m_info,_errmsg) == _FAILURE_)
     throw invalid_argument(_errmsg);
 
   //proetction parametres mal defini
@@ -164,8 +164,8 @@ ClassEngine::ClassEngine(const ClassParams& pars,const string & precision_file):
 
 }
 
-// This method is the only one that initialises m_pbh_info to be non-zero
-ClassEngine::ClassEngine(const ClassParams& pars, struct pbh_external* pbh_info): cl(0),dofree(true),m_pbh_info(pbh_info){
+// This method is the only one that initialises m_info to be non-zero
+ClassEngine::ClassEngine(const ClassParams& pars, struct external_info* info): cl(0),dofree(true),m_info(info){
 
   //prepare fp structure
   size_t n=pars.size();
@@ -189,7 +189,7 @@ ClassEngine::ClassEngine(const ClassParams& pars, struct pbh_external* pbh_info)
   assert(_lmax>0);
 
     //input
-  if (input_init(&fc,&pr,&ba,&th,&pt,&tr,&pm,&sp,&nl,&le,&op,m_pbh_info,_errmsg) == _FAILURE_)
+  if (input_init(&fc,&pr,&ba,&th,&pt,&tr,&pm,&sp,&nl,&le,&op,m_info,_errmsg) == _FAILURE_)
     throw invalid_argument(_errmsg);
 
   //proetction parametres mal defini
@@ -209,7 +209,7 @@ ClassEngine::ClassEngine(const ClassParams& pars, struct pbh_external* pbh_info)
 }
 
 // There's also this method
-ClassEngine::ClassEngine(const string& init_file, int l_max, struct pbh_external* pbh_info): Engine(l_max),cl(0),dofree(true),m_pbh_info(pbh_info) {
+ClassEngine::ClassEngine(const string& init_file, int l_max, struct external_info* info): Engine(l_max),cl(0),dofree(true),m_info(info) {
 
   // variables
   size_t i;
@@ -250,7 +250,7 @@ ClassEngine::ClassEngine(const string& init_file, int l_max, struct pbh_external
   assert(_lmax>0);
 
   //input
-  if (input_init(&fc,&pr,&ba,&th,&pt,&tr,&pm,&sp,&nl,&le,&op,m_pbh_info,_errmsg) == _FAILURE_)
+  if (input_init(&fc,&pr,&ba,&th,&pt,&tr,&pm,&sp,&nl,&le,&op,m_info,_errmsg) == _FAILURE_)
     throw invalid_argument(_errmsg);
 
   //proetction parametres mal defini
@@ -326,7 +326,7 @@ int ClassEngine::class_main(
                             ErrorMsg errmsg) {
   
 
-  if (input_init(pfc,ppr,pba,pth,ppt,ptr,ppm,psp,pnl,ple,pop,m_pbh_info,errmsg) == _FAILURE_) {
+  if (input_init(pfc,ppr,pba,pth,ppt,ptr,ppm,psp,pnl,ple,pop,m_info,errmsg) == _FAILURE_) {
     printf("\n\nError running input_init_from_arguments \n=>%s\n",errmsg);
     dofree=false;
     return _FAILURE_;
@@ -338,7 +338,7 @@ int ClassEngine::class_main(
     return _FAILURE_;
   }
 
-  if (thermodynamics_init(ppr,pba,pth,m_pbh_info) == _FAILURE_) {
+  if (thermodynamics_init(ppr,pba,pth,m_info) == _FAILURE_) {
     printf("\n\nError in thermodynamics_init \n=>%s\n",pth->error_message);
     background_free(&ba);
     dofree=false;

@@ -121,10 +121,21 @@ void allocate_atomic(HYREC_ATOMIC *atomic){
 
   /*********** Effective rates *************/
 
-  /* Allocate memory */
+  /* Stack -> heap array allocations */
+  atomic->logR2p2s_tab = malloc(NTR*sizeof(double));
+
+  atomic->Eb_tab = malloc(NVIRT*sizeof(double));
+  atomic->A1s_tab = malloc(NVIRT*sizeof(double));
+  atomic->A2s_tab = malloc(NVIRT*sizeof(double));
+  atomic->A3s3d_tab = malloc(NVIRT*sizeof(double));
+  atomic->A4s4d_tab = malloc(NVIRT*sizeof(double));
+
+  /* Allocate memory (hopefully contiguously) */
+  atomic->logAlpha_tab = malloc(2*sizeof(double**));
   atomic->logAlpha_tab[0] = create_2D_array(NTM, NTR);
   atomic->logAlpha_tab[1] = create_2D_array(NTM, NTR);
 
+  /* These actually set the values of the table */
   maketab(log(TR_MIN), log(TR_MAX), NTR, atomic->logTR_tab);
   maketab(TM_TR_MIN, TM_TR_MAX, NTM, atomic->TM_TR_tab);
   atomic->DlogTR = atomic->logTR_tab[1] - atomic->logTR_tab[0];
@@ -141,14 +152,14 @@ void read_atomic(HYREC_ATOMIC *atomic) {
 
   FILE *fA = fopen(ALPHA_FILE, "r");
   if (fA == NULL) {
-    fprintf(stderr, "\033[1m\033[31m error\033[22;30m in allocate_and_read_atomic: could not open file ");
+    fprintf(stderr, "\033[1m\033[31m error\033[22;30m in read_atomic: could not open file ");
     fprintf(stderr, ALPHA_FILE);
     fprintf(stderr, "\n");
     exit(1);
   }
   FILE *fR = fopen(RR_FILE, "r");
   if (fR == NULL) {
-    fprintf(stderr, "\033[1m\033[31m error\033[22;30m in allocate_and_read_atomic: could not open file ");
+    fprintf(stderr, "\033[1m\033[31m error\033[22;30m in read_atomic: could not open file ");
     fprintf(stderr, RR_FILE);
     fprintf(stderr, "\n");
     exit(1);
@@ -172,7 +183,7 @@ void read_atomic(HYREC_ATOMIC *atomic) {
   FILE *f2g;
   f2g = fopen(TWOG_FILE, "r");
   if (f2g == NULL) {
-    fprintf(stderr, "\033[1m\033[31m error\033[22;30m in allocate_and_read_atomic: could not open file ");
+    fprintf(stderr, "\033[1m\033[31m error\033[22;30m in read_atomic: could not open file ");
     fprintf(stderr, TWOG_FILE);
     fprintf(stderr, "\n");
     exit(1);
@@ -235,6 +246,14 @@ Free the memory for rate tables.
 void free_atomic(HYREC_ATOMIC *atomic){
     free_2D_array(atomic->logAlpha_tab[0], NTM);
     free_2D_array(atomic->logAlpha_tab[1], NTM);
+    free(atomic->logAlpha_tab);
+    free(atomic->logR2p2s_tab);
+
+    free(atomic->Eb_tab);
+    free(atomic->A1s_tab);
+    free(atomic->A2s_tab);
+    free(atomic->A3s3d_tab);
+    free(atomic->A4s4d_tab);
 }
 
 /************************************************************************************************
