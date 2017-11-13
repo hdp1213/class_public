@@ -134,14 +134,4 @@ double rec_dxHIIdlna(int model, double xe, double xHII, double nH, double H, dou
                      HYREC_ATOMIC *atomic, RADIATION *rad, unsigned iz, double z,
                      double fsR, double meR, double dEdtdV_dm, double dEdtdV_pbh, double f_ion, double f_exc, int *error);
 
-
-
-/************ SWITCHES FOR RADIATIVE TRANSFER. ALL SWITCHES SET TO 1 ARE THE DEFAULT MODEL  ************/
-
-#define EFFECT_A    1    /* 2s-->1s stimulated two-photon decays and non-thermal absorptions */
-#define EFFECT_B    1    /* Sub-Lyman alpha two-photon transitions 3s/3d<--> 1s and 4s/4d<-->1s */
-#define EFFECT_C    1    /* Super-Lyman alpha two-photon transitions 3s/3d<--> 1s and 4s/4d<-->1s */
-#define EFFECT_D    1    /* Raman scattering from 2s and 3s/3d */
-#define DIFFUSION   1    /* Lyman alpha frequency diffusion */
-
 #endif
