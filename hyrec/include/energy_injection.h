@@ -26,6 +26,10 @@ typedef struct {
   
 } INJ_PARAMS;
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 double dEdtdV_pbh(double z, INJ_PARAMS *params);
 double dEdtdV_inj(double z, INJ_PARAMS *params);
 void update_dEdtdV_dep(double z_out, double dlna, double xe, double Tgas,
@@ -35,5 +39,9 @@ double dEdtdV_fraction_pbh(BSPLINE *bsp, double Mpbh, double z);
 double chi_heat(double xe);
 double chi_ion(double xe);
 double chi_exc(double xe);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

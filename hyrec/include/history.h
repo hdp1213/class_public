@@ -31,6 +31,10 @@ typedef struct {
 
 } REC_COSMOPARAMS;
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 double rec_HubbleRate(REC_COSMOPARAMS *param, double z);
 
 double rec_Tmss(double z, double xe, REC_COSMOPARAMS *cosmo, double dEdtdV_dm, double dEdtdV_pbh, double f_heat);
@@ -64,6 +68,9 @@ void rec_build_history(int model, double zstart, double zend,
                        REC_COSMOPARAMS *param, HYREC_ATOMIC *atomic, RADIATION *rad, PBH *pbh,
                        double *xe_output, double *Tm_output);
 
+#ifdef __cplusplus
+}
+#endif
 
 typedef struct{
   HYREC_ATOMIC *atomic;

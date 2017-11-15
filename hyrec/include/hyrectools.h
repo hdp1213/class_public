@@ -8,6 +8,10 @@ Version: January 2015
 
 #define _CSVVALUESIZE_ 64 /**< size of single value in .csv files */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 double square(double x); 
 double cube(double x);
 double *create_1D_array(unsigned n1);
@@ -20,5 +24,9 @@ double rec_interp1d(double x0, double dx, double *ytab, unsigned int Nx, double 
 double rec_interp2d(double x10, double dx1, double x20, double dx2, double **ytab,
                     unsigned int Nx1, unsigned int Nx2, double x1, double x2);
 double rec_interpol_G(double x, double *xtab, double *ytab, unsigned int Nx);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

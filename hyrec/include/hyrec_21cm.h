@@ -1,5 +1,10 @@
 #ifndef HYREC_21CM_H
 #define HYREC_21CM_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 double kappa10_H(double Tgas);
 double kappa10_e(double Tgas);
 double kappa10_p(double Tgas);
@@ -12,5 +17,9 @@ double T21cm_dh2(double z, double xe, double Tgas, double Tcmb, double nh, doubl
 double T21cm_dtgas(double z, double xe, double Tgas, double Tcmb, double nh, double H_invsec);
 double T21cm_dtgas2(double z, double xe, double Tgas, double Tcmb, double nh, double H_invsec);
 double T21cm_dhdtgas(double z, double xe, double Tgas, double Tcmb, double nh, double H_invsec);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

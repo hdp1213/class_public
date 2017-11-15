@@ -122,6 +122,9 @@ void allocate_atomic(HYREC_ATOMIC *atomic){
   /*********** Effective rates *************/
 
   /* Stack -> heap array allocations */
+  atomic->logTR_tab = malloc(NTR*sizeof(double));
+  atomic->TM_TR_tab = malloc(NTM*sizeof(double));
+
   atomic->logR2p2s_tab = malloc(NTR*sizeof(double));
 
   atomic->Eb_tab = malloc(NVIRT*sizeof(double));
@@ -130,8 +133,7 @@ void allocate_atomic(HYREC_ATOMIC *atomic){
   atomic->A3s3d_tab = malloc(NVIRT*sizeof(double));
   atomic->A4s4d_tab = malloc(NVIRT*sizeof(double));
 
-  /* Allocate memory (hopefully contiguously) */
-  atomic->logAlpha_tab = malloc(2*sizeof(double**));
+  /* Allocate memory */
   atomic->logAlpha_tab[0] = create_2D_array(NTM, NTR);
   atomic->logAlpha_tab[1] = create_2D_array(NTM, NTR);
 
@@ -244,9 +246,11 @@ Free the memory for rate tables.
 ***********************************************************************************************/
 
 void free_atomic(HYREC_ATOMIC *atomic){
+    free(atomic->logTR_tab);
+    free(atomic->TM_TR_tab);
+
     free_2D_array(atomic->logAlpha_tab[0], NTM);
     free_2D_array(atomic->logAlpha_tab[1], NTM);
-    free(atomic->logAlpha_tab);
     free(atomic->logR2p2s_tab);
 
     free(atomic->Eb_tab);

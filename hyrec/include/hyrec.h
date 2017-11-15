@@ -6,6 +6,10 @@
 #include "history.h"
 
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void hyrec_allocate(HYREC_DATA *data, double zmax, double zmin, short read_atomic_files);
 
 void hyrec_free(HYREC_DATA *data, short read_atomic_files);
@@ -20,5 +24,9 @@ double hyrec_xe(double z, HYREC_DATA *rec_data);
 double hyrec_Tm(double z, HYREC_DATA *rec_data);
 
 double hyrec_dTmdlna(double z, HYREC_DATA *rec_data);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

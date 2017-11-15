@@ -9,10 +9,18 @@
 /*         Version: 2015  (first released November 2010)                                         */
 /*************************************************************************************************/ 
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 double rec_xesaha_HeII_III(double nH0, double Tr0, double fHe, double z, double *xHeIII, double fsR, double meR);
 double rec_saha_xHeII(double nH0, double Tr0, double fHe, double z, double fsR, double meR);
 double rec_saha_xH1(double xHeII, double nH0, double T0, double z, double fsR, double meR);
 double rec_helium_dxHeIIdlna(double xH1s, double xHeII, double nH0, double Tr0, double fHe,
                              double H, double z, double fsR, double meR);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

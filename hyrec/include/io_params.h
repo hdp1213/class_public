@@ -21,12 +21,14 @@
 #define NDIFF    80
 
 /* Higher-resolution tables  */
-/* #define TWOG_FILE "data/two_photon_tables_hires.dat" 
+/* #define TWOG_FILE "data/two_photon_tables_hires.dat" */
 /* #define NSUBLYA  408 */
 /* #define NSUBLYB  1323 */
 /* #define NVIRT    1493 */
 /* #define NDIFF    300 */
 /* #define DLNA    8.47e-5 */
+
+#define L2s1s     8.2206               /* 2s -> 1s two-photon decay rate in s^{-1} (Labzowsky et al 2005) */
 
 /************ SWITCHES FOR RADIATIVE TRANSFER. ALL SWITCHES SET TO 1 ARE THE DEFAULT MODEL  ************/
 

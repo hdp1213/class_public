@@ -48,8 +48,11 @@
 #define hPc       1.239841874331e-04   /* hc in eV cm */
 #define mH        0.93878299831e9      /* Hydrogen atom mass in eV/c^2 */ 
 #define kBoltz    8.617343e-5          /* Boltzmann constant in eV/K */
-#define L2s1s     8.2206               /* 2s -> 1s two-photon decay rate in s^{-1} (Labzowsky et al 2005) */
 
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /*********** EFFECTIVE 3-LEVEL A LA PEEBLES ***************/ 
 double SAHA_FACT(double fsR, double meR);
@@ -62,6 +65,10 @@ double rec_TLA_dxHIIdlna(double xe, double xHII, double nH, double H, double TM,
                          double Fudge, double fsR, double meR, double dEdtdV_dm, double dEdtdV_pbh,
                          double f_ion, double f_exc);
 
+#ifdef __cplusplus
+}
+#endif
+
 
 /************* EFFECTIVE MULTI LEVEL ATOM *******************/
 
@@ -71,9 +78,9 @@ double rec_TLA_dxHIIdlna(double xe, double xHII, double nH, double H, double TM,
 
 typedef struct {
   /* Tables of effective rates */
-  double logTR_tab[NTR];
-  double TM_TR_tab[NTM];
-  double ***logAlpha_tab;
+  double *logTR_tab;
+  double *TM_TR_tab;
+  double **logAlpha_tab[2];
   double *logR2p2s_tab;
   double DlogTR, DTM_TR;
 
@@ -97,6 +104,10 @@ typedef struct {
   double **Dfminus_Ly_hist;
 
 } RADIATION;
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 void allocate_radiation(RADIATION *rad, long int Nz);
 void free_radiation(RADIATION *rad);
@@ -133,5 +144,9 @@ double rec_HMLA_2photon_dxedlna(double xe, double nH, double H, double TM, doubl
 double rec_dxHIIdlna(int model, double xe, double xHII, double nH, double H, double TM, double TR, 
                      HYREC_ATOMIC *atomic, RADIATION *rad, unsigned iz, double z,
                      double fsR, double meR, double dEdtdV_dm, double dEdtdV_pbh, double f_ion, double f_exc, int *error);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
