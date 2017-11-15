@@ -331,19 +331,25 @@ int thermodynamics_init(
     preco->pbsp_pbh_heat = info->heat;
 
     /* HyRec setting */
-#ifdef HYREC
-    /* Make sure both tables match up to correct memory entries */
-    preco->external_hyrec->logAlpha_tab[0] = info->logAlpha_tab[0];
-    preco->external_hyrec->logAlpha_tab[1] = info->logAlpha_tab[1];
+    if (pth->recombination == hyrec) {
+      class_alloc(preco->external_hyrec, sizeof(struct hyrec), pth->error_message);
 
-    preco->external_hyrec->logR2p2s_tab = info->logR2p2s_tab;
+      preco->external_hyrec->logTR_tab = info->logTR_tab;
+      preco->external_hyrec->TM_TR_tab = info->TM_TR_tab;
+      preco->external_hyrec->DlogTR = info->DlogTR;
+      preco->external_hyrec->DTM_TR = info->DTM_TR;
 
-    preco->external_hyrec->Eb_tab = info->Eb_tab;
-    preco->external_hyrec->A1s_tab = info->A1s_tab;
-    preco->external_hyrec->A2s_tab = info->A2s_tab;
-    preco->external_hyrec->A3s3d_tab = info->A3s3d_tab;
-    preco->external_hyrec->A4s4d_tab = info->A4s4d_tab;
-#endif
+      /* Make sure both tables match up to correct memory entries */
+      preco->external_hyrec->logAlpha_tab[0] = info->logAlpha_tab[0];
+      preco->external_hyrec->logAlpha_tab[1] = info->logAlpha_tab[1];
+      preco->external_hyrec->logR2p2s_tab = info->logR2p2s_tab;
+
+      preco->external_hyrec->Eb_tab = info->Eb_tab;
+      preco->external_hyrec->A1s_tab = info->A1s_tab;
+      preco->external_hyrec->A2s_tab = info->A2s_tab;
+      preco->external_hyrec->A3s3d_tab = info->A3s3d_tab;
+      preco->external_hyrec->A4s4d_tab = info->A4s4d_tab;
+    }
   }
 
   if (pth->thermodynamics_verbose > 0)
@@ -3186,8 +3192,14 @@ int thermodynamics_recombination_with_hyrec(
                pth->error_message,
                "preco->external_hyrec has not been set");
 
+    printf("Initialising hyrec_data.atomic from external object...\n");
     /* Although memory has been allocated to the hyrec_data.atomic pointer, still need to populate
        fields! */
+    hyrec_data.atomic->logTR_tab = preco->external_hyrec->logTR_tab;
+    hyrec_data.atomic->TM_TR_tab = preco->external_hyrec->TM_TR_tab;
+    hyrec_data.atomic->DlogTR = preco->external_hyrec->DlogTR;
+    hyrec_data.atomic->DTM_TR = preco->external_hyrec->DTM_TR;
+
     hyrec_data.atomic->logAlpha_tab[0] = preco->external_hyrec->logAlpha_tab[0];
     hyrec_data.atomic->logAlpha_tab[1] = preco->external_hyrec->logAlpha_tab[1];
     hyrec_data.atomic->logR2p2s_tab = preco->external_hyrec->logR2p2s_tab;
@@ -3329,6 +3341,10 @@ int thermodynamics_recombination_with_hyrec(
   /* Cleanup */
 
   hyrec_free(&hyrec_data, pth->read_external_files);
+
+  if (pth->read_external_files == _FALSE_) {
+    free(preco->external_hyrec);
+  }
 
 #else
 

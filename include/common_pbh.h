@@ -61,6 +61,10 @@ struct external_info {
 
 #ifdef HYREC
   /* Tables of effective rates */
+  double logTR_tab[NTR];
+  double TM_TR_tab[NTM];
+  double DlogTR, DTM_TR;
+
   double **logAlpha_tab[2];
   double logR2p2s_tab[NTR];
 
@@ -70,6 +74,8 @@ struct external_info {
   double A2s_tab[NVIRT];      /* dLambda_2s/dE * DeltaE if E < Elya dK2s/dE * Delta E if E > Elya */
   double A3s3d_tab[NVIRT];    /* (dLambda_3s/dE + 5*dLambda_3d/dE) * Delta E for E < ELyb, Raman scattering rate for E > ELyb */
   double A4s4d_tab[NVIRT];    /* (dLambda_4s/dE + 5*dLambda_4d/dE) * Delta E */
+
+
 #endif
 
   //@}
