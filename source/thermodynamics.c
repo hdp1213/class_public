@@ -3192,7 +3192,9 @@ int thermodynamics_recombination_with_hyrec(
                pth->error_message,
                "preco->external_hyrec has not been set");
 
-    printf("Initialising hyrec_data.atomic from external object...\n");
+    if (pth->thermodynamics_verbose > 1)
+      printf("Initialising hyrec_data.atomic from external object...\n");
+
     /* Although memory has been allocated to the hyrec_data.atomic pointer, still need to populate
        fields! */
     hyrec_data.atomic->logTR_tab = preco->external_hyrec->logTR_tab;
