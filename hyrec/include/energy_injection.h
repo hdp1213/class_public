@@ -4,6 +4,8 @@
 #include "hyrectools.h"
 /* CLASS common_pbh.h for BSPLINE definition */
 #include "common_pbh.h"
+/* CLASS common.h for all good CLASS stuff */
+#include "common.h"
 
 /* Structure with all energy injection parameters */
 /* If adding a new energy injection process 
@@ -34,7 +36,8 @@ double dEdtdV_pbh(double z, INJ_PARAMS *params);
 double dEdtdV_inj(double z, INJ_PARAMS *params);
 void update_dEdtdV_dep(double z_out, double dlna, double xe, double Tgas,
                        double nH, double H, INJ_PARAMS *params, double *dEdtdV_dep);
-double dEdtdV_fraction_pbh(BSPLINE *bsp, double Mpbh, double z);
+int dEdtdV_fraction_pbh(BSPLINE *bsp, double Mpbh, double z, double *eff_frac,
+                        ErrorMsg error_message);
 
 double chi_heat(double xe);
 double chi_ion(double xe);

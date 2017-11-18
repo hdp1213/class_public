@@ -149,23 +149,13 @@ Reads and stores effective-few-level rates and two-photon rates.
 This function is a merger of two previous functions for effective rates and two-photon rates.
 **********************************************************************************************/
 
-void read_atomic(HYREC_ATOMIC *atomic) {
+int read_atomic(HYREC_ATOMIC *atomic, ErrorMsg error_message) {
   unsigned i, j, l;
 
-  FILE *fA = fopen(ALPHA_FILE, "r");
-  if (fA == NULL) {
-    fprintf(stderr, "\033[1m\033[31m error\033[22;30m in read_atomic: could not open file ");
-    fprintf(stderr, ALPHA_FILE);
-    fprintf(stderr, "\n");
-    exit(1);
-  }
-  FILE *fR = fopen(RR_FILE, "r");
-  if (fR == NULL) {
-    fprintf(stderr, "\033[1m\033[31m error\033[22;30m in read_atomic: could not open file ");
-    fprintf(stderr, RR_FILE);
-    fprintf(stderr, "\n");
-    exit(1);
-  }
+  FILE *fA, *fR;
+
+  class_open(fA, ALPHA_FILE, "r", error_message);
+  class_open(fR, RR_FILE, "r", error_message);
 
   for (i = 0; i < NTR; i++) {
     for (j = 0; j < NTM; j++) for (l = 0; l <= 1; l++) {
@@ -183,13 +173,8 @@ void read_atomic(HYREC_ATOMIC *atomic) {
   unsigned b;
 
   FILE *f2g;
-  f2g = fopen(TWOG_FILE, "r");
-  if (f2g == NULL) {
-    fprintf(stderr, "\033[1m\033[31m error\033[22;30m in read_atomic: could not open file ");
-    fprintf(stderr, TWOG_FILE);
-    fprintf(stderr, "\n");
-    exit(1);
-  }
+
+  class_open(f2g, TWOG_FILE, "r", error_message);
 
   for (b = 0; b < NVIRT; b++) {
     fscanf(f2g, "%le", &(atomic->Eb_tab[b]));
@@ -199,6 +184,8 @@ void read_atomic(HYREC_ATOMIC *atomic) {
     fscanf(f2g, "%le", &(atomic->A4s4d_tab[b]));
   }
   fclose(f2g);
+
+  return _SUCCESS_;
 }
 
 void normalise_atomic(HYREC_ATOMIC *atomic) {
@@ -235,10 +222,14 @@ void normalise_atomic(HYREC_ATOMIC *atomic) {
    #endif
 }
 
-void allocate_and_read_atomic(HYREC_ATOMIC *atomic) {
+int allocate_and_read_atomic(HYREC_ATOMIC *atomic, ErrorMsg error_message) {
   allocate_atomic(atomic);
-  read_atomic(atomic);
+  class_call(read_atomic(atomic, error_message),
+             error_message,
+             error_message);
   normalise_atomic(atomic);
+
+  return _SUCCESS_;
 }
 
 /***********************************************************************************************
@@ -272,8 +263,9 @@ INPUT TEMPERATURE ASSUMED TO BE ALREADY RESCALED FOR VALUES OF alpha_fs and me
   Will eventually re-tabulate the effective rates for Tm/Tr > 1 to fix this.
 ************************************************************************************************/
 
-void interpolate_rates(double Alpha[2], double DAlpha[2], double Beta[2], double *R2p2s,
-		       double TR, double TM_TR, HYREC_ATOMIC *atomic, double fsR, double meR, int *error) {
+int interpolate_rates(double Alpha[2], double DAlpha[2], double Beta[2], double *R2p2s,
+                      double TR, double TM_TR, HYREC_ATOMIC *atomic, double fsR, double meR,
+                      ErrorMsg error_message) {
     double factor;
     unsigned l, k;
     long iTM, iTR;
@@ -285,11 +277,11 @@ void interpolate_rates(double Alpha[2], double DAlpha[2], double Beta[2], double
 
 
     /* Check that TM/TR is in range */
-    if (TM_TR < TM_TR_MIN) {
-      fprintf(stderr, "\033[1m\033[31m error\033[22;30m in interpolate_rates: TM/TR = %f is out of range.\n", TM_TR);
-      *error = 1;
-      return;
-    }
+    class_test(TM_TR < TM_TR_MIN,
+               error_message,
+               "TM/TR = %f is out of range.",
+               TM_TR);
+
     /* For now if TM > TR evaluate everything at Tm = Tr = (Tm + Tr)/2 */
     /* This is an ugly fix due to my delaying in extending the effective rate tables beyond TM = TR */
     /* Will fix soon! */
@@ -300,11 +292,10 @@ void interpolate_rates(double Alpha[2], double DAlpha[2], double Beta[2], double
     }
 
      /* Check if log(TR) is in the range tabulated */
-    if (TR < TR_MIN || TR > TR_MAX) {
-      fprintf(stderr, "\033[1m\033[31m error\033[22;30m in interpolate_rates: TR = %f is out of range.\n", TR);
-      *error = 1;
-      return;
-    }
+    class_test((TR < TR_MIN) || (TR > TR_MAX),
+               error_message,
+               "TR = %f is out of range.",
+               TR);
 
      /**** TR-only-dependent functions ****/
 
@@ -386,9 +377,9 @@ December 2014:
 - Added dependence on extra energy deposited in the plasma, dEdtdV_dm in eV/s/cm^3
 ************************************************************************************************/
 
-double rec_HMLA_dxHIIdlna(double xe, double xHII, double nH, double H, double TM, double TR,
-                          HYREC_ATOMIC *atomic, double fsR, double meR, double dEdtdV_dm, double dEdtdV_pbh,
-                          double f_ion, double f_exc, int *error){
+int rec_HMLA_dxHIIdlna(double xe, double xHII, double nH, double H, double TM, double TR,
+                       HYREC_ATOMIC *atomic, double fsR, double meR, double dEdtdV_dm, double dEdtdV_pbh,
+                       double f_ion, double f_exc, double *dxHIIdlna, ErrorMsg error_message){
 
    double Alpha[2], DAlpha[2], Beta[2], R2p2s, RLya;
    double Gamma_2s, Gamma_2p, C2s, C2p, s, Dxe2;
@@ -402,11 +393,9 @@ double rec_HMLA_dxHIIdlna(double xe, double xHII, double nH, double H, double TM
    rescale_T(&TR, fsR, meR);
    TM = ratio * TR;   /* This way ensure that TM<=TR is preserved */
 
-   interpolate_rates(Alpha, DAlpha, Beta, &R2p2s, TR, TM/TR, atomic, fsR, meR, error);
-   if (*error == 1) {
-     fprintf(stderr, "  called from rec_HMLA_dxHIIdlna\n");
-     return 0.;
-   }
+   class_call(interpolate_rates(Alpha, DAlpha, Beta, &R2p2s, TR, TM/TR, atomic, fsR, meR, error_message),
+              error_message,
+              error_message);
 
    RLya = LYA_FACT(fsR, meR) *H/nH/(1.-xHII);   /* 8 PI H/(3 nH x1s lambda_Lya^3) */
 
@@ -421,10 +410,11 @@ double rec_HMLA_dxHIIdlna(double xe, double xHII, double nH, double H, double TM
    s    = SAHA_FACT(fsR, meR) *TR*sqrt(TR) *exp(-EI/TR)/nH;
    Dxe2 = xe*xHII - s*(1.-xHII); /* xe^2 - xe^2[Saha eq with 1s] -- gives more compact expressions */
 
-   return -nH/H *( (s*(1.-xHII)*DAlpha[0] + Alpha[0]*Dxe2)*C2s + (s*(1.-xHII)*DAlpha[1] + Alpha[1]*Dxe2)*C2p )
-          + chi_ion(xHII)*(ion + (1.-(0.25*C2s + 0.75*C2p))*exc)/H
-          + dEdtdV_pbh*(f_ion/EI + (1.-(0.25*C2s + 0.75*C2p))*f_exc/E21)/nH/H;
+   *dxHIIdlna = -nH/H *( (s*(1.-xHII)*DAlpha[0] + Alpha[0]*Dxe2)*C2s + (s*(1.-xHII)*DAlpha[1] + Alpha[1]*Dxe2)*C2p )
+                + chi_ion(xHII)*(ion + (1.-(0.25*C2s + 0.75*C2p))*exc)/H
+                + dEdtdV_pbh*(f_ion/EI + (1.-(0.25*C2s + 0.75*C2p))*f_exc/E21)/nH/H;
 
+   return _SUCCESS_;
 }
 
 /********************************************************************************************************
@@ -493,12 +483,12 @@ INPUT TEMPERATURE ASSUMED TO BE ALREADY RESCALED FOR VALUES OF alpha_fs and me
 December 2014: Added dependence on additional energy deposition dEdtdV_dm in eV/s/cm^3.
 **********************************************************************************************************/
 
-void populateTS_2photon(double Trr[2][2], double *Trv[2], double *Tvr[2], double *Tvv[3],
-                        double sr[2], double sv[NVIRT], double Dtau[NVIRT],
-                        double xe, double xHII, double TM, double TR, double nH, double H, HYREC_ATOMIC *atomic,
-                        double Dfplus[NVIRT], double Dfplus_Ly[],
-                        double Alpha[2], double DAlpha[2], double Beta[2], double fsR, double meR, double dEdtdV_dm,
-                        double dEdtdV_pbh, double f_exc, int *error) {
+int populateTS_2photon(double Trr[2][2], double *Trv[2], double *Tvr[2], double *Tvv[3],
+                       double sr[2], double sv[NVIRT], double Dtau[NVIRT],
+                       double xe, double xHII, double TM, double TR, double nH, double H, HYREC_ATOMIC *atomic,
+                       double Dfplus[NVIRT], double Dfplus_Ly[],
+                       double Alpha[2], double DAlpha[2], double Beta[2], double fsR, double meR, double dEdtdV_dm,
+                       double dEdtdV_pbh, double f_exc, ErrorMsg error_message) {
 
    unsigned b;
    double R2p2s, RLya, Gammab, one_minus_Pib, dbfact, x1s, s, Dxe2;
@@ -523,12 +513,9 @@ void populateTS_2photon(double Trr[2][2], double *Trv[2], double *Tvr[2], double
 
    RLya = LYA_FACT(fsR, meR) *H /nH/x1s;   /*8 PI H/(3 nH x1s lambda_Lya^3) */
 
-   interpolate_rates(Alpha, DAlpha, Beta, &R2p2s, TR, TM / TR, atomic, fsR, meR, error);
-   if (*error == 1) {
-     fprintf(stderr, "  called from populateTS_2photon\n");
-     return;
-   }
-
+   class_call(interpolate_rates(Alpha, DAlpha, Beta, &R2p2s, TR, TM / TR, atomic, fsR, meR, error_message),
+              error_message,
+              error_message);
 
   /****** 2s row and column ******/
 
@@ -565,58 +552,60 @@ void populateTS_2photon(double Trr[2][2], double *Trv[2], double *Tvr[2], double
        Trv[1][b] = Tvr[1][b] *3.*dbfact;
    }
 
-    /****** Tvv and sv. Accounting for DIFFUSION ******/
+   /****** Tvv and sv. Accounting for DIFFUSION ******/
 
-    populate_Diffusion(Aup, Adn, &A2p_up, &A2p_dn, TM, atomic->Eb_tab, atomic->A1s_tab);
+   populate_Diffusion(Aup, Adn, &A2p_up, &A2p_dn, TM, atomic->Eb_tab, atomic->A1s_tab);
 
-    /*** Added May 2012: rescale for dependence on alpha and me ***/
-    A2p_up *= rescalediff;
-    A2p_dn *= rescalediff;
-    for (b = 0; b < NVIRT; b++) {
-          Aup[b] *= rescalediff;
-          Adn[b] *= rescalediff;
-    }
+   /*** Added May 2012: rescale for dependence on alpha and me ***/
+   A2p_up *= rescalediff;
+   A2p_dn *= rescalediff;
+   for (b = 0; b < NVIRT; b++) {
+         Aup[b] *= rescalediff;
+         Adn[b] *= rescalediff;
+   }
 
-    /* Updating Tvr, Trv, Trr for diffusion between line center ("2p state") and two neighboring bins */
+   /* Updating Tvr, Trv, Trr for diffusion between line center ("2p state") and two neighboring bins */
 
-    Trr[1][1] += (A2p_dn + A2p_up);
+   Trr[1][1] += (A2p_dn + A2p_up);
 
-    for (b = 0; b < NVIRT; b++) {
+   for (b = 0; b < NVIRT; b++) {
 
-      Gammab = -(Trv[0][b] + Trv[1][b]) + Aup[b] + Adn[b];    /* Inverse lifetime of virtual state b */
+     Gammab = -(Trv[0][b] + Trv[1][b]) + Aup[b] + Adn[b];    /* Inverse lifetime of virtual state b */
 
-      /*** Diffusion region ***/
-      if (  (b >= NSUBLYA - NDIFF/2 && b < NSUBLYA - 1)
-          ||(b > NSUBLYA && b < NSUBLYA + NDIFF/2)) {
-	  Tvv[1][b] = -Aup[b-1];
-          Tvv[2][b] = -Adn[b+1];
-      }
-      /* Bins neighboring Lyman alpha. */
-      if (b == NSUBLYA-1)  {
-          Tvv[1][b] = -Aup[b-1];
-          Tvv[2][b] = 0.;
-          Tvr[1][b] -= A2p_dn;
-          Trv[1][b] -= Aup[b];
-      }
-      if (b == NSUBLYA)  {
-          Tvv[1][b] = 0.;
-          Tvv[2][b] = -Adn[b+1];
-          Tvr[1][b] -= A2p_up;
-          Trv[1][b] -= Adn[b];
-      }
-      /*********************/
+     /*** Diffusion region ***/
+     if (  (b >= NSUBLYA - NDIFF/2 && b < NSUBLYA - 1)
+         ||(b > NSUBLYA && b < NSUBLYA + NDIFF/2)) {
+	 Tvv[1][b] = -Aup[b-1];
+         Tvv[2][b] = -Adn[b+1];
+     }
+     /* Bins neighboring Lyman alpha. */
+     if (b == NSUBLYA-1)  {
+         Tvv[1][b] = -Aup[b-1];
+         Tvv[2][b] = 0.;
+         Tvr[1][b] -= A2p_dn;
+         Trv[1][b] -= Aup[b];
+     }
+     if (b == NSUBLYA)  {
+         Tvv[1][b] = 0.;
+         Tvv[2][b] = -Adn[b+1];
+         Tvr[1][b] -= A2p_up;
+         Trv[1][b] -= Adn[b];
+     }
+     /*********************/
 
-      Dtau[b] = Gammab * x1s * cube(hPc/atomic->Eb_tab[b]/fsR/fsR/meR) * nH /8. /M_PI /H;
-        /* Rescaled for alpha, me*/
+     Dtau[b] = Gammab * x1s * cube(hPc/atomic->Eb_tab[b]/fsR/fsR/meR) * nH /8. /M_PI /H;
+       /* Rescaled for alpha, me*/
 
-      one_minus_Pib = Dtau[b] > 1e-6 ? 1.- (1.-exp(-Dtau[b]))/Dtau[b] : Dtau[b]/2. - square(Dtau[b])/6.;
-      Tvv[0][b] = Dtau[b] > 0.? Gammab/one_minus_Pib : 2./(x1s * cube(hPc/atomic->Eb_tab[b]/fsR/fsR/meR) * nH /8. /M_PI /H);  /* Added May 2012: proper limit Dtau->0 */
-      sv[b]  = Tvv[0][b] * x1s * Dfplus[b] * (1.-one_minus_Pib);
+     one_minus_Pib = Dtau[b] > 1e-6 ? 1.- (1.-exp(-Dtau[b]))/Dtau[b] : Dtau[b]/2. - square(Dtau[b])/6.;
+      Tvv[0][b] = Dtau[b] > 0.? Gammab/one_minus_Pib : 2./(x1s * cube(hPc/atomic->Eb_tab[b]/fsR/fsR/meR) * nH /8. /M_PI /H);  /* Added May 2012: properlimit Dtau->0 */
+     sv[b]  = Tvv[0][b] * x1s * Dfplus[b] * (1.-one_minus_Pib);
 
-    }
+   }
 
-    free(Aup);
-    free(Adn);
+   free(Aup);
+   free(Adn);
+
+   return _SUCCESS_;
 }
 
 /*********************************************************************
@@ -718,27 +707,31 @@ Use a simple linear interpolation so the spectrum is always positive.
 Added May 2012
 *********************************************************************************************/
 
-double interp_Dfnu(double lna_start, double dlna, double *ytab, unsigned int iz, double lna){
+int interp_Dfnu(double lna_start, double dlna, double *ytab, unsigned int iz, double lna,
+                double* Dfnu_interp, ErrorMsg error_message){
    long ind;
    double frac;
 
    /* If iz = 0 or 1, radiation field at earlier times is still thermal.
       Also thermal if iz > 1 and lna < lna_start. */
-   if (iz == 0 || iz == 1 || lna < lna_start) return 0.;
+   if (iz == 0 || iz == 1 || lna < lna_start) {
+    *Dfnu_interp = 0.;
+    return _SUCCESS_;
+   }
 
    /* Check if in range */
-   if (lna >= lna_start + dlna*(iz-1)) {
-       fprintf(stderr, "Error in interp_Dfnu: lna-value out of range in interpolation routine\n");
-       fprintf(stderr, "The time-step used is probably too large\n");
-       exit(1);
-    }
+   class_test(lna >= lna_start + dlna*(iz-1),
+              error_message,
+              "lna = %e out of range in interpolation routine. The time-step used is probably too large.",
+              lna);
 
     /* If iz >= 2, do a linear interpolation so the spectrum is always positive */
     ind  = (long) floor((lna-lna_start)/dlna);
     frac = (lna-lna_start)/dlna - ind;
 
-    return (1.-frac)*ytab[ind] + frac*ytab[ind+1];
+    *Dfnu_interp = (1.-frac)*ytab[ind] + frac*ytab[ind+1];
 
+    return _SUCCESS_;
 }
 
 /*************************************************************************************************************
@@ -752,8 +745,8 @@ Changed May 2012: Now using the interpolation function interp_Dfnu, which only i
                     over 2 nearest neighbors, which ensures that the distortion is always positive
 *************************************************************************************************************/
 
-void fplus_from_fminus(double Dfplus[NVIRT], double Dfplus_Ly[], double **Dfminus_hist, double **Dfminus_Ly_hist,
-                       double TR, double zstart, unsigned iz, double z, double Eb_tab[NVIRT]) {
+int fplus_from_fminus(double Dfplus[NVIRT], double Dfplus_Ly[], double **Dfminus_hist, double **Dfminus_Ly_hist,
+                      double TR, double zstart, unsigned iz, double z, double Eb_tab[NVIRT], ErrorMsg error_message) {
    unsigned b;
    double ainv, lna_start, zp1;
 
@@ -763,46 +756,71 @@ void fplus_from_fminus(double Dfplus[NVIRT], double Dfplus_Ly[], double **Dfminu
    /*** Bins below Lyman alpha ***/
    for (b = 0; b < NSUBLYA-1; b++) {
       ainv = zp1*Eb_tab[b+1]/Eb_tab[b];
-      Dfplus[b] = interp_Dfnu(lna_start, DLNA, Dfminus_hist[b+1], iz, -log(ainv));
+      class_call(interp_Dfnu(lna_start, DLNA, Dfminus_hist[b+1], iz, -log(ainv),
+                             &Dfplus[b], error_message),
+                 error_message,
+                 error_message);
    }
 
    /*** highest bin below Ly-alpha: feedback from optically thick Ly-alpha ***/
    b = NSUBLYA-1;
    ainv = zp1*E21/Eb_tab[b];
-   Dfplus[b] = interp_Dfnu(lna_start, DLNA, Dfminus_Ly_hist[0], iz, -log(ainv));
+   class_call(interp_Dfnu(lna_start, DLNA, Dfminus_Ly_hist[0], iz, -log(ainv),
+                          &Dfplus[b], error_message),
+              error_message,
+              error_message);
 
    /*** incoming photon occupation number at Lyman alpha ***/
    b = NSUBLYA;     /* next highest bin */
    ainv = zp1*Eb_tab[b]/E21;
-   Dfplus_Ly[0] = interp_Dfnu(lna_start, DLNA, Dfminus_hist[b], iz, -log(ainv));
+   class_call(interp_Dfnu(lna_start, DLNA, Dfminus_hist[b], iz, -log(ainv),
+                          &Dfplus_Ly[0], error_message),
+              error_message,
+              error_message);
 
    /*** Bins between Lyman alpha and beta ***/
    for (b = NSUBLYA; b < NSUBLYB-1; b++) {
      ainv = zp1*Eb_tab[b+1]/Eb_tab[b];
-     Dfplus[b] = interp_Dfnu(lna_start, DLNA, Dfminus_hist[b+1], iz, -log(ainv));
+     class_call(interp_Dfnu(lna_start, DLNA, Dfminus_hist[b+1], iz, -log(ainv),
+                            &Dfplus[b], error_message),
+                error_message,
+                error_message);
    }
 
    /*** highest bin below Ly-beta: feedback from Ly-beta ***/
    b = NSUBLYB-1;
    ainv = zp1*E31/Eb_tab[b];
-   Dfplus[b] = interp_Dfnu(lna_start, DLNA, Dfminus_Ly_hist[1], iz, -log(ainv));
+   class_call(interp_Dfnu(lna_start, DLNA, Dfminus_Ly_hist[1], iz, -log(ainv),
+                          &Dfplus[b], error_message),
+              error_message,
+              error_message);
 
    /*** incoming photon occupation number at Lyman beta ***/
    b = NSUBLYB;     /* next highest bin */
    ainv = zp1*Eb_tab[b]/E31;
-   Dfplus_Ly[1] = interp_Dfnu(lna_start, DLNA, Dfminus_hist[b], iz, -log(ainv));
+   class_call(interp_Dfnu(lna_start, DLNA, Dfminus_hist[b], iz, -log(ainv),
+                          &Dfplus_Ly[1], error_message),
+              error_message,
+              error_message);
 
    /*** Bins between Lyman beta and gamma ***/
    for (b = NSUBLYB; b < NVIRT-1; b++) {
      ainv = zp1*Eb_tab[b+1]/Eb_tab[b];
-     Dfplus[b] = interp_Dfnu(lna_start, DLNA, Dfminus_hist[b+1], iz, -log(ainv));
+     class_call(interp_Dfnu(lna_start, DLNA, Dfminus_hist[b+1], iz, -log(ainv),
+                            &Dfplus[b], error_message),
+                error_message,
+                error_message);
    }
 
    /*** highest energy bin: feedback from Ly-gamma ***/
    b = NVIRT-1;
    ainv = zp1*E41/Eb_tab[b];
-   Dfplus[b] = interp_Dfnu(lna_start, DLNA, Dfminus_Ly_hist[2], iz, -log(ainv));
+   class_call(interp_Dfnu(lna_start, DLNA, Dfminus_Ly_hist[2], iz, -log(ainv),
+                          &Dfplus[b], error_message),
+              error_message,
+              error_message);
 
+   return _SUCCESS_;
 }
 
 /******************************************************************************************************************
@@ -819,14 +837,14 @@ The fractions that goes into ionizations, excitations and heat are assumed to be
 In the next version I'll make them potentialy changeable.
 ******************************************************************************************************************/
 
-double rec_HMLA_2photon_dxHIIdlna(double xe, double xHII, double nH, double H, double TM, double TR,
-                                  HYREC_ATOMIC *atomic,
-                                  double **Dfminus_hist, double **Dfminus_Ly_hist, double **Dfnu_hist,
-                                  double zstart, unsigned iz, double z, double fsR, double meR, double dEdtdV_dm, double dEdtdV_pbh,
-                                  double f_ion, double f_exc, int *error){
+int rec_HMLA_2photon_dxHIIdlna(double xe, double xHII, double nH, double H, double TM, double TR,
+                               HYREC_ATOMIC *atomic,
+                               double **Dfminus_hist, double **Dfminus_Ly_hist, double **Dfnu_hist,
+                               double zstart, unsigned iz, double z, double fsR, double meR, double dEdtdV_dm, double dEdtdV_pbh,
+                               double f_ion, double f_exc, double *dxedlna, ErrorMsg error_message){
 
    double xr[2], xv[NVIRT], Dfplus[NVIRT], Dfplus_Ly[2]; /* Assume incoming radiation blueward of Ly-gamma is Blackbody */
-   double dxedlna, one_minus_Pib, one_minus_exptau, Dfeq, s, x1s, Dxe2;
+   double one_minus_Pib, one_minus_exptau, Dfeq, s, x1s, Dxe2;
    unsigned b, i;
 
    double Trr[2][2];
@@ -852,16 +870,17 @@ double rec_HMLA_2photon_dxHIIdlna(double xe, double xHII, double nH, double H, d
    for (i = 0; i < 3; i++) Tvv[i] = create_1D_array(NVIRT);
 
    /* Redshift photon occupation number from previous times and higher energy bins */
-   fplus_from_fminus(Dfplus, Dfplus_Ly, Dfminus_hist, Dfminus_Ly_hist, TR, zstart, iz, z, atomic->Eb_tab);
+   class_call(fplus_from_fminus(Dfplus, Dfplus_Ly, Dfminus_hist, Dfminus_Ly_hist,
+                                TR, zstart, iz, z, atomic->Eb_tab, error_message),
+              error_message,
+              error_message);
 
    /* Compute real-real, real-virtual and virtual-virtual transition rates */
-   populateTS_2photon(Trr, Trv, Tvr, Tvv, sr, sv, Dtau, xe, xHII, TM, TR, nH, H, atomic,
-                      Dfplus, Dfplus_Ly, Alpha, DAlpha, Beta, fsR, meR, dEdtdV_dm, dEdtdV_pbh, f_exc, error);
-
-   if (*error == 1) {
-     fprintf(stderr, "  called from rec_HMLA_2photon_dxHIIdlna\n");
-     return 0.;
-   }
+   class_call(populateTS_2photon(Trr, Trv, Tvr, Tvv, sr, sv, Dtau, xe, xHII, TM, TR, nH, H, atomic,
+                                 Dfplus, Dfplus_Ly, Alpha, DAlpha, Beta, fsR, meR, dEdtdV_dm, dEdtdV_pbh,
+                                 f_exc, error_message),
+              error_message,
+              error_message);
 
    /* Solve for the population of the real and virtual states
       (in fact, for the difference xi - xi[eq with 1s]) */
@@ -872,11 +891,11 @@ double rec_HMLA_2photon_dxHIIdlna(double xe, double xHII, double nH, double H, d
    s    = SAHA_FACT(fsR, meR) *TR*sqrt(TR) *exp(-EI/TR)/nH;
    Dxe2 = xe*xHII - s*x1s;
 
-   dxedlna = -(nH *(s*x1s*DAlpha[0] + Alpha[0]*Dxe2) - xr[0]*Beta[0]
-              +nH *(s*x1s*DAlpha[1] + Alpha[1]*Dxe2) - xr[1]*Beta[1])/H
-              + (chi_ion(xHII)*ion + f_ion*dEdtdV_pbh/nH/EI)/H;
-              /* First term automatically includes the additional excitations
-                 since x2s, x2p are computed accounting for them */
+   *dxedlna = -(nH *(s*x1s*DAlpha[0] + Alpha[0]*Dxe2) - xr[0]*Beta[0]
+               +nH *(s*x1s*DAlpha[1] + Alpha[1]*Dxe2) - xr[1]*Beta[1])/H
+               + (chi_ion(xHII)*ion + f_ion*dEdtdV_pbh/nH/EI)/H;
+               /* First term automatically includes the additional excitations
+                  since x2s, x2p are computed accounting for them */
 
    /* Update fminuses */
 
@@ -906,8 +925,7 @@ double rec_HMLA_2photon_dxHIIdlna(double xe, double xHII, double nH, double H, d
    for (i = 0; i < 2; i++) free(Tvr[i]);
    for (i = 0; i < 3; i++) free(Tvv[i]);
 
-   return dxedlna;
-
+   return _SUCCESS_;
 }
 
 /**************************************************************************************
@@ -931,15 +949,21 @@ Single function that handles all cases depending on the switch.
 December 2014: added dependence on additional energy injection.
 ******************************************************************************************/
 
-double rec_dxHIIdlna(int model, double xe, double xHII, double nH, double H, double TM, double TR,
-                     HYREC_ATOMIC *atomic, RADIATION *rad, unsigned iz, double z,
-                     double fsR, double meR, double dEdtdV_dm, double dEdtdV_pbh, double f_ion, double f_exc, int *error){
+int rec_dxHIIdlna(int model, double xe, double xHII, double nH, double H, double TM, double TR,
+                  HYREC_ATOMIC *atomic, RADIATION *rad, unsigned iz, double z,
+                  double fsR, double meR, double dEdtdV_dm, double dEdtdV_pbh, double f_ion, double f_exc,
+                  double *result, ErrorMsg error_message){
 
-  double Pion, RLya, four_betaB, result;
+  double Pion, RLya, four_betaB;
 
-  if      (model == PEEBLES)  result = rec_TLA_dxHIIdlna(xe, xHII, nH, H, TM, TR, 1.00, fsR, meR, dEdtdV_dm, dEdtdV_pbh, f_ion, f_exc);
-  else if (model == RECFAST)  result = rec_TLA_dxHIIdlna(xe, xHII, nH, H, TM, TR, 1.14, fsR, meR, dEdtdV_dm, dEdtdV_pbh, f_ion, f_exc);
-  else if (model == EMLA2s2p) result = rec_HMLA_dxHIIdlna(xe, xHII, nH, H, TM, TR, atomic, fsR, meR, dEdtdV_dm, dEdtdV_pbh, f_ion, f_exc, error);
+  if      (model == PEEBLES)  *result = rec_TLA_dxHIIdlna(xe, xHII, nH, H, TM, TR, 1.00, fsR, meR, dEdtdV_dm, dEdtdV_pbh, f_ion, f_exc);
+  else if (model == RECFAST)  *result = rec_TLA_dxHIIdlna(xe, xHII, nH, H, TM, TR, 1.14, fsR, meR, dEdtdV_dm, dEdtdV_pbh, f_ion, f_exc);
+  else if (model == EMLA2s2p) {
+    class_call(rec_HMLA_dxHIIdlna(xe, xHII, nH, H, TM, TR, atomic, fsR, meR, dEdtdV_dm,
+                                  dEdtdV_pbh, f_ion, f_exc, result, error_message),
+               error_message,
+               error_message);
+  }
   else if (model == FULL) {
 
     /*  When the full two-photon rate is required for z < 900, makes a simple estimate of the probability of
@@ -952,23 +976,23 @@ double rec_dxHIIdlna(int model, double xe, double xHII, double nH, double H, dou
       Pion       = four_betaB/(3.*RLya + L2s1s + four_betaB);
     }
     if (Pion < PION_MAX) {
-      result = rec_HMLA_dxHIIdlna(xe, xHII, nH, H, TM, TR, atomic, fsR, meR, dEdtdV_dm, dEdtdV_pbh, f_ion, f_exc, error);
+      class_call(rec_HMLA_dxHIIdlna(xe, xHII, nH, H, TM, TR, atomic, fsR, meR, dEdtdV_dm,
+                                    dEdtdV_pbh, f_ion, f_exc, result, error_message),
+                 error_message,
+                 error_message);
     }
-    else result = rec_HMLA_2photon_dxHIIdlna(xe, xHII, nH, H, TM, TR, atomic,
-                                             rad->Dfminus_hist, rad->Dfminus_Ly_hist, rad->Dfnu_hist, rad->z0,
-                                             iz, z, fsR, meR, dEdtdV_dm, dEdtdV_pbh, f_ion, f_exc, error);
+    else class_call(rec_HMLA_2photon_dxHIIdlna(xe, xHII, nH, H, TM, TR, atomic,
+                                               rad->Dfminus_hist, rad->Dfminus_Ly_hist, rad->Dfnu_hist, rad->z0,
+                                               iz, z, fsR, meR, dEdtdV_dm, dEdtdV_pbh, f_ion, f_exc, result,
+                                               error_message),
+                    error_message,
+                    error_message);
   }
 
   else {
-    fprintf(stderr, "Error in rec_dxedlna: model = %i is undefined.\n", model);
-    *error = 1;
-    return 0.;
+    class_stop(error_message,
+               "model = %i is undefined.", model)
   }
 
-  if (*error == 1) {
-    fprintf(stderr, "  called from rec_dxHIIdlna\n");
-    return 0.;
-  }
-
-  return result;
+  return _SUCCESS_;
 }

@@ -24,6 +24,8 @@
 #include <stdio.h>
 #include <math.h>
 
+#include "helium.h"
+
 /************************************************************************************************
 Gets xe in He II + III equilibrium 
 *************************************************************************************************/
@@ -101,8 +103,8 @@ double rec_saha_xH1(double xHeII, double nH0, double T0, double z, double fsR, d
 value if hydrogen has already started to recombine (if H and He recombinations overlap).
 **************************************************************************************/
 
-double rec_helium_dxHeIIdlna(double xH1, double xHeII, double nH0, double Tr0, double fHe, double H, double z,
-                             double fsR, double meR) {
+int rec_helium_dxHeIIdlna(double xH1, double xHeII, double nH0, double Tr0, double fHe, double H, double z,
+                          double fsR, double meR, double *dxHeIIdlna, ErrorMsg error_message) {
     double Tr, nH, ainv, s, s0;
     double xe, xHeI, y2s, y2p, ydown;
     double etacinv, g2pinc, dnuline, tau2p, pesc, tauc, enh;
@@ -112,11 +114,10 @@ double rec_helium_dxHeIIdlna(double xH1, double xHeII, double nH0, double Tr0, d
     xHeI = fHe - xHeII;
 
     /* First catch potential errors */
-    if (xHeI < 0.){
-       fprintf(stderr, "Error in rec_helium_dxHeIIdlna, xHeI = %E < 0 at z = %f .\n", xHeI, z);
-       fprintf(stderr, "You should try and extend the hydrogen post-saha phase by increasing DXHII_MAX in history.h\n");
-       exit(1);
-    }
+    class_test(xHeI < 0.,
+               error_message,
+               "xHeI = %E at z = %f.\nTry and extend the hydrogen post-saha phase by increasing DXHII_MAX in history.h\n",
+               xHeI, z);
   
     /* Current conditions */
     Tr = Tr0*(ainv=1+z) /fsR/fsR/meR;  /* Rescaled temperature to account for different alpha or me */
@@ -170,8 +171,9 @@ double rec_helium_dxHeIIdlna(double xH1, double xHeII, double nH0, double Tr0, d
           + fsR*fsR*fsR*fsR*fsR*meR* 1.7989e9*y2p*pesc;     /*prefactor correcting 1-photon dipole rate */
 
  
-    return  ydown*(xHeI*s - xHeII*xe)/H;   /* Excitation is obtained by detailed balance */
+    *dxHeIIdlna = ydown*(xHeI*s - xHeII*xe)/H;   /* Excitation is obtained by detailed balance */
 
+    return _SUCCESS_;
 }
 
 /***********************************************************************************************************/

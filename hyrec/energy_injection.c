@@ -119,21 +119,21 @@ void update_dEdtdV_dep(double z_out, double dlna, double xe, double Tgas,
 Fraction of energy deposited in to a channel for PBHs
 *******************************************************************************/
 
-double dEdtdV_fraction_pbh(BSPLINE *bsp, double Mpbh, double z) {
+int dEdtdV_fraction_pbh(BSPLINE *bsp, double Mpbh, double z, double *eff_frac,
+                        ErrorMsg error_message) {
   double zp1 = 1.+z;
-  double eff_frac;
   int ecode;
 
   ecode = array_eval_bicubic_bspline(bsp, &zp1, 1,
                                      &Mpbh, 1,
-                                     &eff_frac);
+                                     eff_frac);
 
-  if (ecode != 0) {
-    fprintf(stderr, "Error in dEdtdV_fraction_pbh: class_interp2d failed\n");
-    exit(ecode);
-  }
+  class_test(ecode != 0,
+             error_message,
+             "array_eval_bicubic_bspline() returned error code %d",
+             ecode);
 
-  return eff_frac;
+  return _SUCCESS_;
 }
 
 

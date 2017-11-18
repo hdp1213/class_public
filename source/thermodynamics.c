@@ -3185,7 +3185,10 @@ int thermodynamics_recombination_with_hyrec(
 #ifdef HYREC
 
   HYREC_DATA hyrec_data;
-  hyrec_allocate(&hyrec_data, ppr->recfast_z_initial, 0., pth->read_external_files);
+  class_call(hyrec_allocate(&hyrec_data, ppr->recfast_z_initial, 0.,
+                            pth->read_external_files, pth->error_message),
+             pth->error_message,
+             pth->error_message);
 
   if (pth->read_external_files == _FALSE_) {
     class_test(preco->external_hyrec == NULL,
@@ -3250,11 +3253,13 @@ int thermodynamics_recombination_with_hyrec(
   if (pth->thermodynamics_verbose > 0)
     printf(" -> calling HyRec version %s,\n",HYREC_VERSION);
   
-  hyrec_compute(&hyrec_data, FULL,
-    pba->h, pba->T_cmb, pba->Omega0_b, Omega_m, pba->Omega0_k, pth->YHe, pba->Neff,
-    alpha_ratio, me_ratio, pann, pann_halo, pth->annihilation_z, pth->annihilation_zmax,
-    pth->annihilation_zmin, pth->annihilation_variation, pth->annihilation_z_halo,
-    pth->pbh_mass_mean, pba->Omega0_pbh_ratio);
+  class_call(hyrec_compute(&hyrec_data, FULL,
+                           pba->h, pba->T_cmb, pba->Omega0_b, Omega_m, pba->Omega0_k, pth->YHe, pba->Neff,
+                           alpha_ratio, me_ratio, pann, pann_halo, pth->annihilation_z, pth->annihilation_zmax,
+                           pth->annihilation_zmin, pth->annihilation_variation, pth->annihilation_z_halo,
+                           pth->pbh_mass_mean, pba->Omega0_pbh_ratio, pth->error_message),
+             pth->error_message,
+             pth->error_message);
  
   if (pth->thermodynamics_verbose > 0)
     printf("    by Y. Ali-Haïmoud & C. Hirata\n");

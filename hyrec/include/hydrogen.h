@@ -21,6 +21,8 @@
 /********************************************************************************************************/ 
 
 #include "io_params.h"
+/* CLASS common.h for all good CLASS stuff */
+#include "common.h"
 
 /* Definition of different recombination models  */
 
@@ -115,35 +117,34 @@ void free_radiation(RADIATION *rad);
 
 void allocate_atomic(HYREC_ATOMIC *atomic);
 void normalise_atomic(HYREC_ATOMIC *atomic);
-void allocate_and_read_atomic(HYREC_ATOMIC *atomic);
+int allocate_and_read_atomic(HYREC_ATOMIC *atomic, ErrorMsg error_message);
 
 void free_atomic(HYREC_ATOMIC *atomic);
-void interpolate_rates(double Alpha[2], double DAlpha[2], double Beta[2], double *R2p2s, double TR, double TM_TR,
-                       HYREC_ATOMIC *atomic, double fsR, double meR, int *error);
-double rec_HMLA_dxHIIdlna(double xe, double xHII, double nH, double H, double TM, double TR, 
-                          HYREC_ATOMIC *atomic, double fsR, double meR, double dEdtdV_dm, double dEdtdV_pbh,
-                          double f_ion, double f_exc, int *error);
+int interpolate_rates(double Alpha[2], double DAlpha[2], double Beta[2], double *R2p2s,
+                      double TR, double TM_TR, HYREC_ATOMIC *atomic, double fsR, double meR,
+                      ErrorMsg error_message);
+int rec_HMLA_dxHIIdlna(double xe, double xHII, double nH, double H, double TM, double TR,
+                       HYREC_ATOMIC *atomic, double fsR, double meR, double dEdtdV_dm, double dEdtdV_pbh,
+                       double f_ion, double f_exc, double *dxHIIdlna, ErrorMsg error_message);
 void populate_Diffusion(double *Aup, double *Adn, double *A2p_up, double *A2p_dn, 
                         double TM, double Eb_tab[NVIRT], double A1s_tab[NVIRT]);
-void populateTS_2photon(double Trr[2][2], double *Trv[2], double *Tvr[2], double *Tvv[3], 
-                        double sr[2], double sv[NVIRT], double Dtau[NVIRT],
-                        double xe, double xHII, double TM, double TR, double nH, double H, HYREC_ATOMIC *atomic,
-                        double Dfplus[NVIRT], double Dfplus_Ly[], 
-                        double Alpha[2], double DAlpha[2], double Beta[2], 
-                        double fsR, double meR, double dEdtdV_dm, double dEdtdV_pbh, double f_exc, int *error);
+int populateTS_2photon(double Trr[2][2], double *Trv[2], double *Tvr[2], double *Tvv[3],
+                       double sr[2], double sv[NVIRT], double Dtau[NVIRT],
+                       double xe, double xHII, double TM, double TR, double nH, double H, HYREC_ATOMIC *atomic,
+                       double Dfplus[NVIRT], double Dfplus_Ly[],
+                       double Alpha[2], double DAlpha[2], double Beta[2], double fsR, double meR, double dEdtdV_dm,
+                       double dEdtdV_pbh, double f_exc, ErrorMsg error_message);
 void solveTXeqB(double *diag, double *updiag, double *dndiag, double *X, double *B, unsigned N);
 void solve_real_virt(double xr[2], double xv[NVIRT], double Trr[2][2], double *Trv[2], double *Tvr[2], 
                      double *Tvv[3], double sr[2], double sv[NVIRT]);
-double interp_Dfnu(double x0, double dx, double *ytab, unsigned int Nx, double x);
-void fplus_from_fminus(double fplus[NVIRT], double fplus_Ly[], double **Dfminus_hist, double **Dfminus_Ly_hist, 
-                       double TR, double zstart, unsigned iz, double z, double Eb_tab[NVIRT]);
-double rec_HMLA_2photon_dxedlna(double xe, double nH, double H, double TM, double TR,
-                                HYREC_ATOMIC *atomic,
-                                double **Dfminus_hist, double **Dfminus_Ly_hist, double **Dfnu_hist,
-                                double zstart, unsigned iz, double z, double fsR, double meR, double dE_dtdV_dm, int *error);
-double rec_dxHIIdlna(int model, double xe, double xHII, double nH, double H, double TM, double TR, 
-                     HYREC_ATOMIC *atomic, RADIATION *rad, unsigned iz, double z,
-                     double fsR, double meR, double dEdtdV_dm, double dEdtdV_pbh, double f_ion, double f_exc, int *error);
+int interp_Dfnu(double lna_start, double dlna, double *ytab, unsigned int iz, double lna,
+                double* Dfnu_interp, ErrorMsg error_message);
+int fplus_from_fminus(double Dfplus[NVIRT], double Dfplus_Ly[], double **Dfminus_hist, double **Dfminus_Ly_hist,
+                      double TR, double zstart, unsigned iz, double z, double Eb_tab[NVIRT], ErrorMsg error_message);
+int rec_dxHIIdlna(int model, double xe, double xHII, double nH, double H, double TM, double TR,
+                  HYREC_ATOMIC *atomic, RADIATION *rad, unsigned iz, double z,
+                  double fsR, double meR, double dEdtdV_dm, double dEdtdV_pbh, double f_ion, double f_exc,
+                  double *result, ErrorMsg error_message);
 
 #ifdef __cplusplus
 }
