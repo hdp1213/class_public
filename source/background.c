@@ -526,6 +526,13 @@ int background_init(
   double w_fld, dw_over_da, integral_fld;
   int filenum=0;
 
+  /* set all these to NULL so CLASS won't complain when it frees memory it hasn't set yet. QUICK HACK */
+  pba->tau_table = NULL;
+  pba->z_table = NULL;
+  pba->d2tau_dz2_table = NULL;
+  pba->background_table = NULL;
+  pba->d2background_dtau2_table = NULL;
+
   /** - in verbose mode, provide some information */
   if (pba->background_verbose > 0) {
     printf("Running CLASS version %s\n",_VERSION_);

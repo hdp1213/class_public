@@ -3037,8 +3037,6 @@ int input_default_params(
 
   pth->compute_damping_scale = _FALSE_;
 
-  pth->has_allocated_tables = _FALSE_;
-
   /** - perturbation structure */
 
   ppt->has_cl_cmb_temperature = _FALSE_;

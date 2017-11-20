@@ -295,6 +295,11 @@ int thermodynamics_init(
   struct bspline_2d bsp_pbh_excite;
   struct bspline_2d bsp_pbh_heat;
 
+  /* set all these to NULL so CLASS won't complain when it frees memory it hasn't set yet. QUICK HACK */
+  pth->z_table = NULL;
+  pth->thermodynamics_table = NULL;
+  pth->d2thermodynamics_dz2_table = NULL;
+
   /** - initialize pointers */
 
   preco=&reco;
@@ -478,6 +483,8 @@ int thermodynamics_init(
   class_alloc(pvecback,pba->bg_size*sizeof(double),pba->error_message);
 
   /** - solve recombination and store values of \f$ z, x_e, d \kappa / d \tau, T_b, c_b^2 \f$ with thermodynamics_recombination() */
+
+  preco->recombination_table = NULL;
 
   class_call_except(thermodynamics_recombination(ppr,pba,pth,preco,pvecback),
                     pth->error_message,
@@ -983,11 +990,9 @@ int thermodynamics_free(
                         struct thermo * pth
                         ) {
 
-  if (pth->has_allocated_tables == _TRUE_) {
-    free(pth->z_table);
-    free(pth->thermodynamics_table);
-    free(pth->d2thermodynamics_dz2_table);
-  }
+  free(pth->z_table);
+  free(pth->thermodynamics_table);
+  free(pth->d2thermodynamics_dz2_table);
 
   return _SUCCESS_;
 }
@@ -4208,8 +4213,6 @@ int thermodynamics_merge_reco_and_reio(
   class_alloc(pth->z_table,pth->tt_size*sizeof(double),pth->error_message);
   class_alloc(pth->thermodynamics_table,pth->th_size*pth->tt_size*sizeof(double),pth->error_message);
   class_alloc(pth->d2thermodynamics_dz2_table,pth->th_size*pth->tt_size*sizeof(double),pth->error_message);
-
-  pth->has_allocated_tables = _TRUE_;
 
   /** - fill these arrays */
 
