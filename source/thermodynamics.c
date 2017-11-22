@@ -499,13 +499,18 @@ int thermodynamics_init(
                pth->error_message);
   }
 
+  /* quick memory hack */
+  preio->reionization_table = NULL;
+
   /** - if there is reionization, solve reionization and store values of \f$ z, x_e, d \kappa / d \tau, T_b, c_b^2 \f$ with thermodynamics_reionization()*/
 
   if (pth->reio_parametrization != reio_none) {
     class_call_except(thermodynamics_reionization(ppr,pba,pth,preco,preio,pvecback),
                       pth->error_message,
                       pth->error_message,
-                      free(pvecback);free(preco->recombination_table));
+                      free(pvecback);
+                      free(preco->recombination_table);
+                      free(preio->reionization_table));
   }
   else {
     preio->rt_size=0;
