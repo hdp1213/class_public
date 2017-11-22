@@ -513,9 +513,11 @@ int populateTS_2photon(double Trr[2][2], double *Trv[2], double *Tvr[2], double 
 
    RLya = LYA_FACT(fsR, meR) *H /nH/x1s;   /*8 PI H/(3 nH x1s lambda_Lya^3) */
 
-   class_call(interpolate_rates(Alpha, DAlpha, Beta, &R2p2s, TR, TM / TR, atomic, fsR, meR, error_message),
-              error_message,
-              error_message);
+   class_call_except(interpolate_rates(Alpha, DAlpha, Beta, &R2p2s, TR, TM / TR,
+                                       atomic, fsR, meR, error_message),
+                     error_message,
+                     error_message,
+                     free(Aup);free(Adn););
 
   /****** 2s row and column ******/
 
@@ -876,11 +878,13 @@ int rec_HMLA_2photon_dxHIIdlna(double xe, double xHII, double nH, double H, doub
               error_message);
 
    /* Compute real-real, real-virtual and virtual-virtual transition rates */
-   class_call(populateTS_2photon(Trr, Trv, Tvr, Tvv, sr, sv, Dtau, xe, xHII, TM, TR, nH, H, atomic,
-                                 Dfplus, Dfplus_Ly, Alpha, DAlpha, Beta, fsR, meR, dEdtdV_dm, dEdtdV_pbh,
-                                 f_exc, error_message),
-              error_message,
-              error_message);
+   class_call_except(populateTS_2photon(Trr, Trv, Tvr, Tvv, sr, sv, Dtau, xe, xHII, TM, TR, nH, H, atomic,
+                                        Dfplus, Dfplus_Ly, Alpha, DAlpha, Beta, fsR, meR, dEdtdV_dm, dEdtdV_pbh,
+                                        f_exc, error_message),
+                     error_message,
+                     error_message,
+                     for (i = 0; i < 2; i++) {free(Trv[i]); free(Tvr[i]);}
+                     for (i = 0; i < 3; i++) free(Tvv[i]););
 
    /* Solve for the population of the real and virtual states
       (in fact, for the difference xi - xi[eq with 1s]) */

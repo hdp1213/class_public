@@ -3258,13 +3258,15 @@ int thermodynamics_recombination_with_hyrec(
   if (pth->thermodynamics_verbose > 0)
     printf(" -> calling HyRec version %s,\n",HYREC_VERSION);
   
-  class_call(hyrec_compute(&hyrec_data, FULL,
-                           pba->h, pba->T_cmb, pba->Omega0_b, Omega_m, pba->Omega0_k, pth->YHe, pba->Neff,
-                           alpha_ratio, me_ratio, pann, pann_halo, pth->annihilation_z, pth->annihilation_zmax,
-                           pth->annihilation_zmin, pth->annihilation_variation, pth->annihilation_z_halo,
-                           pth->pbh_mass_mean, pba->Omega0_pbh_ratio, pth->error_message),
-             pth->error_message,
-             pth->error_message);
+  class_call_except(hyrec_compute(&hyrec_data, FULL,
+                                  pba->h, pba->T_cmb, pba->Omega0_b, Omega_m, pba->Omega0_k, pth->YHe, pba->Neff,
+                                  alpha_ratio, me_ratio, pann, pann_halo, pth->annihilation_z, pth->annihilation_zmax,
+                                  pth->annihilation_zmin, pth->annihilation_variation, pth->annihilation_z_halo,
+                                  pth->pbh_mass_mean, pba->Omega0_pbh_ratio, pth->error_message),
+                    pth->error_message,
+                    pth->error_message,
+                    hyrec_free(&hyrec_data, pth->read_external_files);
+                    free(preco->external_hyrec););
  
   if (pth->thermodynamics_verbose > 0)
     printf("    by Y. Ali-Haïmoud & C. Hirata\n");
