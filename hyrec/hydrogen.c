@@ -266,14 +266,12 @@ INPUT TEMPERATURE ASSUMED TO BE ALREADY RESCALED FOR VALUES OF alpha_fs and me
 int interpolate_rates(double Alpha[2], double DAlpha[2], double Beta[2], double *R2p2s,
                       double TR, double TM_TR, HYREC_ATOMIC *atomic, double fsR, double meR,
                       ErrorMsg error_message) {
-    double factor;
     unsigned l, k;
     long iTM, iTR;
     double frac1, frac2;
     double logTR;
     double coeff1[4], coeff2[4], temp[4];
     double Alpha_eq[2];
-    int use_PPB;
 
 
     /* Check that TM/TR is in range */
@@ -360,6 +358,7 @@ int interpolate_rates(double Alpha[2], double DAlpha[2], double Beta[2], double 
       DAlpha[l] = Alpha[l] - Alpha_eq[l];
     }
 
+    return _SUCCESS_;
 }
 
 /************************************************************************************************

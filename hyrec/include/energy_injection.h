@@ -6,6 +6,7 @@
 #include "common_pbh.h"
 /* CLASS common.h for all good CLASS stuff */
 #include "common.h"
+#include "arrays.h"
 
 /* Structure with all energy injection parameters */
 /* If adding a new energy injection process 

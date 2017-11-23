@@ -3252,8 +3252,8 @@ int thermodynamics_recombination_with_hyrec(
   double pann        = 1.78266e-21 *pth->annihilation;  /* Converting from m^3/s/kg to cm^3/s/GeV */
   double pann_halo   = 1.78266e-21 *pth->annihilation_f_halo;
     
-  int i,j,Nz;
-  double z, xe, Tm, Hz;
+  int i,Nz;
+  double z, xe, Tm;
   double tau;
   int last_index_back;
  
@@ -3329,9 +3329,6 @@ int thermodynamics_recombination_with_hyrec(
          pth->error_message,
          pth->error_message);
     */
-
-    /* Hz is H in inverse seconds (while pvecback returns [H0/c] in inverse Mpcs) */
-    Hz=pvecback[pba->index_bg_H] * _c_ / _Mpc_over_m_;
 
     /** - --> store the results in the table */
 

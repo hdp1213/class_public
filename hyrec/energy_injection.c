@@ -122,16 +122,13 @@ Fraction of energy deposited in to a channel for PBHs
 int dEdtdV_fraction_pbh(BSPLINE *bsp, double Mpbh, double z, double *eff_frac,
                         ErrorMsg error_message) {
   double zp1 = 1.+z;
-  int ecode;
 
-  ecode = array_eval_bicubic_bspline(bsp, &zp1, 1,
-                                     &Mpbh, 1,
-                                     eff_frac);
-
-  class_test(ecode != 0,
+  class_call(array_eval_bicubic_bspline(bsp, &zp1, 1,
+                                        &Mpbh, 1,
+                                        eff_frac,
+                                        error_message),
              error_message,
-             "array_eval_bicubic_bspline() returned error code %d",
-             ecode);
+             error_message);
 
   return _SUCCESS_;
 }

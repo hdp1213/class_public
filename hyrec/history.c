@@ -228,7 +228,7 @@ int rec_xH1_stiff(int model, REC_COSMOPARAMS *cosmo, double z, double xHeII, dou
                   HYREC_ATOMIC *atomic, RADIATION *rad, unsigned iz_rad,
                   double dEdtdV_dm, double dEdtdV_pbh, double f_ion, double f_exc, int *stiff, ErrorMsg error_message){
 
-  double Dxe, dx1s_dlna, dx1s_dlna2;
+  double dx1s_dlna, dx1s_dlna2;
   double eps, Gamma, xeq, dxeq_dlna, nH, H, T;
   int i;
 
@@ -467,7 +467,7 @@ int rec_build_history(int model, double zstart, double zend,
 
   long iz, iz_rad_0;
   double dxHIIdlna_prev[2], dTmdlna_prev[2], dxHeIIdlna_prev[2];
-  double z, Delta_xe, xHeII, xH1, dEdtdV_dep, xe, nH, H;
+  double z, Delta_xe, xHeII, xH1, dEdtdV_dep, nH, H;
   int quasi_eq;
 
   double pbh_energy, f_ion, f_exc, f_heat;
