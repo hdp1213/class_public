@@ -226,7 +226,7 @@ iz_rad is the index for the radiation field at z
 
 int rec_xH1_stiff(int model, REC_COSMOPARAMS *cosmo, double z, double xHeII, double *xH1,
                   HYREC_ATOMIC *atomic, RADIATION *rad, unsigned iz_rad,
-                  double dEdtdV_dm, double dEdtdV_pbh, double f_ion, double f_exc, int *stiff, ErrorMsg error_message){
+                  double dEdtdV_dm, double dEdtdV_pbh, double f_ion, double f_exc, int *stiff, long int Nz, ErrorMsg error_message){
 
   double dx1s_dlna, dx1s_dlna2;
   double eps, Gamma, xeq, dxeq_dlna, nH, H, T;
@@ -254,14 +254,14 @@ int rec_xH1_stiff(int model, REC_COSMOPARAMS *cosmo, double z, double xHeII, dou
 
     class_call(rec_dxHIIdlna(model, xHeII + 1.-xeq*(1.+eps), 1.-xeq*(1.+eps), nH, H, kBoltz*T, kBoltz*T,
                              atomic, rad, iz_rad, z, cosmo->fsR, cosmo->meR, dEdtdV_dm, dEdtdV_pbh, f_ion, f_exc,
-                             &dx1s_dlna2, error_message),
+                             &dx1s_dlna2, Nz, error_message),
                error_message,
                error_message);
     dx1s_dlna2 = -dx1s_dlna2;
 
     class_call(rec_dxHIIdlna(model, xHeII + 1.-xeq*(1.-eps), 1.-xeq*(1.-eps), nH, H, kBoltz*T, kBoltz*T,
                              atomic, rad, iz_rad, z, cosmo->fsR, cosmo->meR, dEdtdV_dm, dEdtdV_pbh, f_ion, f_exc,
-                             &dx1s_dlna, error_message),
+                             &dx1s_dlna, Nz, error_message),
                error_message,
                error_message);
     dx1s_dlna = -dx1s_dlna;
@@ -271,7 +271,7 @@ int rec_xH1_stiff(int model, REC_COSMOPARAMS *cosmo, double z, double xHeII, dou
 
     class_call(rec_dxHIIdlna(model, xHeII + 1.-xeq, 1.-xeq, nH, H, kBoltz*T, kBoltz*T,
                              atomic, rad, iz_rad, z, cosmo->fsR, cosmo->meR, dEdtdV_dm, dEdtdV_pbh, f_ion, f_exc,
-                             &dx1s_dlna, error_message),
+                             &dx1s_dlna, Nz, error_message),
                error_message,
                error_message);
     dx1s_dlna = -dx1s_dlna;
@@ -309,7 +309,7 @@ there is almost no HeII left, then integrate H only)
 int get_rec_next2_HHe(int model, REC_COSMOPARAMS *cosmo, double z_in, double Tm,
                       double *xH1, double *xHeII, HYREC_ATOMIC *atomic, RADIATION *rad, unsigned iz_rad,
                       double dxHIIdlna_prev[2], double dxHeIIdlna_prev[2], double dEdtdV_dm, double dEdtdV_pbh,
-                      double f_ion, double f_exc, int *stiff, ErrorMsg error_message) {
+                      double f_ion, double f_exc, int *stiff, long int Nz, ErrorMsg error_message) {
 
   double dxHeIIdlna, dxHIIdlna, z_out, xe;
   double nH, H, TR;
@@ -330,7 +330,7 @@ int get_rec_next2_HHe(int model, REC_COSMOPARAMS *cosmo, double z_in, double Tm,
      which is required even when using the stiff approximation */
   class_call(rec_dxHIIdlna(model, xe, 1.-(*xH1), nH, H, kBoltz*Tm, TR, atomic, rad,
                            iz_rad, z_in, cosmo->fsR, cosmo->meR, dEdtdV_dm, dEdtdV_pbh, f_ion, f_exc,
-                           &dxHIIdlna, error_message),
+                           &dxHIIdlna, Nz, error_message),
              error_message,
              error_message);
 
@@ -339,7 +339,7 @@ int get_rec_next2_HHe(int model, REC_COSMOPARAMS *cosmo, double z_in, double Tm,
   if(*stiff == 1){
     z_out = (1.+z_in)*exp(-DLNA)-1.;
     class_call(rec_xH1_stiff(model, cosmo, z_out, *xHeII, xH1, atomic, rad, iz_rad+1,
-                             dEdtdV_dm, dEdtdV_pbh, f_ion, f_exc, stiff, error_message),
+                             dEdtdV_dm, dEdtdV_pbh, f_ion, f_exc, stiff, Nz, error_message),
                error_message,
                error_message);
   }
@@ -365,7 +365,7 @@ Output: xe [at next timestep]
 int rec_get_xe_next1_H(int model, REC_COSMOPARAMS *cosmo, double z_in, double xe_in, double Tm_in,
                        double *xe_out, double *Tm_out, HYREC_ATOMIC *atomic, RADIATION *rad, unsigned iz_rad,
                        double dxedlna_prev[2], double dEdtdV_dm, double dEdtdV_pbh,
-                       double f_ion, double f_exc, double f_heat, int *stiff, ErrorMsg error_message) {
+                       double f_ion, double f_exc, double f_heat, int *stiff, long int Nz, ErrorMsg error_message) {
 
   double dxedlna, z_out;
   double nH, H, TR, xH1;
@@ -379,7 +379,7 @@ int rec_get_xe_next1_H(int model, REC_COSMOPARAMS *cosmo, double z_in, double xe
      which is required even when using the stiff approximation */
   class_call(rec_dxHIIdlna(model, xe_in, xe_in, nH, H, kBoltz*Tm_in, TR, atomic,
                           rad, iz_rad, z_in, cosmo->fsR, cosmo->meR, dEdtdV_dm, dEdtdV_pbh,
-                          f_ion, f_exc, &dxedlna, error_message),
+                          f_ion, f_exc, &dxedlna, Nz, error_message),
              error_message,
              error_message);
 
@@ -389,7 +389,7 @@ int rec_get_xe_next1_H(int model, REC_COSMOPARAMS *cosmo, double z_in, double xe
   if (*stiff == 1) {
     xH1 = 1.-xe_in;
     class_call(rec_xH1_stiff(model, cosmo, z_out, 0, &xH1, atomic, rad, iz_rad+1,
-                             dEdtdV_dm, dEdtdV_pbh, f_ion, f_exc, stiff, error_message),
+                             dEdtdV_dm, dEdtdV_pbh, f_ion, f_exc, stiff, Nz, error_message),
                error_message,
                error_message);
     *xe_out = 1.-xH1;
@@ -422,7 +422,7 @@ int rec_get_xe_next2_HTm(int model, REC_COSMOPARAMS *cosmo,
                          double z_in, double xe_in, double Tm_in, double *xe_out, double *Tm_out,
                          HYREC_ATOMIC *atomic, RADIATION *rad, unsigned iz_rad,
                          double dxedlna_prev[2], double dTmdlna_prev[2], double dEdtdV_dm, double dEdtdV_pbh,
-                         double f_ion, double f_exc, double f_heat, ErrorMsg error_message) {
+                         double f_ion, double f_exc, double f_heat, long int Nz, ErrorMsg error_message) {
 
   double dxedlna, dTmdlna, nH, H, TR;
 
@@ -440,7 +440,7 @@ int rec_get_xe_next2_HTm(int model, REC_COSMOPARAMS *cosmo,
 
   class_call(rec_dxHIIdlna(model, xe_in, xe_in, nH, H, kBoltz*Tm_in, TR, atomic,
                           rad, iz_rad, z_in, cosmo->fsR, cosmo->meR, dEdtdV_dm, dEdtdV_pbh,
-                          f_ion, f_exc, &dxedlna, error_message),
+                          f_ion, f_exc, &dxedlna, Nz, error_message),
              error_message,
              error_message);
 
@@ -469,6 +469,9 @@ int rec_build_history(int model, double zstart, double zend,
   double dxHIIdlna_prev[2], dTmdlna_prev[2], dxHeIIdlna_prev[2];
   double z, Delta_xe, xHeII, xH1, dEdtdV_dep, nH, H;
   int quasi_eq;
+  long int Nz;
+
+  Nz = (long int) (log(10.)/DLNA);
 
   double pbh_energy, f_ion, f_exc, f_heat;
 
@@ -562,7 +565,7 @@ int rec_build_history(int model, double zstart, double zend,
 
     class_call(get_rec_next2_HHe(model, cosmo, z, Tm_output[iz-1], &xH1, &xHeII, atomic,
                                  rad, iz-1-iz_rad_0, dxHIIdlna_prev, dxHeIIdlna_prev, dEdtdV_dep, pbh_energy,
-                                 f_ion, f_exc, &quasi_eq, error_message),
+                                 f_ion, f_exc, &quasi_eq, Nz, error_message),
                error_message,
                error_message);
 
@@ -610,7 +613,7 @@ int rec_build_history(int model, double zstart, double zend,
   for (; z >= 0. && fabs(1.-Tm_output[iz-1]/cosmo->T0/(1.+z)) < DLNT_MAX; iz++) {
     class_call(rec_get_xe_next1_H(model, cosmo, z, xe_output[iz-1], Tm_output[iz-1], xe_output+iz, Tm_output+iz,
                                   atomic, rad, iz-1-iz_rad_0, dxHIIdlna_prev, dEdtdV_dep, pbh_energy,
-                                  f_ion, f_exc, f_heat, &quasi_eq, error_message),
+                                  f_ion, f_exc, f_heat, &quasi_eq, Nz, error_message),
                error_message,
                error_message);
 
@@ -657,7 +660,7 @@ int rec_build_history(int model, double zstart, double zend,
   for(; z > zend; iz++) {
     class_call(rec_get_xe_next2_HTm(model, cosmo, z, xe_output[iz-1], Tm_output[iz-1], xe_output+iz, Tm_output+iz,
                                     atomic, rad, iz-1-iz_rad_0, dxHIIdlna_prev, dTmdlna_prev, dEdtdV_dep, pbh_energy,
-                                    f_ion, f_exc, f_heat, error_message),
+                                    f_ion, f_exc, f_heat, Nz, error_message),
                error_message,
                error_message);
     z  = (1.+zstart)*exp(-DLNA*iz) - 1.;

@@ -144,7 +144,7 @@ int fplus_from_fminus(double Dfplus[NVIRT], double Dfplus_Ly[], double **Dfminus
 int rec_dxHIIdlna(int model, double xe, double xHII, double nH, double H, double TM, double TR,
                   HYREC_ATOMIC *atomic, RADIATION *rad, unsigned iz, double z,
                   double fsR, double meR, double dEdtdV_dm, double dEdtdV_pbh, double f_ion, double f_exc,
-                  double *result, ErrorMsg error_message);
+                  double *result, long int Nz, ErrorMsg error_message);
 
 #ifdef __cplusplus
 }

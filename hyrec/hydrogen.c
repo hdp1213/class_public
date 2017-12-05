@@ -842,7 +842,7 @@ int rec_HMLA_2photon_dxHIIdlna(double xe, double xHII, double nH, double H, doub
                                HYREC_ATOMIC *atomic,
                                double **Dfminus_hist, double **Dfminus_Ly_hist, double **Dfnu_hist,
                                double zstart, unsigned iz, double z, double fsR, double meR, double dEdtdV_dm, double dEdtdV_pbh,
-                               double f_ion, double f_exc, double *dxedlna, ErrorMsg error_message){
+                               double f_ion, double f_exc, double *dxedlna, long int Nz, ErrorMsg error_message){
 
    double xr[2], xv[NVIRT], Dfplus[NVIRT], Dfplus_Ly[2]; /* Assume incoming radiation blueward of Ly-gamma is Blackbody */
    double one_minus_Pib, one_minus_exptau, Dfeq, s, x1s, Dxe2;
@@ -902,6 +902,10 @@ int rec_HMLA_2photon_dxHIIdlna(double xe, double xHII, double nH, double H, doub
 
    /* Update fminuses */
 
+   class_test(iz >= Nz,
+              error_message,
+              "What are we doing here?");
+
    for (b = 0; b < NVIRT; b++) {
      if (Dtau[b] > 1e-30) {
          one_minus_Pib = Dtau[b] > 1e-6 ? 1.- (1.-exp(-Dtau[b]))/Dtau[b] : Dtau[b]/2. - square(Dtau[b])/6.;
@@ -955,7 +959,7 @@ December 2014: added dependence on additional energy injection.
 int rec_dxHIIdlna(int model, double xe, double xHII, double nH, double H, double TM, double TR,
                   HYREC_ATOMIC *atomic, RADIATION *rad, unsigned iz, double z,
                   double fsR, double meR, double dEdtdV_dm, double dEdtdV_pbh, double f_ion, double f_exc,
-                  double *result, ErrorMsg error_message){
+                  double *result, long int Nz, ErrorMsg error_message){
 
   double Pion, RLya, four_betaB;
 
@@ -986,7 +990,7 @@ int rec_dxHIIdlna(int model, double xe, double xHII, double nH, double H, double
     }
     else class_call(rec_HMLA_2photon_dxHIIdlna(xe, xHII, nH, H, TM, TR, atomic,
                                                rad->Dfminus_hist, rad->Dfminus_Ly_hist, rad->Dfnu_hist, rad->z0,
-                                               iz, z, fsR, meR, dEdtdV_dm, dEdtdV_pbh, f_ion, f_exc, result,
+                                               iz, z, fsR, meR, dEdtdV_dm, dEdtdV_pbh, f_ion, f_exc, result, Nz,
                                                error_message),
                     error_message,
                     error_message);
