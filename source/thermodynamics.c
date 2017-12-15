@@ -73,7 +73,6 @@
  */
 
 #include "thermodynamics.h"
-#include "common_pbh.h"
 
 #ifdef HYREC
 #include "hyrec.h"
@@ -3238,8 +3237,9 @@ int thermodynamics_recombination_with_hyrec(
   hyrec_data.pbh->z_deps = preco->pbh_z_deps;
   hyrec_data.pbh->z_deps_size = preco->pz_size;
 
-  /* Also need to set this field which wasn't already set for some reason */
+  /* Also need to set these fields */
   hyrec_data.cosmo->inj_params->on_the_spot = (int) pth->has_on_the_spot;
+  hyrec_data.cosmo->inj_params->mass_dist = pth->pbh_mass_dist;
 
   /* As we already have allocated memory to the axes and b-splines, only need to deallocate
      memory give to hyrec_data.pbh in hyrec_allocate(). This is done in hyrec_free(). */
@@ -3267,7 +3267,7 @@ int thermodynamics_recombination_with_hyrec(
                                   pba->h, pba->T_cmb, pba->Omega0_b, Omega_m, pba->Omega0_k, pth->YHe, pba->Neff,
                                   alpha_ratio, me_ratio, pann, pann_halo, pth->annihilation_z, pth->annihilation_zmax,
                                   pth->annihilation_zmin, pth->annihilation_variation, pth->annihilation_z_halo,
-                                  pth->pbh_mass_mean, pba->Omega0_pbh_ratio, pth->error_message),
+                                  pth->pbh_mass_mean, pba->Omega0_pbh_ratio, pth->pbh_mass_width, pth->error_message),
                     pth->error_message,
                     pth->error_message,
                     hyrec_free(&hyrec_data, pth->read_external_files);

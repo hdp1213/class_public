@@ -86,7 +86,7 @@ The input and output temperatures are in KELVIN.
 Added December 2014: possibility for additional energy deposition dEdtdV_dm in eV/s/cm^3.
 ******************************************************************************************/
 
-double rec_Tmss(double z, double xe, REC_COSMOPARAMS *cosmo, double dEdtdV_dm, double dEdtdV_pbh, double f_heat) {
+double rec_Tmss(double z, double xe, REC_COSMOPARAMS *cosmo, double dEdtdV_dm, double F_heat) {
 
   double fsR = cosmo->fsR;
   double meR = cosmo->meR;
@@ -98,7 +98,7 @@ double rec_Tmss(double z, double xe, REC_COSMOPARAMS *cosmo, double dEdtdV_dm, d
   /* Here Tr, Tm are the actual (not rescaled) temperatures */
   double coeff = fsR*fsR/meR/meR/meR*4.91466895548409e-22*Tr*Tr*Tr*Tr*xe/(1.+xe+cosmo->fHe)/H;
   double Tm = Tr/(1.+1./coeff)
-            + 2./3./kBoltz/H* (chi_heat(xe)*dEdtdV_dm + f_heat*dEdtdV_pbh)/nH /(1.+xe+cosmo->fHe) /(1.+coeff);
+            + 2./3./kBoltz/H* (chi_heat(xe)*dEdtdV_dm + F_heat)/nH /(1.+xe+cosmo->fHe) /(1.+coeff);
 
   return Tm;
 }
@@ -112,7 +112,7 @@ be some flag for quasi-steady-state, will eventually fix.
 Added December 2014: possibility of additional energy deposition dEdtdV_dm in eV/s/cm^3.
 ******************************************************************************************/
 
-double rec_dTmdlna(double z, double xe, double Tm, REC_COSMOPARAMS *cosmo, double dEdtdV_dm, double dEdtdV_pbh, double f_heat) {
+double rec_dTmdlna(double z, double xe, double Tm, REC_COSMOPARAMS *cosmo, double dEdtdV_dm, double F_heat) {
   double fsR = cosmo->fsR;
   double meR = cosmo->meR;
   double Tr  = cosmo->T0 *(1.+z);
@@ -121,7 +121,7 @@ double rec_dTmdlna(double z, double xe, double Tm, REC_COSMOPARAMS *cosmo, doubl
 
   return ((Tr/Tm-1. < 1e-10) && (Tr > 3000.)) ? -Tr :
           -2.*Tm + fsR*fsR/meR/meR/meR*4.91466895548409e-22*Tr*Tr*Tr*Tr*xe/(1.+xe+cosmo->fHe)*(Tr-Tm)/H
-                + 2./3./kBoltz/H* (chi_heat(xe)*dEdtdV_dm + f_heat*dEdtdV_pbh)/nH /(1.+xe+cosmo->fHe);
+                + 2./3./kBoltz/H* (chi_heat(xe)*dEdtdV_dm + F_heat)/nH /(1.+xe+cosmo->fHe);
    /* Coefficient = 8 sigma_T a_r / (3 m_e c) */
    /* Here Tr, Tm are the actual (not rescaled) temperatures */
 }
@@ -226,7 +226,7 @@ iz_rad is the index for the radiation field at z
 
 int rec_xH1_stiff(int model, REC_COSMOPARAMS *cosmo, double z, double xHeII, double *xH1,
                   HYREC_ATOMIC *atomic, RADIATION *rad, unsigned iz_rad,
-                  double dEdtdV_dm, double dEdtdV_pbh, double f_ion, double f_exc, int *stiff, long int Nz, ErrorMsg error_message){
+                  double dEdtdV_dm, double F_ion, double F_exc, int *stiff, long int Nz, ErrorMsg error_message){
 
   double dx1s_dlna, dx1s_dlna2;
   double eps, Gamma, xeq, dxeq_dlna, nH, H, T;
@@ -253,14 +253,14 @@ int rec_xH1_stiff(int model, REC_COSMOPARAMS *cosmo, double z, double xHeII, dou
   for (i = 0; i < 2; i++) { // After 2 iterations it is well converged
 
     class_call(rec_dxHIIdlna(model, xHeII + 1.-xeq*(1.+eps), 1.-xeq*(1.+eps), nH, H, kBoltz*T, kBoltz*T,
-                             atomic, rad, iz_rad, z, cosmo->fsR, cosmo->meR, dEdtdV_dm, dEdtdV_pbh, f_ion, f_exc,
+                             atomic, rad, iz_rad, z, cosmo->fsR, cosmo->meR, dEdtdV_dm, F_ion, F_exc,
                              &dx1s_dlna2, Nz, error_message),
                error_message,
                error_message);
     dx1s_dlna2 = -dx1s_dlna2;
 
     class_call(rec_dxHIIdlna(model, xHeII + 1.-xeq*(1.-eps), 1.-xeq*(1.-eps), nH, H, kBoltz*T, kBoltz*T,
-                             atomic, rad, iz_rad, z, cosmo->fsR, cosmo->meR, dEdtdV_dm, dEdtdV_pbh, f_ion, f_exc,
+                             atomic, rad, iz_rad, z, cosmo->fsR, cosmo->meR, dEdtdV_dm, F_ion, F_exc,
                              &dx1s_dlna, Nz, error_message),
                error_message,
                error_message);
@@ -270,7 +270,7 @@ int rec_xH1_stiff(int model, REC_COSMOPARAMS *cosmo, double z, double xHeII, dou
     Gamma = (dx1s_dlna2 - dx1s_dlna)/(2.*eps* xeq);
 
     class_call(rec_dxHIIdlna(model, xHeII + 1.-xeq, 1.-xeq, nH, H, kBoltz*T, kBoltz*T,
-                             atomic, rad, iz_rad, z, cosmo->fsR, cosmo->meR, dEdtdV_dm, dEdtdV_pbh, f_ion, f_exc,
+                             atomic, rad, iz_rad, z, cosmo->fsR, cosmo->meR, dEdtdV_dm, F_ion, F_exc,
                              &dx1s_dlna, Nz, error_message),
                error_message,
                error_message);
@@ -308,8 +308,8 @@ there is almost no HeII left, then integrate H only)
 
 int get_rec_next2_HHe(int model, REC_COSMOPARAMS *cosmo, double z_in, double Tm,
                       double *xH1, double *xHeII, HYREC_ATOMIC *atomic, RADIATION *rad, unsigned iz_rad,
-                      double dxHIIdlna_prev[2], double dxHeIIdlna_prev[2], double dEdtdV_dm, double dEdtdV_pbh,
-                      double f_ion, double f_exc, int *stiff, long int Nz, ErrorMsg error_message) {
+                      double dxHIIdlna_prev[2], double dxHeIIdlna_prev[2], double dEdtdV_dm,
+                      double F_ion, double F_exc, int *stiff, long int Nz, ErrorMsg error_message) {
 
   double dxHeIIdlna, dxHIIdlna, z_out, xe;
   double nH, H, TR;
@@ -329,7 +329,7 @@ int get_rec_next2_HHe(int model, REC_COSMOPARAMS *cosmo, double z_in, double Tm,
   /* Compute dxHII/dlna. This also correctly updates the radiation field at z_in,
      which is required even when using the stiff approximation */
   class_call(rec_dxHIIdlna(model, xe, 1.-(*xH1), nH, H, kBoltz*Tm, TR, atomic, rad,
-                           iz_rad, z_in, cosmo->fsR, cosmo->meR, dEdtdV_dm, dEdtdV_pbh, f_ion, f_exc,
+                           iz_rad, z_in, cosmo->fsR, cosmo->meR, dEdtdV_dm, F_ion, F_exc,
                            &dxHIIdlna, Nz, error_message),
              error_message,
              error_message);
@@ -339,7 +339,7 @@ int get_rec_next2_HHe(int model, REC_COSMOPARAMS *cosmo, double z_in, double Tm,
   if(*stiff == 1){
     z_out = (1.+z_in)*exp(-DLNA)-1.;
     class_call(rec_xH1_stiff(model, cosmo, z_out, *xHeII, xH1, atomic, rad, iz_rad+1,
-                             dEdtdV_dm, dEdtdV_pbh, f_ion, f_exc, stiff, Nz, error_message),
+                             dEdtdV_dm, F_ion, F_exc, stiff, Nz, error_message),
                error_message,
                error_message);
   }
@@ -364,8 +364,8 @@ Output: xe [at next timestep]
 
 int rec_get_xe_next1_H(int model, REC_COSMOPARAMS *cosmo, double z_in, double xe_in, double Tm_in,
                        double *xe_out, double *Tm_out, HYREC_ATOMIC *atomic, RADIATION *rad, unsigned iz_rad,
-                       double dxedlna_prev[2], double dEdtdV_dm, double dEdtdV_pbh,
-                       double f_ion, double f_exc, double f_heat, int *stiff, long int Nz, ErrorMsg error_message) {
+                       double dxedlna_prev[2], double dEdtdV_dm,
+                       double F_ion, double F_exc, double F_heat, int *stiff, long int Nz, ErrorMsg error_message) {
 
   double dxedlna, z_out;
   double nH, H, TR, xH1;
@@ -378,8 +378,8 @@ int rec_get_xe_next1_H(int model, REC_COSMOPARAMS *cosmo, double z_in, double xe
   /* Compute dxHII/dlna. This also correctly updates the radiation field at z_in,
      which is required even when using the stiff approximation */
   class_call(rec_dxHIIdlna(model, xe_in, xe_in, nH, H, kBoltz*Tm_in, TR, atomic,
-                          rad, iz_rad, z_in, cosmo->fsR, cosmo->meR, dEdtdV_dm, dEdtdV_pbh,
-                          f_ion, f_exc, &dxedlna, Nz, error_message),
+                          rad, iz_rad, z_in, cosmo->fsR, cosmo->meR, dEdtdV_dm,
+                          F_ion, F_exc, &dxedlna, Nz, error_message),
              error_message,
              error_message);
 
@@ -389,7 +389,7 @@ int rec_get_xe_next1_H(int model, REC_COSMOPARAMS *cosmo, double z_in, double xe
   if (*stiff == 1) {
     xH1 = 1.-xe_in;
     class_call(rec_xH1_stiff(model, cosmo, z_out, 0, &xH1, atomic, rad, iz_rad+1,
-                             dEdtdV_dm, dEdtdV_pbh, f_ion, f_exc, stiff, Nz, error_message),
+                             dEdtdV_dm, F_ion, F_exc, stiff, Nz, error_message),
                error_message,
                error_message);
     *xe_out = 1.-xH1;
@@ -399,7 +399,7 @@ int rec_get_xe_next1_H(int model, REC_COSMOPARAMS *cosmo, double z_in, double xe
   else *xe_out = xe_in + DLNA * hyrec_integrator(dxedlna, dxedlna_prev);
 
   /* Quasi-steady state solution for Tm */
-  *Tm_out = rec_Tmss(z_out, *xe_out, cosmo, dEdtdV_dm, dEdtdV_pbh, f_heat);
+  *Tm_out = rec_Tmss(z_out, *xe_out, cosmo, dEdtdV_dm, F_heat);
 
   // Test that the outcome is sensible
   class_test((*xe_out > 1.) || (*xe_out < 0.) || (*xe_out != *xe_out),
@@ -421,8 +421,8 @@ September 2016: added dEdtdV_dep, the *deposited* energy
 int rec_get_xe_next2_HTm(int model, REC_COSMOPARAMS *cosmo,
                          double z_in, double xe_in, double Tm_in, double *xe_out, double *Tm_out,
                          HYREC_ATOMIC *atomic, RADIATION *rad, unsigned iz_rad,
-                         double dxedlna_prev[2], double dTmdlna_prev[2], double dEdtdV_dm, double dEdtdV_pbh,
-                         double f_ion, double f_exc, double f_heat, long int Nz, ErrorMsg error_message) {
+                         double dxedlna_prev[2], double dTmdlna_prev[2], double dEdtdV_dm,
+                         double F_ion, double F_exc, double F_heat, long int Nz, ErrorMsg error_message) {
 
   double dxedlna, dTmdlna, nH, H, TR;
 
@@ -439,12 +439,12 @@ int rec_get_xe_next2_HTm(int model, REC_COSMOPARAMS *cosmo,
       || kBoltz*Tm_in/TR <= TM_TR_MIN) model = PEEBLES;
 
   class_call(rec_dxHIIdlna(model, xe_in, xe_in, nH, H, kBoltz*Tm_in, TR, atomic,
-                          rad, iz_rad, z_in, cosmo->fsR, cosmo->meR, dEdtdV_dm, dEdtdV_pbh,
-                          f_ion, f_exc, &dxedlna, Nz, error_message),
+                          rad, iz_rad, z_in, cosmo->fsR, cosmo->meR, dEdtdV_dm,
+                          F_ion, F_exc, &dxedlna, Nz, error_message),
              error_message,
              error_message);
 
-  dTmdlna = rec_dTmdlna(z_in, xe_in, Tm_in, cosmo, dEdtdV_dm, dEdtdV_pbh, f_heat);
+  dTmdlna = rec_dTmdlna(z_in, xe_in, Tm_in, cosmo, dEdtdV_dm, F_heat);
 
   *xe_out = xe_in + DLNA *hyrec_integrator(dxedlna, dxedlna_prev);
   *Tm_out = Tm_in + DLNA *hyrec_integrator(dTmdlna, dTmdlna_prev);
@@ -473,7 +473,7 @@ int rec_build_history(int model, double zstart, double zend,
 
   Nz = (long int) (log(10.)/DLNA);
 
-  double pbh_energy, f_ion, f_exc, f_heat;
+  double F_ion, F_exc, F_heat;
 
   // Index at which we start integrating Hydrogen recombination, and corresponding redshift
   iz_rad_0  = (long) floor(1 + log(kBoltz*cosmo->T0/square(cosmo->fsR)/cosmo->meR*(1.+zstart)/TR_MAX)/DLNA);
@@ -512,7 +512,7 @@ int rec_build_history(int model, double zstart, double zend,
     z             = (1.+zstart)*exp(-DLNA*iz) - 1.;
     xH1           = rec_saha_xH1(xHeII, cosmo->nH0, cosmo->T0, z, cosmo->fsR, cosmo->meR);
     xe_output[iz] = 1.-xH1 + xHeII;
-    Tm_output[iz] = rec_Tmss(z, xe_output[iz], cosmo, 0., 0., 0.);
+    Tm_output[iz] = rec_Tmss(z, xe_output[iz], cosmo, 0., 0.);
 
   }
 
@@ -535,37 +535,16 @@ int rec_build_history(int model, double zstart, double zend,
   update_dEdtdV_dep(z, DLNA, xe_output[iz-1], Tm_output[iz-1], nH, H,
                     cosmo->inj_params, &dEdtdV_dep);
 
-  pbh_energy = dEdtdV_pbh(z, cosmo->inj_params);
-  class_call(dEdtdV_fraction_pbh(pbh->hion,
-                                 cosmo->inj_params->Mpbh,
-                                 z,
-                                 &f_ion,
-                                 error_message),
+  class_call(pbh_F(pbh, cosmo->inj_params, z,
+                   &F_ion, &F_exc, &F_heat, error_message),
              error_message,
              error_message);
-  class_call(dEdtdV_fraction_pbh(pbh->excite,
-                                 cosmo->inj_params->Mpbh,
-                                 z,
-                                 &f_exc,
-                                 error_message),
-             error_message,
-             error_message);
-  class_call(dEdtdV_fraction_pbh(pbh->heat,
-                                 cosmo->inj_params->Mpbh,
-                                 z,
-                                 &f_heat,
-                                 error_message),
-             error_message,
-             error_message);
-#ifdef PBH_DEBUG
-  printf("%15.13le\t%15.13le\t%15.13le\t%15.13le\t%15.13le\n", z, pbh_energy, f_ion, f_exc, f_heat);
-#endif
 
   for(; z >= 0. && xHeII > XHEII_MIN; iz++) {
 
     class_call(get_rec_next2_HHe(model, cosmo, z, Tm_output[iz-1], &xH1, &xHeII, atomic,
-                                 rad, iz-1-iz_rad_0, dxHIIdlna_prev, dxHeIIdlna_prev, dEdtdV_dep, pbh_energy,
-                                 f_ion, f_exc, &quasi_eq, Nz, error_message),
+                                 rad, iz-1-iz_rad_0, dxHIIdlna_prev, dxHeIIdlna_prev, dEdtdV_dep,
+                                 F_ion, F_exc, &quasi_eq, Nz, error_message),
                error_message,
                error_message);
 
@@ -575,33 +554,12 @@ int rec_build_history(int model, double zstart, double zend,
     nH = cosmo->nH0*cube(1.+z);
     H  = rec_HubbleRate(cosmo, z);
 
-    Tm_output[iz] = rec_Tmss(z, xe_output[iz], cosmo, dEdtdV_dep, pbh_energy, f_heat);
+    Tm_output[iz] = rec_Tmss(z, xe_output[iz], cosmo, dEdtdV_dep, F_heat);
 
-    pbh_energy = dEdtdV_pbh(z, cosmo->inj_params);
-    class_call(dEdtdV_fraction_pbh(pbh->hion,
-                                   cosmo->inj_params->Mpbh,
-                                   z,
-                                   &f_ion,
-                                   error_message),
+    class_call(pbh_F(pbh, cosmo->inj_params, z,
+                     &F_ion, &F_exc, &F_heat, error_message),
                error_message,
                error_message);
-    class_call(dEdtdV_fraction_pbh(pbh->excite,
-                                   cosmo->inj_params->Mpbh,
-                                   z,
-                                   &f_exc,
-                                   error_message),
-               error_message,
-               error_message);
-    class_call(dEdtdV_fraction_pbh(pbh->heat,
-                                   cosmo->inj_params->Mpbh,
-                                   z,
-                                   &f_heat,
-                                   error_message),
-               error_message,
-               error_message);
-#ifdef PBH_DEBUG
-    printf("%15.13le\t%15.13le\t%15.13le\t%15.13le\t%15.13le\n", z, pbh_energy, f_ion, f_exc, f_heat);
-#endif
 
     update_dEdtdV_dep(z, DLNA, xe_output[iz], Tm_output[iz], nH, H, cosmo->inj_params, &dEdtdV_dep);
   }
@@ -612,39 +570,18 @@ int rec_build_history(int model, double zstart, double zend,
 
   for (; z >= 0. && fabs(1.-Tm_output[iz-1]/cosmo->T0/(1.+z)) < DLNT_MAX; iz++) {
     class_call(rec_get_xe_next1_H(model, cosmo, z, xe_output[iz-1], Tm_output[iz-1], xe_output+iz, Tm_output+iz,
-                                  atomic, rad, iz-1-iz_rad_0, dxHIIdlna_prev, dEdtdV_dep, pbh_energy,
-                                  f_ion, f_exc, f_heat, &quasi_eq, Nz, error_message),
+                                  atomic, rad, iz-1-iz_rad_0, dxHIIdlna_prev, dEdtdV_dep,
+                                  F_ion, F_exc, F_heat, &quasi_eq, Nz, error_message),
                error_message,
                error_message);
 
     z  = (1.+zstart)*exp(-DLNA*iz) - 1.;
     nH = cosmo->nH0*cube(1.+z);
     H  = rec_HubbleRate(cosmo, z);
-    pbh_energy = dEdtdV_pbh(z, cosmo->inj_params);
-    class_call(dEdtdV_fraction_pbh(pbh->hion,
-                                   cosmo->inj_params->Mpbh,
-                                   z,
-                                   &f_ion,
-                                   error_message),
+    class_call(pbh_F(pbh, cosmo->inj_params, z,
+                     &F_ion, &F_exc, &F_heat, error_message),
                error_message,
                error_message);
-    class_call(dEdtdV_fraction_pbh(pbh->excite,
-                                   cosmo->inj_params->Mpbh,
-                                   z,
-                                   &f_exc,
-                                   error_message),
-               error_message,
-               error_message);
-    class_call(dEdtdV_fraction_pbh(pbh->heat,
-                                   cosmo->inj_params->Mpbh,
-                                   z,
-                                   &f_heat,
-                                   error_message),
-               error_message,
-               error_message);
-#ifdef PBH_DEBUG
-    printf("%15.13le\t%15.13le\t%15.13le\t%15.13le\t%15.13le\n", z, pbh_energy, f_ion, f_exc, f_heat);
-#endif
 
     update_dEdtdV_dep(z, DLNA, xe_output[iz], Tm_output[iz], nH, H, cosmo->inj_params, &dEdtdV_dep);
   }
@@ -659,38 +596,17 @@ int rec_build_history(int model, double zstart, double zend,
 
   for(; z > zend; iz++) {
     class_call(rec_get_xe_next2_HTm(model, cosmo, z, xe_output[iz-1], Tm_output[iz-1], xe_output+iz, Tm_output+iz,
-                                    atomic, rad, iz-1-iz_rad_0, dxHIIdlna_prev, dTmdlna_prev, dEdtdV_dep, pbh_energy,
-                                    f_ion, f_exc, f_heat, Nz, error_message),
+                                    atomic, rad, iz-1-iz_rad_0, dxHIIdlna_prev, dTmdlna_prev, dEdtdV_dep,
+                                    F_ion, F_exc, F_heat, Nz, error_message),
                error_message,
                error_message);
     z  = (1.+zstart)*exp(-DLNA*iz) - 1.;
     nH = cosmo->nH0*cube(1.+z);
     H  = rec_HubbleRate(cosmo, z);
-    pbh_energy = dEdtdV_pbh(z, cosmo->inj_params);
-    class_call(dEdtdV_fraction_pbh(pbh->hion,
-                                   cosmo->inj_params->Mpbh,
-                                   z,
-                                   &f_ion,
-                                   error_message),
+    class_call(pbh_F(pbh, cosmo->inj_params, z,
+                     &F_ion, &F_exc, &F_heat, error_message),
                error_message,
                error_message);
-    class_call(dEdtdV_fraction_pbh(pbh->excite,
-                                   cosmo->inj_params->Mpbh,
-                                   z,
-                                   &f_exc,
-                                   error_message),
-               error_message,
-               error_message);
-    class_call(dEdtdV_fraction_pbh(pbh->heat,
-                                   cosmo->inj_params->Mpbh,
-                                   z,
-                                   &f_heat,
-                                   error_message),
-               error_message,
-               error_message);
-#ifdef PBH_DEBUG
-    printf("%15.13le\t%15.13le\t%15.13le\t%15.13le\t%15.13le\n", z, pbh_energy, f_ion, f_exc, f_heat);
-#endif
 
     update_dEdtdV_dep(z, DLNA, xe_output[iz], Tm_output[iz], nH, H, cosmo->inj_params, &dEdtdV_dep);
   }
@@ -755,7 +671,7 @@ Compute a recombination history given input cosmological parameters
 int hyrec_compute(HYREC_DATA *data, int model,
                   double h, double T0, double Omega_b, double Omega_m, double Omega_k, double YHe, double Nnueff,
                   double alphaR, double meR, double pann, double pann_halo, double ann_z, double ann_zmax,
-                  double ann_zmin, double ann_var, double ann_z_halo, double Mpbh, double fpbh,
+                  double ann_zmin, double ann_var, double ann_z_halo, double Mpbh, double fpbh, double Wpbh,
                   ErrorMsg error_message){
 
   data->cosmo->T0    = T0;
@@ -784,6 +700,7 @@ int hyrec_compute(HYREC_DATA *data, int model,
   /* dark matter PBHs */
   data->cosmo->inj_params->Mpbh = Mpbh;
   data->cosmo->inj_params->fpbh = fpbh;
+  data->cosmo->inj_params->Wpbh = Wpbh;
 
 
   class_call(rec_build_history(model, data->zmax, data->zmin, data->cosmo, data->atomic,

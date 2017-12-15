@@ -88,7 +88,7 @@ Add in your favorite energy injection mechanism here
 ***********************************************************************************/
 
 double dEdtdV_inj(double z, INJ_PARAMS *params){
-  return   dEdtdV_DM_ann(z, params);
+  return dEdtdV_DM_ann(z, params);
     // + dEdtdV_pbh(z, params);
 }
 
@@ -116,11 +116,11 @@ void update_dEdtdV_dep(double z_out, double dlna, double xe, double Tgas,
 }
 
 /*******************************************************************************
-Fraction of energy deposited in to a channel for PBHs
+Fraction of energy deposited in to a channel for delta mass PBHs
 *******************************************************************************/
 
-int dEdtdV_fraction_pbh(BSPLINE *bsp, double Mpbh, double z, double *eff_frac,
-                        ErrorMsg error_message) {
+int pbh_dep_frac_delta(BSPLINE *bsp, double Mpbh, double z, double *eff_frac,
+                       ErrorMsg error_message) {
   double zp1 = 1.+z;
 
   class_call(array_eval_bicubic_bspline(bsp, &zp1, 1,
@@ -129,6 +129,87 @@ int dEdtdV_fraction_pbh(BSPLINE *bsp, double Mpbh, double z, double *eff_frac,
                                         error_message),
              error_message,
              error_message);
+
+  return _SUCCESS_;
+}
+
+/*******************************************************************************
+Big F energy parameters for each channel for delta mass PBHs
+*******************************************************************************/
+
+int pbh_F_delta(PBH *pbh, INJ_PARAMS *params, double z,
+                double *F_ion, double *F_exc, double *F_heat,
+                ErrorMsg error_message) {
+  double pbh_inj_energy;
+  double f_ion, f_exc, f_heat;
+
+  pbh_inj_energy = dEdtdV_pbh(z, params);
+
+  class_call(pbh_dep_frac_delta(pbh->hion,
+                                params->Mpbh,
+                                z,
+                                &f_ion,
+                                error_message),
+             error_message,
+             error_message);
+
+  class_call(pbh_dep_frac_delta(pbh->excite,
+                                params->Mpbh,
+                                z,
+                                &f_exc,
+                                error_message),
+             error_message,
+             error_message);
+
+  class_call(pbh_dep_frac_delta(pbh->heat,
+                                params->Mpbh,
+                                z,
+                                &f_heat,
+                                error_message),
+             error_message,
+             error_message);
+
+  *F_ion = pbh_inj_energy * f_ion;
+  *F_exc = pbh_inj_energy * f_exc;
+  *F_heat = pbh_inj_energy * f_heat;
+
+  return _SUCCESS_;
+}
+
+/*******************************************************************************
+Big F energy parameters for each channel for log normal mass PBHs
+*******************************************************************************/
+
+int pbh_F_log_norm(PBH *pbh, INJ_PARAMS *params, double z,
+                   double *F_ion, double *F_exc, double *F_heat,
+                   ErrorMsg error_message) {
+  double *pbh_masses;
+
+  /* TODO: implement this function */
+
+  return _SUCCESS_;
+}
+
+/*******************************************************************************
+Big F energy parameters for each channel for all PBH mass distributions
+*******************************************************************************/
+
+int pbh_F(PBH *pbh, INJ_PARAMS *params, double z,
+          double *F_ion, double *F_exc, double *F_heat,
+          ErrorMsg error_message) {
+  if (params->mass_dist == pbh_delta) {
+    class_call(pbh_F_delta(pbh, params, z, F_ion, F_exc, F_heat, error_message),
+               error_message,
+               error_message);
+  }
+  else if (params->mass_dist == pbh_log_norm) {
+    class_call(pbh_F_log_norm(pbh, params, z, F_ion, F_exc, F_heat, error_message),
+               error_message,
+               error_message);
+  }
+  else {
+    // Already know this value must be valid, no need to check here
+  }
 
   return _SUCCESS_;
 }
@@ -164,3 +245,60 @@ double chi_exc(double xe) {
 }
 
 
+/*******************************************************************************
+Log normal distribution generation methods
+*******************************************************************************/
+
+double log10_normal(double x, double mu, double sigma) {
+  return 1./(sigma * _SQRT2_ * _SQRT_PI_) * exp(-0.5*pow((x - mu)/sigma, 2.));
+}
+
+double* pbh_log_normal(double* pbh_mass_exponents,
+                       double pbh_mass_mean,
+                       double pbh_mass_width) {
+  double* mass_log_normal;
+  int i;
+
+  mass_log_normal = malloc(_PBH_MASS_BINS_*sizeof(double));
+
+  for (i = 0; i < _PBH_MASS_BINS_; ++i) {
+    mass_log_normal[i] = log10_normal(pbh_mass_exponents[i],
+                                      pbh_mass_mean,
+                                      pbh_mass_width);
+  }
+
+  return mass_log_normal;
+}
+
+/*******************************************************************************
+Trapezoidal integration function, stolen shamelessly from CLASS and repurposed
+to only need to be called from one function one time by HyRec.
+
+Simultaneously compute weights and integral.
+All arrays have length _PBH_MASS_BINS_.
+*******************************************************************************/
+
+double
+trapezoidal_integral(double* __restrict__ x,
+                     double* __restrict__ integrand)
+{
+  int i;
+  double w_trapz[_PBH_MASS_BINS_];
+  double res = 0.0;
+
+  // Set edge weights:
+  w_trapz[0] = 0.5 * (x[1] - x[0]);
+  w_trapz[_PBH_MASS_BINS_-1] = 0.5 * (x[_PBH_MASS_BINS_-1] - x[_PBH_MASS_BINS_-2]);
+
+  // Set inner weights:
+  for (i = 1; i < (_PBH_MASS_BINS_-1); i++) {
+    w_trapz[i] = 0.5 * (x[i+1] - x[i-1]);
+    res += integrand[i]*w_trapz[i];
+  }
+
+  // Compute remaining integral at edge points
+  res += integrand[0]*w_trapz[0];
+  res += integrand[_PBH_MASS_BINS_-1]*w_trapz[_PBH_MASS_BINS_-1];
+
+  return res;
+}

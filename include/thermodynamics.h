@@ -4,6 +4,7 @@
 #define __THERMODYNAMICS__
 
 #include "background.h"
+#include "common_pbh.h"
 //#include "arrays.h"
 //#include "helium.h"
 //#include "hydrogen.h"
@@ -37,16 +38,6 @@ enum reionization_parametrization {
 enum reionization_z_or_tau {
   reio_z,  /**< input = redshift */
   reio_tau /**< input = tau */
-};
-
-/**
- * List of possible primordial black hole mass distributions
- */
-
-enum pbh_mass_distributions {
-  pbh_none, /**< default no mass distribution */
-  pbh_delta, /**< delta distribution localized at given mean mass */
-  pbh_log_norm  /**< log normal distribution */
 };
 
 

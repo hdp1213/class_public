@@ -85,7 +85,7 @@ December 2014:
 ***************************************************************************************************/
 
 double rec_TLA_dxHIIdlna(double xe, double xHII, double nH, double H, double TM, double TR,
-			 double Fudge, double fsR, double meR, double dEdtdV_dm, double dEdtdV_pbh, double f_ion, double f_exc) {
+			 double Fudge, double fsR, double meR, double dEdtdV_dm, double F_ion, double F_exc) {
 
    double RLya, alphaB_TM, alphaB_TR, four_betaB, C, s, Dxe2, DalphaB;
 
@@ -108,7 +108,7 @@ double rec_TLA_dxHIIdlna(double xe, double xHII, double nH, double H, double TM,
    DalphaB    = alphaB_TM - alphaB_TR;
 
    return -nH*(s*(1.-xHII)*DalphaB + Dxe2*alphaB_TM)*C/H + chi_ion(xHII)*(ion + (1.-C)*exc)/H
-          + dEdtdV_pbh*(f_ion/EI + (1.-C)*f_exc/E21)/nH/H;
+          + (F_ion/EI + (1.-C)*F_exc/E21)/nH/H;
 
 }
 
@@ -377,8 +377,8 @@ December 2014:
 ************************************************************************************************/
 
 int rec_HMLA_dxHIIdlna(double xe, double xHII, double nH, double H, double TM, double TR,
-                       HYREC_ATOMIC *atomic, double fsR, double meR, double dEdtdV_dm, double dEdtdV_pbh,
-                       double f_ion, double f_exc, double *dxHIIdlna, ErrorMsg error_message){
+                       HYREC_ATOMIC *atomic, double fsR, double meR, double dEdtdV_dm,
+                       double F_ion, double F_exc, double *dxHIIdlna, ErrorMsg error_message){
 
    double Alpha[2], DAlpha[2], Beta[2], R2p2s, RLya;
    double Gamma_2s, Gamma_2p, C2s, C2p, s, Dxe2;
@@ -411,7 +411,7 @@ int rec_HMLA_dxHIIdlna(double xe, double xHII, double nH, double H, double TM, d
 
    *dxHIIdlna = -nH/H *( (s*(1.-xHII)*DAlpha[0] + Alpha[0]*Dxe2)*C2s + (s*(1.-xHII)*DAlpha[1] + Alpha[1]*Dxe2)*C2p )
                 + chi_ion(xHII)*(ion + (1.-(0.25*C2s + 0.75*C2p))*exc)/H
-                + dEdtdV_pbh*(f_ion/EI + (1.-(0.25*C2s + 0.75*C2p))*f_exc/E21)/nH/H;
+                + (F_ion/EI + (1.-(0.25*C2s + 0.75*C2p))*F_exc/E21)/nH/H;
 
    return _SUCCESS_;
 }
@@ -487,7 +487,7 @@ int populateTS_2photon(double Trr[2][2], double *Trv[2], double *Tvr[2], double 
                        double xe, double xHII, double TM, double TR, double nH, double H, HYREC_ATOMIC *atomic,
                        double Dfplus[NVIRT], double Dfplus_Ly[],
                        double Alpha[2], double DAlpha[2], double Beta[2], double fsR, double meR, double dEdtdV_dm,
-                       double dEdtdV_pbh, double f_exc, ErrorMsg error_message) {
+                       double F_exc, ErrorMsg error_message) {
 
    unsigned b;
    double R2p2s, RLya, Gammab, one_minus_Pib, dbfact, x1s, s, Dxe2;
@@ -495,7 +495,7 @@ int populateTS_2photon(double Trr[2][2], double *Trv[2], double *Tvr[2], double 
    double *Aup, *Adn;
 
    dm_exc_frac = chi_ion(xHII)*dEdtdV_dm/nH/E21;
-   pbh_exc_frac = f_exc*dEdtdV_pbh/nH/E21;
+   pbh_exc_frac = F_exc/nH/E21;
 
    /*** Added May 2012: rescalings for dependence on alpha and me ***/
    rescale2g   = square(fsR*fsR*fsR*fsR)*meR;  /* for two-photon rates */
@@ -841,8 +841,8 @@ In the next version I'll make them potentialy changeable.
 int rec_HMLA_2photon_dxHIIdlna(double xe, double xHII, double nH, double H, double TM, double TR,
                                HYREC_ATOMIC *atomic,
                                double **Dfminus_hist, double **Dfminus_Ly_hist, double **Dfnu_hist,
-                               double zstart, unsigned iz, double z, double fsR, double meR, double dEdtdV_dm, double dEdtdV_pbh,
-                               double f_ion, double f_exc, double *dxedlna, long int Nz, ErrorMsg error_message){
+                               double zstart, unsigned iz, double z, double fsR, double meR, double dEdtdV_dm,
+                               double F_ion, double F_exc, double *dxedlna, long int Nz, ErrorMsg error_message){
 
    double xr[2], xv[NVIRT], Dfplus[NVIRT], Dfplus_Ly[2]; /* Assume incoming radiation blueward of Ly-gamma is Blackbody */
    double one_minus_Pib, one_minus_exptau, Dfeq, s, x1s, Dxe2;
@@ -878,8 +878,8 @@ int rec_HMLA_2photon_dxHIIdlna(double xe, double xHII, double nH, double H, doub
 
    /* Compute real-real, real-virtual and virtual-virtual transition rates */
    class_call_except(populateTS_2photon(Trr, Trv, Tvr, Tvv, sr, sv, Dtau, xe, xHII, TM, TR, nH, H, atomic,
-                                        Dfplus, Dfplus_Ly, Alpha, DAlpha, Beta, fsR, meR, dEdtdV_dm, dEdtdV_pbh,
-                                        f_exc, error_message),
+                                        Dfplus, Dfplus_Ly, Alpha, DAlpha, Beta, fsR, meR, dEdtdV_dm,
+                                        F_exc, error_message),
                      error_message,
                      error_message,
                      for (i = 0; i < 2; i++) {free(Trv[i]); free(Tvr[i]);}
@@ -896,7 +896,7 @@ int rec_HMLA_2photon_dxHIIdlna(double xe, double xHII, double nH, double H, doub
 
    *dxedlna = -(nH *(s*x1s*DAlpha[0] + Alpha[0]*Dxe2) - xr[0]*Beta[0]
                +nH *(s*x1s*DAlpha[1] + Alpha[1]*Dxe2) - xr[1]*Beta[1])/H
-               + (chi_ion(xHII)*ion + f_ion*dEdtdV_pbh/nH/EI)/H;
+               + (chi_ion(xHII)*ion + F_ion/nH/EI)/H;
                /* First term automatically includes the additional excitations
                   since x2s, x2p are computed accounting for them */
 
@@ -958,16 +958,16 @@ December 2014: added dependence on additional energy injection.
 
 int rec_dxHIIdlna(int model, double xe, double xHII, double nH, double H, double TM, double TR,
                   HYREC_ATOMIC *atomic, RADIATION *rad, unsigned iz, double z,
-                  double fsR, double meR, double dEdtdV_dm, double dEdtdV_pbh, double f_ion, double f_exc,
+                  double fsR, double meR, double dEdtdV_dm, double F_ion, double F_exc,
                   double *result, long int Nz, ErrorMsg error_message){
 
   double Pion, RLya, four_betaB;
 
-  if      (model == PEEBLES)  *result = rec_TLA_dxHIIdlna(xe, xHII, nH, H, TM, TR, 1.00, fsR, meR, dEdtdV_dm, dEdtdV_pbh, f_ion, f_exc);
-  else if (model == RECFAST)  *result = rec_TLA_dxHIIdlna(xe, xHII, nH, H, TM, TR, 1.14, fsR, meR, dEdtdV_dm, dEdtdV_pbh, f_ion, f_exc);
+  if      (model == PEEBLES)  *result = rec_TLA_dxHIIdlna(xe, xHII, nH, H, TM, TR, 1.00, fsR, meR, dEdtdV_dm, F_ion, F_exc);
+  else if (model == RECFAST)  *result = rec_TLA_dxHIIdlna(xe, xHII, nH, H, TM, TR, 1.14, fsR, meR, dEdtdV_dm, F_ion, F_exc);
   else if (model == EMLA2s2p) {
     class_call(rec_HMLA_dxHIIdlna(xe, xHII, nH, H, TM, TR, atomic, fsR, meR, dEdtdV_dm,
-                                  dEdtdV_pbh, f_ion, f_exc, result, error_message),
+                                  F_ion, F_exc, result, error_message),
                error_message,
                error_message);
   }
@@ -984,13 +984,13 @@ int rec_dxHIIdlna(int model, double xe, double xHII, double nH, double H, double
     }
     if (Pion < PION_MAX) {
       class_call(rec_HMLA_dxHIIdlna(xe, xHII, nH, H, TM, TR, atomic, fsR, meR, dEdtdV_dm,
-                                    dEdtdV_pbh, f_ion, f_exc, result, error_message),
+                                    F_ion, F_exc, result, error_message),
                  error_message,
                  error_message);
     }
     else class_call(rec_HMLA_2photon_dxHIIdlna(xe, xHII, nH, H, TM, TR, atomic,
                                                rad->Dfminus_hist, rad->Dfminus_Ly_hist, rad->Dfnu_hist, rad->z0,
-                                               iz, z, fsR, meR, dEdtdV_dm, dEdtdV_pbh, f_ion, f_exc, result, Nz,
+                                               iz, z, fsR, meR, dEdtdV_dm, F_ion, F_exc, result, Nz,
                                                error_message),
                     error_message,
                     error_message);

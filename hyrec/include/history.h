@@ -39,9 +39,9 @@ extern "C" {
 
 double rec_HubbleRate(REC_COSMOPARAMS *param, double z);
 
-double rec_Tmss(double z, double xe, REC_COSMOPARAMS *cosmo, double dEdtdV_dm, double dEdtdV_pbh, double f_heat);
+double rec_Tmss(double z, double xe, REC_COSMOPARAMS *cosmo, double dEdtdV_dm, double F_heat);
 
-double rec_dTmdlna(double z, double xe, double Tm, REC_COSMOPARAMS *cosmo, double dEdtdV_dm, double dEdtdV_pbh, double f_heat);
+double rec_dTmdlna(double z, double xe, double Tm, REC_COSMOPARAMS *cosmo, double dEdtdV_dm, double F_heat);
 
 int rec_get_xe_next1_He(REC_COSMOPARAMS *cosmo, double z_in, double *xHeII,
                         double dxHeIIdlna_prev[2], int *post_saha,
@@ -49,23 +49,23 @@ int rec_get_xe_next1_He(REC_COSMOPARAMS *cosmo, double z_in, double *xHeII,
 
 int rec_xH1_stiff(int model, REC_COSMOPARAMS *cosmo, double z, double xHeII, double *xH1,
                   HYREC_ATOMIC *atomic, RADIATION *rad, unsigned iz_rad,
-                  double dEdtdV_dm, double dEdtdV_pbh, double f_ion, double f_exc, int *stiff, long int Nz, ErrorMsg error_message);
+                  double dEdtdV_dm, double F_ion, double F_exc, int *stiff, long int Nz, ErrorMsg error_message);
 
 int get_rec_next2_HHe(int model, REC_COSMOPARAMS *cosmo, double z_in, double Tm,
                       double *xH1, double *xHeII, HYREC_ATOMIC *atomic, RADIATION *rad, unsigned iz_rad,
-                      double dxHIIdlna_prev[2], double dxHeIIdlna_prev[2], double dEdtdV_dm, double dEdtdV_pbh,
-                      double f_ion, double f_exc, int *stiff, long int NZ, ErrorMsg error_message);
+                      double dxHIIdlna_prev[2], double dxHeIIdlna_prev[2], double dEdtdV_dm,
+                      double F_ion, double F_exc, int *stiff, long int NZ, ErrorMsg error_message);
 
 int rec_get_xe_next1_H(int model, REC_COSMOPARAMS *cosmo, double z_in, double xe_in, double Tm_in,
                        double *xe_out, double *Tm_out, HYREC_ATOMIC *atomic, RADIATION *rad, unsigned iz_rad,
-                       double dxedlna_prev[2], double dEdtdV_dm, double dEdtdV_pbh,
-                       double f_ion, double f_exc, double f_heat, int *stiff, long int Nz, ErrorMsg error_message);
+                       double dxedlna_prev[2], double dEdtdV_dm,
+                       double F_ion, double F_exc, double F_heat, int *stiff, long int Nz, ErrorMsg error_message);
 
 int rec_get_xe_next2_HTm(int model, REC_COSMOPARAMS *cosmo,
                          double z_in, double xe_in, double Tm_in, double *xe_out, double *Tm_out,
                          HYREC_ATOMIC *atomic, RADIATION *rad, unsigned iz_rad,
-                         double dxedlna_prev[2], double dTmdlna_prev[2], double dEdtdV_dm, double dEdtdV_pbh,
-                         double f_ion, double f_exc, double f_heat, long int Nz, ErrorMsg error_message);
+                         double dxedlna_prev[2], double dTmdlna_prev[2], double dEdtdV_dm,
+                         double F_ion, double F_exc, double F_heat, long int Nz, ErrorMsg error_message);
 
 int rec_build_history(int model, double zstart, double zend,
                       REC_COSMOPARAMS *cosmo, HYREC_ATOMIC *atomic,

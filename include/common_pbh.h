@@ -12,6 +12,16 @@
 #endif
 
 /**
+ * List of possible primordial black hole mass distributions
+ */
+
+enum pbh_mass_distributions {
+  pbh_none, /**< default no mass distribution */
+  pbh_delta, /**< delta distribution localized at given mean mass */
+  pbh_log_norm  /**< log normal distribution */
+};
+
+/**
  * structure containing knot points and coefficients for a 2d b-spline
  */
 

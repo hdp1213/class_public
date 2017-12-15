@@ -7,6 +7,10 @@
 /* CLASS common.h for all good CLASS stuff */
 #include "common.h"
 #include "arrays.h"
+/* HyRec pbh.h for PBH definition */
+#include "pbh.h"
+
+#define _PBH_MASS_BINS_ 41
 
 /* Structure with all energy injection parameters */
 /* If adding a new energy injection process 
@@ -23,6 +27,9 @@ typedef struct {
   double ann_z_halo;                         /* Characteristic redshift for annihilation in haloes */
     
   double Mpbh, fpbh;           /* Mass and fraction of DM made of primordial black holes */
+  double Wpbh;                 /* Width of PBH mass distribution */
+
+  enum pbh_mass_distributions mass_dist; /* Mass distribution info */
 
   int on_the_spot;            /* if set to 1 assume energy deposition rate = injection rate */
                               /* Otherwise solves for deposition given injection with simple recipe */
@@ -37,12 +44,39 @@ double dEdtdV_pbh(double z, INJ_PARAMS *params);
 double dEdtdV_inj(double z, INJ_PARAMS *params);
 void update_dEdtdV_dep(double z_out, double dlna, double xe, double Tgas,
                        double nH, double H, INJ_PARAMS *params, double *dEdtdV_dep);
-int dEdtdV_fraction_pbh(BSPLINE *bsp, double Mpbh, double z, double *eff_frac,
-                        ErrorMsg error_message);
+
+/* Delta mass distribution functions */
+int pbh_dep_frac_delta(BSPLINE *bsp, double Mpbh, double z, double *eff_frac,
+                       ErrorMsg error_message);
+int pbh_F_delta(PBH *pbh, INJ_PARAMS *params, double z,
+                double *F_ion, double *F_exc, double *F_heat,
+                ErrorMsg error_message);
+
+/* Log normal mass distribution functions */
+int pbh_dep_frac_log_norm(BSPLINE *bsp, double *Mpbh, double z, double *eff_frac,
+                          ErrorMsg error_message);
+int pbh_F_log_norm(PBH *pbh, INJ_PARAMS *params, double z,
+                   double *F_ion, double *F_exc, double *F_heat,
+                   ErrorMsg error_message);
+
+/* Wrapper */
+int pbh_F(PBH *pbh, INJ_PARAMS *params, double z,
+          double *F_ion, double *F_exc, double *F_heat,
+          ErrorMsg error_message);
 
 double chi_heat(double xe);
 double chi_ion(double xe);
 double chi_exc(double xe);
+
+/* Mass distribution methods */
+double log10_normal(double x, double mu, double sigma);
+
+double* pbh_log_normal(double* pbh_mass_exponents,
+                       double pbh_mass_mean,
+                       double pbh_mass_width);
+
+/* Trapezoidal integration routine */
+double trapezoidal_integral(double* __restrict__ x, double* __restrict__ integrand);
 
 #ifdef __cplusplus
 }

@@ -64,8 +64,8 @@ void rescale_T(double *T, double fsR, double meR);
 
 double alphaB_PPB(double TM, double fsR, double meR);
 double rec_TLA_dxHIIdlna(double xe, double xHII, double nH, double H, double TM, double TR,
-                         double Fudge, double fsR, double meR, double dEdtdV_dm, double dEdtdV_pbh,
-                         double f_ion, double f_exc);
+                         double Fudge, double fsR, double meR, double dEdtdV_dm,
+                         double F_ion, double F_exc);
 
 #ifdef __cplusplus
 }
@@ -124,8 +124,8 @@ int interpolate_rates(double Alpha[2], double DAlpha[2], double Beta[2], double 
                       double TR, double TM_TR, HYREC_ATOMIC *atomic, double fsR, double meR,
                       ErrorMsg error_message);
 int rec_HMLA_dxHIIdlna(double xe, double xHII, double nH, double H, double TM, double TR,
-                       HYREC_ATOMIC *atomic, double fsR, double meR, double dEdtdV_dm, double dEdtdV_pbh,
-                       double f_ion, double f_exc, double *dxHIIdlna, ErrorMsg error_message);
+                       HYREC_ATOMIC *atomic, double fsR, double meR, double dEdtdV_dm,
+                       double F_ion, double F_exc, double *dxHIIdlna, ErrorMsg error_message);
 void populate_Diffusion(double *Aup, double *Adn, double *A2p_up, double *A2p_dn, 
                         double TM, double Eb_tab[NVIRT], double A1s_tab[NVIRT]);
 int populateTS_2photon(double Trr[2][2], double *Trv[2], double *Tvr[2], double *Tvv[3],
@@ -133,7 +133,7 @@ int populateTS_2photon(double Trr[2][2], double *Trv[2], double *Tvr[2], double 
                        double xe, double xHII, double TM, double TR, double nH, double H, HYREC_ATOMIC *atomic,
                        double Dfplus[NVIRT], double Dfplus_Ly[],
                        double Alpha[2], double DAlpha[2], double Beta[2], double fsR, double meR, double dEdtdV_dm,
-                       double dEdtdV_pbh, double f_exc, ErrorMsg error_message);
+                       double F_exc, ErrorMsg error_message);
 void solveTXeqB(double *diag, double *updiag, double *dndiag, double *X, double *B, unsigned N);
 void solve_real_virt(double xr[2], double xv[NVIRT], double Trr[2][2], double *Trv[2], double *Tvr[2], 
                      double *Tvv[3], double sr[2], double sv[NVIRT]);
@@ -143,7 +143,7 @@ int fplus_from_fminus(double Dfplus[NVIRT], double Dfplus_Ly[], double **Dfminus
                       double TR, double zstart, unsigned iz, double z, double Eb_tab[NVIRT], ErrorMsg error_message);
 int rec_dxHIIdlna(int model, double xe, double xHII, double nH, double H, double TM, double TR,
                   HYREC_ATOMIC *atomic, RADIATION *rad, unsigned iz, double z,
-                  double fsR, double meR, double dEdtdV_dm, double dEdtdV_pbh, double f_ion, double f_exc,
+                  double fsR, double meR, double dEdtdV_dm, double F_ion, double F_exc,
                   double *result, long int Nz, ErrorMsg error_message);
 
 #ifdef __cplusplus
