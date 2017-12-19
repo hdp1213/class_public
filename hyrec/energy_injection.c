@@ -71,15 +71,15 @@ in this region of the code the parameter behaves as though it is dimensionless.
 
 /* Rate of energy *injection* per unit volume (in eV/cm^3/s) due to PBHs */
 
-double dEdtdV_pbh(double z, INJ_PARAMS *params) {
+double dEdtdV_pbh(double Omega_dm_h2, double Mpbh, double fpbh, double z) {
   double rhoPBH; /* density of PBH dark matter today */
   double f_elec = 0.142, f_phot = 0.06; /* relative fraction of injected particles from evaporation */
 
-  rhoPBH = 10537.04*params->odmh2*params->fpbh; /* energy density in eV/cm^3. see DM annihilation above */
+  rhoPBH = 10537.04*Omega_dm_h2*fpbh; /* energy density in eV/cm^3. see DM annihilation above */
 
   /* Approximate power radiated from PBH as in [arXiv:1612.07738], where Mpbh is in units of 10^10 g */
   /* units of eV/s/cm^3, it seems */
-  return (params->fpbh > 0.) ? 5.34e-5*(4.*f_elec+2.*f_phot)*rhoPBH*cube((1.+z)/params->Mpbh) : 0.;
+  return 5.34e-5*(4.*f_elec+2.*f_phot)*rhoPBH*cube((1.+z)/Mpbh);
 }
 
 /***********************************************************************************
@@ -89,7 +89,7 @@ Add in your favorite energy injection mechanism here
 
 double dEdtdV_inj(double z, INJ_PARAMS *params){
   return dEdtdV_DM_ann(z, params);
-    // + dEdtdV_pbh(z, params);
+    // + dEdtdV_pbh(params->odmh2, params->Mpbh, params->fpbh, z);
 }
 
 
@@ -143,7 +143,7 @@ int pbh_F_delta(PBH *pbh, INJ_PARAMS *params, double z,
   double pbh_inj_energy;
   double f_ion, f_exc, f_heat;
 
-  pbh_inj_energy = dEdtdV_pbh(z, params);
+  pbh_inj_energy = dEdtdV_pbh(params->odmh2, params->Mpbh, params->fpbh, z);
 
   class_call(pbh_dep_frac_delta(pbh->hion,
                                 params->Mpbh,
@@ -177,15 +177,106 @@ int pbh_F_delta(PBH *pbh, INJ_PARAMS *params, double z,
 }
 
 /*******************************************************************************
+Fraction of energy deposited in to a channel for log normal mass PBHs
+*******************************************************************************/
+
+int pbh_dep_frac_log_norm(BSPLINE *bsp, double *pbh_masses, double z, double *eff_frac,
+                          ErrorMsg error_message) {
+  double zp1 = 1.+z;
+
+  class_call(array_eval_bicubic_bspline(bsp, &zp1, 1,
+                                        pbh_masses, _PBH_MASS_BINS_,
+                                        eff_frac,
+                                        error_message),
+             error_message,
+             error_message);
+
+  return _SUCCESS_;
+}
+
+/*******************************************************************************
 Big F energy parameters for each channel for log normal mass PBHs
 *******************************************************************************/
 
 int pbh_F_log_norm(PBH *pbh, INJ_PARAMS *params, double z,
                    double *F_ion, double *F_exc, double *F_heat,
                    ErrorMsg error_message) {
-  double *pbh_masses;
+  /* First make sure both mean and width are in log10 space */
+  double mean = log10(params->Mpbh);
+  double width = params->Wpbh;
 
-  /* TODO: implement this function */
+  /* Compute lower and upper limits for integral */
+  double low_lim = fmax(_LOG_PBH_MASS_MIN_, mean - _SIGMA_INTEGRAL_RANGE_*width);
+  double upp_lim = fmin(_LOG_PBH_MASS_MAX_, mean + _SIGMA_INTEGRAL_RANGE_*width);
+
+  double pbh_exps[_PBH_MASS_BINS_];
+  double pbh_masses[_PBH_MASS_BINS_];
+
+  double *pbh_dist;
+  int i;
+
+  /* Generate PBH masses in log10 space and in linear space */
+  for (i = 0; i < _PBH_MASS_BINS_; ++i) {
+    pbh_exps[i] = low_lim + (double) i / (_PBH_MASS_BINS_-1) * (upp_lim - low_lim);
+    pbh_masses[i] = pow(10., pbh_exps[i]);
+  }
+
+  /* Create mass distribution on the heap */
+  pbh_dist = pbh_log_normal(pbh_exps, mean, width);
+
+  /* Check distribution truncation */
+  double trunc_norm = 1.0;
+
+  if (_LOG_PBH_MASS_MIN_ > mean - _SIGMA_TRUNCATE_RANGE_*width) {
+    trunc_norm = trapezoidal_integral(pbh_exps, pbh_dist);
+  }
+
+  /* Interpolate deposition fractions */
+  double f_ions[_PBH_MASS_BINS_];
+  double f_excs[_PBH_MASS_BINS_];
+  double f_heats[_PBH_MASS_BINS_];
+
+  class_call(pbh_dep_frac_log_norm(pbh->hion,
+                                   pbh_masses,
+                                   z,
+                                   f_ions,
+                                   error_message),
+             error_message,
+             error_message);
+
+  class_call(pbh_dep_frac_log_norm(pbh->excite,
+                                   pbh_masses,
+                                   z,
+                                   f_excs,
+                                   error_message),
+             error_message,
+             error_message);
+
+  class_call(pbh_dep_frac_log_norm(pbh->heat,
+                                   pbh_masses,
+                                   z,
+                                   f_heats,
+                                   error_message),
+             error_message,
+             error_message);
+
+  double energy_inj;
+
+  /* Compute energy depositions for each mass */
+  for (i = 0; i < _PBH_MASS_BINS_; ++i) {
+    energy_inj = dEdtdV_pbh(params->odmh2, pbh_masses[i], params->fpbh, z);
+
+    f_ions[i] *= energy_inj * pbh_dist[i]/trunc_norm;
+    f_excs[i] *= energy_inj * pbh_dist[i]/trunc_norm;
+    f_heats[i] *= energy_inj * pbh_dist[i]/trunc_norm;
+  }
+
+  free(pbh_dist);
+
+  /* Perform integrations */
+  *F_ion = trapezoidal_integral(pbh_exps, f_ions);
+  *F_exc = trapezoidal_integral(pbh_exps, f_excs);
+  *F_heat = trapezoidal_integral(pbh_exps, f_heats);
 
   return _SUCCESS_;
 }

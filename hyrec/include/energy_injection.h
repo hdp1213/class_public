@@ -10,7 +10,11 @@
 /* HyRec pbh.h for PBH definition */
 #include "pbh.h"
 
-#define _PBH_MASS_BINS_ 41
+#define _PBH_MASS_BINS_ 41 /* number of bins used for trapezoidal integration */
+#define _LOG_PBH_MASS_MIN_ 5
+#define _LOG_PBH_MASS_MAX_ 7
+#define _SIGMA_INTEGRAL_RANGE_ 4 /* how many sigmas +/- the mean should integration of the mass distribution take place over */
+#define _SIGMA_TRUNCATE_RANGE_ 4 /* how many sigmas +/- the mean should truncation correction start */
 
 /* Structure with all energy injection parameters */
 /* If adding a new energy injection process 
@@ -27,7 +31,7 @@ typedef struct {
   double ann_z_halo;                         /* Characteristic redshift for annihilation in haloes */
     
   double Mpbh, fpbh;           /* Mass and fraction of DM made of primordial black holes */
-  double Wpbh;                 /* Width of PBH mass distribution */
+  double Wpbh;                 /* Width of PBH mass distribution, in log10-space */
 
   enum pbh_mass_distributions mass_dist; /* Mass distribution info */
 
@@ -40,7 +44,6 @@ typedef struct {
 extern "C" {
 #endif
 
-double dEdtdV_pbh(double z, INJ_PARAMS *params);
 double dEdtdV_inj(double z, INJ_PARAMS *params);
 void update_dEdtdV_dep(double z_out, double dlna, double xe, double Tgas,
                        double nH, double H, INJ_PARAMS *params, double *dEdtdV_dep);
