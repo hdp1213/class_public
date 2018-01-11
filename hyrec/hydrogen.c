@@ -272,7 +272,7 @@ int interpolate_rates(double Alpha[2], double DAlpha[2], double Beta[2], double 
     double logTR;
     double coeff1[4], coeff2[4], temp[4];
     double Alpha_eq[2];
-
+    double old_TR = 0.0, old_TM_TR = 0.0;
 
     /* Check that TM/TR is in range */
     class_test(TM_TR < TM_TR_MIN,
@@ -285,15 +285,18 @@ int interpolate_rates(double Alpha[2], double DAlpha[2], double Beta[2], double 
     /* Will fix soon! */
 
     if (TM_TR > 1.) {
+      old_TR = TR;
       TR   *= (1.+TM_TR)/2.;
+
+      old_TM_TR = TM_TR;
       TM_TR = 1.;
     }
 
      /* Check if log(TR) is in the range tabulated */
     class_test((TR < TR_MIN) || (TR > TR_MAX),
                error_message,
-               "TR = %f is out of range.",
-               TR);
+               "TR = %f is out of range. Before TM>TR correction, TR = %f, TM/TR = %f.",
+               TR, old_TR, old_TM_TR);
 
      /**** TR-only-dependent functions ****/
 
