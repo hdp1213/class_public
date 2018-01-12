@@ -72,8 +72,8 @@ struct external_info {
 #ifdef HYREC
   /* Tables of effective rates */
   double logTR_tab[NTR];
-  double TM_TR_tab[NTM];
-  double DlogTR, DTM_TR;
+  double logTM_TR_tab[NTM];
+  double DlogTR, DlogTM_TR;
 
   double **logAlpha_tab[2];
   double logR2p2s_tab[NTR];

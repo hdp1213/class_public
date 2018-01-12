@@ -81,10 +81,10 @@ double rec_TLA_dxHIIdlna(double xe, double xHII, double nH, double H, double TM,
 typedef struct {
   /* Tables of effective rates */
   double *logTR_tab;
-  double *TM_TR_tab;
+  double *logTM_TR_tab;
   double **logAlpha_tab[2];
   double *logR2p2s_tab;
-  double DlogTR, DTM_TR;
+  double DlogTR, DlogTM_TR;
 
   /* Tables of 2-photon rates */
   double *Eb_tab;       /* Energies of the virtual levels in eV */

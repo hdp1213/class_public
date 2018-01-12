@@ -123,7 +123,7 @@ void allocate_atomic(HYREC_ATOMIC *atomic){
 
   /* Stack -> heap array allocations */
   atomic->logTR_tab = malloc(NTR*sizeof(double));
-  atomic->TM_TR_tab = malloc(NTM*sizeof(double));
+  atomic->logTM_TR_tab = malloc(NTM*sizeof(double));
 
   atomic->logR2p2s_tab = malloc(NTR*sizeof(double));
 
@@ -139,9 +139,9 @@ void allocate_atomic(HYREC_ATOMIC *atomic){
 
   /* These actually set the values of the table */
   maketab(log(TR_MIN), log(TR_MAX), NTR, atomic->logTR_tab);
-  maketab(TM_TR_MIN, TM_TR_MAX, NTM, atomic->TM_TR_tab);
+  maketab(log(TM_TR_MIN), log(TM_TR_MAX), NTM, atomic->logTM_TR_tab);
   atomic->DlogTR = atomic->logTR_tab[1] - atomic->logTR_tab[0];
-  atomic->DTM_TR = atomic->TM_TR_tab[1] - atomic->TM_TR_tab[0];
+  atomic->DlogTM_TR = atomic->logTM_TR_tab[1] - atomic->logTM_TR_tab[0];
 }
 
 /**********************************************************************************************
@@ -238,7 +238,7 @@ Free the memory for rate tables.
 
 void free_atomic(HYREC_ATOMIC *atomic){
     free(atomic->logTR_tab);
-    free(atomic->TM_TR_tab);
+    free(atomic->logTM_TR_tab);
 
     free_2D_array(atomic->logAlpha_tab[0], NTM);
     free_2D_array(atomic->logAlpha_tab[1], NTM);
@@ -261,6 +261,7 @@ INPUT TEMPERATURE ASSUMED TO BE ALREADY RESCALED FOR VALUES OF alpha_fs and me
 - Modified December 2014: additional heating sometimes brings Tm slightly larger than Tr.
   If this is the case, use Tm = Tr in the recombination rates.
   Will eventually re-tabulate the effective rates for Tm/Tr > 1 to fix this.
+- Modified January 2017: re-tabulated effective rates for Tm/Tr > 1 to fix above dilemma
 ************************************************************************************************/
 
 int interpolate_rates(double Alpha[2], double DAlpha[2], double Beta[2], double *R2p2s,
@@ -269,7 +270,7 @@ int interpolate_rates(double Alpha[2], double DAlpha[2], double Beta[2], double 
     unsigned l, k;
     long iTM, iTR;
     double frac1, frac2;
-    double logTR;
+    double logTR, logTM_TR;
     double coeff1[4], coeff2[4], temp[4];
     double Alpha_eq[2];
     double old_TR = 0.0, old_TM_TR = 0.0;
@@ -280,11 +281,9 @@ int interpolate_rates(double Alpha[2], double DAlpha[2], double Beta[2], double 
                "TM/TR = %f is out of range.",
                TM_TR);
 
-    /* For now if TM > TR evaluate everything at Tm = Tr = (Tm + Tr)/2 */
-    /* This is an ugly fix due to my delaying in extending the effective rate tables beyond TM = TR */
-    /* Will fix soon! */
+    /* If TM/TR > TM_TR_MAX evaluate everything at Tm = Tr = (Tm + Tr)/2 */
 
-    if (TM_TR > 1.) {
+    if (TM_TR > TM_TR_MAX) {
       old_TR = TR;
       TR   *= (1.+TM_TR)/2.;
 
@@ -337,10 +336,12 @@ int interpolate_rates(double Alpha[2], double DAlpha[2], double Beta[2], double 
     /**** Effective recombination coefficients Alpha(Tm, Tr) ****/
 
     /* Identify location to interpolate in TM/TR */
-    iTM = (long)floor((TM_TR - TM_TR_MIN)/atomic->DTM_TR);
+    logTM_TR = log(TM_TR);
+
+    iTM = (long)floor((logTM_TR - log(TM_TR_MIN))/atomic->DlogTM_TR);
     if (iTM < 1) iTM = 1;
     if (iTM > NTM-3) iTM = NTM-3;
-    frac1 = (TM_TR - TM_TR_MIN)/atomic->DTM_TR - iTM;
+    frac1 = (logTM_TR - log(TM_TR_MIN))/atomic->DlogTM_TR - iTM;
     coeff1[0] = frac1*(frac1-1.)*(2.-frac1)/6.;
     coeff1[1] = (1.+frac1)*(1.-frac1)*(2.-frac1)/2.;
     coeff1[2] = (1.+frac1)*frac1*(2.-frac1)/2.;

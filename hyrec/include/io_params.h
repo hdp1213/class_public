@@ -9,8 +9,8 @@
 #define TR_MAX 0.4                           /* Maximum Tr in eV */
 #define NTR    100                           /* Number of Tr values */
 #define TM_TR_MIN 0.1                        /* Same thing for ratio Tm/Tr*/
-#define TM_TR_MAX 1.0
-#define NTM 40             
+#define TM_TR_MAX 200.0
+#define NTM 100             
 
 /*** Tables and parameters for radiative transfer calculation ***/
 
