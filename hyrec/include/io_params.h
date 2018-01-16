@@ -3,7 +3,7 @@
 
 /*** Effective rate tables and associated parameters ***/
 
-#define ALPHA_FILE  "hyrec/data/Alpha_inf.dat"     /* Effective recombination coefficients to 2s and 2p */
+#define ALPHA_FILE  "hyrec/data/Alpha_inf_extended.dat"     /* Effective recombination coefficients to 2s and 2p */
 #define RR_FILE     "hyrec/data/R_inf.dat"         /* Effective transfer rate R_{2p,2s} */
 #define TR_MIN 0.004                         /* Minimum Tr in eV */
 #define TR_MAX 0.4                           /* Maximum Tr in eV */
