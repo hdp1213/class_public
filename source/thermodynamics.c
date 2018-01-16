@@ -339,9 +339,9 @@ int thermodynamics_init(
       class_alloc(preco->external_hyrec, sizeof(struct hyrec), pth->error_message);
 
       preco->external_hyrec->logTR_tab = info->logTR_tab;
-      preco->external_hyrec->TM_TR_tab = info->TM_TR_tab;
+      preco->external_hyrec->logTM_TR_tab = info->logTM_TR_tab;
       preco->external_hyrec->DlogTR = info->DlogTR;
-      preco->external_hyrec->DTM_TR = info->DTM_TR;
+      preco->external_hyrec->DlogTM_TR = info->DlogTM_TR;
 
       /* Make sure both tables match up to correct memory entries */
       preco->external_hyrec->logAlpha_tab[0] = info->logAlpha_tab[0];
@@ -3210,9 +3210,9 @@ int thermodynamics_recombination_with_hyrec(
     /* Although memory has been allocated to the hyrec_data.atomic pointer, still need to populate
        fields! */
     hyrec_data.atomic->logTR_tab = preco->external_hyrec->logTR_tab;
-    hyrec_data.atomic->TM_TR_tab = preco->external_hyrec->TM_TR_tab;
+    hyrec_data.atomic->logTM_TR_tab = preco->external_hyrec->logTM_TR_tab;
     hyrec_data.atomic->DlogTR = preco->external_hyrec->DlogTR;
-    hyrec_data.atomic->DTM_TR = preco->external_hyrec->DTM_TR;
+    hyrec_data.atomic->DlogTM_TR = preco->external_hyrec->DlogTM_TR;
 
     hyrec_data.atomic->logAlpha_tab[0] = preco->external_hyrec->logAlpha_tab[0];
     hyrec_data.atomic->logAlpha_tab[1] = preco->external_hyrec->logAlpha_tab[1];

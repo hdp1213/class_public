@@ -506,8 +506,8 @@ struct thermodynamics_parameters_and_workspace {
 struct hyrec {
   /* Tables of effective rates */
   double *logTR_tab;
-  double *TM_TR_tab;
-  double DlogTR, DTM_TR;
+  double *logTM_TR_tab;
+  double DlogTR, DlogTM_TR;
 
   double **logAlpha_tab[2];
   double *logR2p2s_tab;
