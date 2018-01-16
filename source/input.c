@@ -3108,6 +3108,8 @@ int input_default_params(
   ppt->selection_mean[0]=1.;
   ppt->selection_width[0]=0.1;
 
+  ppt->sources_allocated = _FALSE_;
+
   /** - primordial structure */
 
   ppm->primordial_spec_type = analytic_Pk;

@@ -462,14 +462,17 @@ int perturb_free(
 
     for (index_md = 0; index_md < ppt->md_size; index_md++) {
 
-      for (index_ic = 0; index_ic < ppt->ic_size[index_md]; index_ic++) {
+      if (ppt->sources_allocated == _TRUE_) {
 
-        for (index_type = 0; index_type < ppt->tp_size[index_md]; index_type++) {
+        for (index_ic = 0; index_ic < ppt->ic_size[index_md]; index_ic++) {
 
-          free(ppt->sources[index_md][index_ic*ppt->tp_size[index_md]+index_type]);
+          for (index_type = 0; index_type < ppt->tp_size[index_md]; index_type++) {
+
+            free(ppt->sources[index_md][index_ic*ppt->tp_size[index_md]+index_type]);
+
+          }
 
         }
-
       }
 
       free(ppt->sources[index_md]);
@@ -1225,6 +1228,8 @@ int perturb_timesampling_for_sources(
       }
     }
   }
+
+  ppt->sources_allocated = _TRUE_;
 
   return _SUCCESS_;
 }

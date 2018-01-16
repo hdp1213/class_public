@@ -103,6 +103,8 @@ struct perturbs
 
   short has_perturbations; /**< do we need to compute perturbations at all ? */
 
+  short sources_allocated;      /**< _TRUE_ if the sources array is fully allocated, _FALSE_ otherwise */
+
   short has_cls; /**< do we need any harmonic space spectrum \f$ C_l \f$ (and hence Bessel functions, transfer functions, ...)? */
 
   short has_scalars; /**< do we need scalars? */
