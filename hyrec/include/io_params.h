@@ -10,7 +10,7 @@
 #define NTR    100                           /* Number of Tr values */
 #define TM_TR_MIN 0.1                        /* Same thing for ratio Tm/Tr*/
 #define TM_TR_MAX 200.0
-#define NTM 100             
+#define NTM 100
 
 /*** Tables and parameters for radiative transfer calculation ***/
 
@@ -37,5 +37,7 @@
 #define EFFECT_C    1    /* Super-Lyman alpha two-photon transitions 3s/3d<--> 1s and 4s/4d<-->1s */
 #define EFFECT_D    1    /* Raman scattering from 2s and 3s/3d */
 #define DIFFUSION   1    /* Lyman alpha frequency diffusion */
+
+#define TM_TR_UNITY_IND 31 /* The entry in the TM_TR table equal to unity */
 
 #endif

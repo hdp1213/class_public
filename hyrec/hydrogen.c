@@ -315,10 +315,10 @@ int interpolate_rates(double Alpha[2], double DAlpha[2], double Beta[2], double 
 
     for (l = 0; l <= 1; l++) {
       /* Alpha evaluated at Tm = Tr */
-      Alpha_eq[l] = square(fsR/meR)* exp(atomic->logAlpha_tab[l][NTM-1][iTR-1]*coeff2[0]
-                                  +atomic->logAlpha_tab[l][NTM-1][iTR]*coeff2[1]
-                                  +atomic->logAlpha_tab[l][NTM-1][iTR+1]*coeff2[2]
-                                  +atomic->logAlpha_tab[l][NTM-1][iTR+2]*coeff2[3]);
+      Alpha_eq[l] = square(fsR/meR)* exp(atomic->logAlpha_tab[l][TM_TR_UNITY_IND-1][iTR-1]*coeff2[0]
+                                  +atomic->logAlpha_tab[l][TM_TR_UNITY_IND-1][iTR]*coeff2[1]
+                                  +atomic->logAlpha_tab[l][TM_TR_UNITY_IND-1][iTR+1]*coeff2[2]
+                                  +atomic->logAlpha_tab[l][TM_TR_UNITY_IND-1][iTR+2]*coeff2[3]);
 
       /* Beta obtained by detailed balance from Alpha(Tr, Tr) */
       /* prefactor = pow(2.0 * M_PI * mue *TR / hPc / hPc, 1.5)) * exp(-0.25*EI/TR) */
