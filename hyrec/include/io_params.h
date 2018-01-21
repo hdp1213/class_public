@@ -3,14 +3,14 @@
 
 /*** Effective rate tables and associated parameters ***/
 
-#define ALPHA_FILE  "hyrec/data/Alpha_inf_extended.dat"     /* Effective recombination coefficients to 2s and 2p */
+#define ALPHA_FILE  "hyrec/data/Alpha_inf_unity.dat"     /* Effective recombination coefficients to 2s and 2p */
 #define RR_FILE     "hyrec/data/R_inf.dat"         /* Effective transfer rate R_{2p,2s} */
 #define TR_MIN 0.004                         /* Minimum Tr in eV */
 #define TR_MAX 0.4                           /* Maximum Tr in eV */
 #define NTR    100                           /* Number of Tr values */
 #define TM_TR_MIN 0.1                        /* Same thing for ratio Tm/Tr*/
-#define TM_TR_MAX 200.0
-#define NTM 100
+#define TM_TR_MAX 165481.70999431814
+#define NTM 200
 
 /*** Tables and parameters for radiative transfer calculation ***/
 
@@ -38,6 +38,6 @@
 #define EFFECT_D    1    /* Raman scattering from 2s and 3s/3d */
 #define DIFFUSION   1    /* Lyman alpha frequency diffusion */
 
-#define TM_TR_UNITY_IND 31 /* The entry in the TM_TR table equal to unity */
+#define TM_TR_UNITY_IND 33 /* The entry in the TM_TR table equal to unity */
 
 #endif
