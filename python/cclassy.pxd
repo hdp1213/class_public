@@ -264,9 +264,9 @@ cdef extern from "class.h":
     cdef int _TRUE_
 
     int input_init(void*, void*, void*, void*, void*, void*, void*, void*, void*,
-        void*, void*, char*)
+        void*, void*, void*, char*)
     int background_init(void*,void*)
-    int thermodynamics_init(void*,void*,void*)
+    int thermodynamics_init(void*,void*,void*,void*)
     int perturb_init(void*,void*,void*,void*)
     int primordial_init(void*,void*,void*)
     int nonlinear_init(void*,void*,void*,void*,void*,void*)
