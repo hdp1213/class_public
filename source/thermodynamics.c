@@ -498,6 +498,27 @@ int thermodynamics_init(
                pth->error_message);
   }
 
+  /* print out thermodynamics quantities right here, right now */
+
+  FileName file_name = "recomb.dat";
+  FILE * thermofile;
+
+  printf("Printing recomb params to %s\n", file_name);
+
+  class_open(thermofile,file_name,"w",pth->error_message);
+  double z, xe, Tb;
+  int i;
+
+  for (i = 0; i < preco->rt_size; ++i) {
+    z = preco->recombination_table[i*preco->re_size + preco->index_re_z];
+    xe = preco->recombination_table[i*preco->re_size + preco->index_re_xe];
+    Tb = preco->recombination_table[i*preco->re_size + preco->index_re_Tb];
+
+    fprintf(thermofile, "%24.12e %24.12e %24.12e \n", z, xe, Tb);
+  }
+
+  fclose(thermofile);
+
   /* quick memory hack */
   preio->reionization_table = NULL;
 
