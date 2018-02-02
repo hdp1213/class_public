@@ -2424,11 +2424,12 @@ int thermodynamics_reionization(
         }
 
         counter++;
-        class_test_except(counter > _MAX_IT_,
+        if (counter > _MAX_IT_) break;
+/*        class_test_except(counter > _MAX_IT_,
                           pth->error_message,
                           free(preio->reionization_parameters),
                           "while searching for reionization_optical_depth, maximum number of iterations exceeded");
-      }
+*/      }
 
       /* store z_reionization in thermodynamics structure */
       pth->z_reio=preio->reionization_parameters[preio->index_reio_redshift];
