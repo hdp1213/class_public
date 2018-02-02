@@ -288,7 +288,12 @@ Big F energy parameters for each channel for all PBH mass distributions
 int pbh_F(PBH *pbh, INJ_PARAMS *params, double z,
           double *F_ion, double *F_exc, double *F_heat,
           ErrorMsg error_message) {
-  if (params->mass_dist == pbh_delta) {
+  if (params->mass_dist == pbh_none) {
+    *F_ion = 0.;
+    *F_exc = 0.;
+    *F_heat = 0.;
+  }
+  else if (params->mass_dist == pbh_delta) {
     class_call(pbh_F_delta(pbh, params, z, F_ion, F_exc, F_heat, error_message),
                error_message,
                error_message);
