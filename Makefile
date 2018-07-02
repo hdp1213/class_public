@@ -157,12 +157,12 @@ INI_ALL = explanatory.ini lcdm.ini
 MISC_FILES = Makefile CPU psd_FD_single.dat myselection.dat myevolution.dat README bbn/sBBN.dat external_Pk/* cpp
 PYTHON_FILES = python/classy.pyx python/setup.py python/cclassy.pxd python/test_class.py
 
-all: class libclass.so classy
+all: class libclass_pbh.so classy
 
-libclass.a: $(TOOLS) $(SOURCE) $(EXTERNAL) $(OUTPUT)
+libclass_pbh.a: $(TOOLS) $(SOURCE) $(EXTERNAL) $(OUTPUT)
 	$(AR)  $@ $(addprefix build/, $(TOOLS) $(SOURCE) $(EXTERNAL) $(OUTPUT))
 
-libclass.so: $(TOOLS) $(SOURCE) $(EXTERNAL) $(OUTPUT)
+libclass_pbh.so: $(TOOLS) $(SOURCE) $(EXTERNAL) $(OUTPUT)
 	$(CC) -shared -o $@ $(addprefix build/, $(TOOLS) $(SOURCE) $(EXTERNAL) $(OUTPUT))
 
 class: $(TOOLS) $(SOURCE) $(EXTERNAL) $(OUTPUT) $(CLASS)
@@ -208,7 +208,7 @@ test_bicubic_spline: $(TOOLS) $(TEST_BICUBIC_SPLINE) $(EXTERNAL)
 tar: $(C_ALL) $(C_TEST) $(H_ALL) $(PRE_ALL) $(INI_ALL) $(MISC_FILES) $(HYREC) $(PYTHON_FILES)
 	tar czvf class.tar.gz $(C_ALL) $(H_ALL) $(PRE_ALL) $(INI_ALL) $(MISC_FILES) $(HYREC) $(PYTHON_FILES)
 
-classy: libclass.a python/classy.pyx python/cclassy.pxd
+classy: libclass_pbh.a python/classy.pyx python/cclassy.pxd
 ifdef OMPFLAG
 	cp python/setup.py python/autosetup.py
 else
@@ -219,6 +219,6 @@ endif
 
 clean: .base
 	rm -rf $(WRKDIR);
-	rm -f libclass.*
+	rm -f libclass_pbh.*
 	rm -f $(MDIR)/python/classy.c
 	rm -rf $(MDIR)/python/build
