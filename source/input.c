@@ -3674,6 +3674,7 @@ int input_try_unknown_parameters(double * unknown_parameter,
   int param;
   int computation_stage_failed = _FALSE_;
   short compute_sigma8 = _FALSE_;
+  enum computation_stage stage_reached;
 
   pfzw = (struct fzerofun_workspace *) voidpfzw;
 
@@ -3740,6 +3741,7 @@ int input_try_unknown_parameters(double * unknown_parameter,
                    ba.error_message,
                    errmsg,
                    computation_stage_failed=_TRUE_);
+    stage_reached = cs_background;
   }
 
   if ((computation_stage_failed == _FALSE_) && (pfzw->required_computation_stage >= cs_thermodynamics)){
@@ -3751,6 +3753,7 @@ int input_try_unknown_parameters(double * unknown_parameter,
                    th.error_message,
                    errmsg,
                    computation_stage_failed=_TRUE_);
+    stage_reached = cs_thermodynamics;
   }
 
   if ((computation_stage_failed == _FALSE_) && (pfzw->required_computation_stage >= cs_perturbations)){
@@ -3761,6 +3764,7 @@ int input_try_unknown_parameters(double * unknown_parameter,
                    pt.error_message,
                    errmsg,
                    computation_stage_failed=_TRUE_);
+    stage_reached = cs_perturbations;
   }
 
   if ((computation_stage_failed == _FALSE_) && (pfzw->required_computation_stage >= cs_primordial)){
@@ -3771,6 +3775,7 @@ int input_try_unknown_parameters(double * unknown_parameter,
                    pm.error_message,
                    errmsg,
                    computation_stage_failed=_TRUE_);
+    stage_reached = cs_primordial;
   }
 
   if ((computation_stage_failed == _FALSE_) && (pfzw->required_computation_stage >= cs_nonlinear)){
@@ -3781,6 +3786,7 @@ int input_try_unknown_parameters(double * unknown_parameter,
                    nl.error_message,
                    errmsg,
                    computation_stage_failed=_TRUE_);
+    stage_reached = cs_nonlinear;
   }
 
   if ((computation_stage_failed == _FALSE_) && (pfzw->required_computation_stage >= cs_transfer)){
@@ -3791,6 +3797,7 @@ int input_try_unknown_parameters(double * unknown_parameter,
                    tr.error_message,
                    errmsg,
                    computation_stage_failed=_TRUE_);
+    stage_reached = cs_transfer;
   }
 
   if ((computation_stage_failed == _FALSE_) && (pfzw->required_computation_stage >= cs_spectra)){
@@ -3801,6 +3808,7 @@ int input_try_unknown_parameters(double * unknown_parameter,
                    sp.error_message,
                    errmsg,
                    computation_stage_failed=_TRUE_);
+    stage_reached = cs_spectra;
   }
 
   if (computation_stage_failed == _FALSE_) {
@@ -3854,37 +3862,37 @@ int input_try_unknown_parameters(double * unknown_parameter,
 
 
   /** - Free structures */
-  if (pfzw->required_computation_stage >= cs_spectra){
+  if (stage_reached >= cs_spectra){
     if (input_verbose>2)
       printf("%s\n", "Stage 7: spectra_free");
     class_call(spectra_free(&sp), sp.error_message, errmsg);
   }
-  if (pfzw->required_computation_stage >= cs_transfer){
+  if (stage_reached >= cs_transfer){
     if (input_verbose>2)
       printf("%s\n", "Stage 6: transfer_free");
     class_call(transfer_free(&tr), tr.error_message, errmsg);
   }
-  if (pfzw->required_computation_stage >= cs_nonlinear){
+  if (stage_reached >= cs_nonlinear){
     if (input_verbose>2)
       printf("%s\n", "Stage 5: nonlinear_free");
     class_call(nonlinear_free(&nl), nl.error_message, errmsg);
   }
-  if (pfzw->required_computation_stage >= cs_primordial){
+  if (stage_reached >= cs_primordial){
     if (input_verbose>2)
       printf("%s\n", "Stage 4: primordial_free");
     class_call(primordial_free(&pm), pm.error_message, errmsg);
   }
-  if (pfzw->required_computation_stage >= cs_perturbations){
+  if (stage_reached >= cs_perturbations){
     if (input_verbose>2)
       printf("%s\n", "Stage 3: perturb_free");
     class_call(perturb_free(&pt), pt.error_message, errmsg);
   }
-  if (pfzw->required_computation_stage >= cs_thermodynamics){
+  if (stage_reached >= cs_thermodynamics){
     if (input_verbose>2)
       printf("%s\n", "Stage 2: thermodynamics_free");
     class_call(thermodynamics_free(&th), th.error_message, errmsg);
   }
-  if (pfzw->required_computation_stage >= cs_background){
+  if (stage_reached >= cs_background){
     if (input_verbose>2)
       printf("%s\n", "Stage 1: background_free");
     class_call(background_free(&ba), ba.error_message, errmsg);
