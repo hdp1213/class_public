@@ -1331,16 +1331,7 @@ int input_read_parameters(
     }
   }
 
-  class_call(parser_read_string(pfc,"pbh_root",&string1,&flag1,errmsg),
-             errmsg,
-             errmsg);
-
-  if (flag1 == _TRUE_) {
-    strcpy(string2, "pbh/");
-    strcat(string2, string1);
-
-    pth->pbh_spline_files_root = string2;
-  }
+  class_read_string("pbh_root", pth->pbh_spline_files_root);
 
   /** (c) define which perturbations and sources should be computed, and down to which scale */
 
@@ -3031,7 +3022,7 @@ int input_default_params(
   pth->pbh_mass_width = 1.e3;
 
   pth->read_external_files = _TRUE_;
-  pth->pbh_spline_files_root = "pbh/pbh_bspline_";
+  sprintf(pth->pbh_spline_files_root, "pbh/pbh_bspline_");
 
   pth->compute_cb2_derivatives=_FALSE_;
 

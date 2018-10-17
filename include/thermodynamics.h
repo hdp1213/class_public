@@ -163,7 +163,7 @@ struct thermo
 
   short read_external_files; /**< flag for reading in external files */
 
-  char * pbh_spline_files_root; /**< root filename for PBH energy deposition splines */
+  FileName pbh_spline_files_root; /**< root filename for PBH energy deposition splines */
 
   //@}
 
